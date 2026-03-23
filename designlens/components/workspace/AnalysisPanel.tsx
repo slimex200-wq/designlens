@@ -63,6 +63,13 @@ export function AnalysisPanel({ analysis, fileName, onClose }: AnalysisPanelProp
         ))}
       </div>
 
+      {/* AI unavailable banner */}
+      {analysis && !analysis.aiAvailable && (
+        <div className="mx-5 mt-3 px-3 py-2 rounded-md bg-warning-dim border border-[rgba(251,191,36,0.15)] text-[11px] text-warning leading-relaxed">
+          AI analysis unavailable — colors only. Typography, layout, and token data may be incomplete.
+        </div>
+      )}
+
       {/* Body */}
       {analysis ? (
         <div className="p-5 flex flex-col gap-5 flex-1">

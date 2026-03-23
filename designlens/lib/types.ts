@@ -44,6 +44,7 @@ export type AnalysisResult = {
   typography: TypographyInfo[];
   layout: LayoutInfo;
   tokens: TokenSet;
+  aiAvailable: boolean;
   createdAt: string;
 };
 

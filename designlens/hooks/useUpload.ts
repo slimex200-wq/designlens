@@ -98,7 +98,7 @@ async function processFile(
   // Call AI analysis API
   try {
     const formData = new FormData();
-    formData.append("file", file);
+    formData.append("image", file);
 
     const res = await fetch("/api/analyze", { method: "POST", body: formData });
     if (!res.ok) throw new Error(`API error: ${res.status}`);
@@ -109,6 +109,8 @@ async function processFile(
     const mergedColors =
       algorithmicColors.length > 0 ? algorithmicColors : aiResult.colors ?? [];
 
+    const aiAvailable = aiResult.aiAvailable !== false;
+
     const analysis: AnalysisResult = {
       id: `analysis_${Date.now()}`,
       imageHash: fileHash,
@@ -117,8 +119,17 @@ async function processFile(
       typography: aiResult.typography ?? [],
       layout: aiResult.layout ?? { type: "unknown", spacing: {}, grid: "" },
       tokens: aiResult.tokens ?? { colors: {}, spacing: {}, radius: {}, typography: [] },
+      aiAvailable,
       createdAt: new Date().toISOString(),
     };
+
+    if (!aiAvailable) {
+      showToast?.(
+        "error",
+        "AI analysis unavailable — showing color extraction only.",
+        { label: "Retry", onClick: () => processFile(file, refId, projectId, updateReference, showToast) }
+      );
+    }
 
     const saved = setCachedAnalysis(fileHash, analysis);
     if (!saved) {
@@ -151,8 +162,15 @@ async function processFile(
           radius: {},
           typography: [],
         },
+        aiAvailable: false,
         createdAt: new Date().toISOString(),
       };
+
+      showToast?.(
+        "error",
+        "AI analysis failed — showing color extraction only.",
+        { label: "Retry", onClick: () => processFile(file, refId, projectId, updateReference, showToast) }
+      );
 
       const saved = setCachedAnalysis(fileHash, partialAnalysis);
       if (!saved) {

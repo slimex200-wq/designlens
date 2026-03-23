@@ -36,7 +36,11 @@ export function FeedbackBar({ analysis }: FeedbackBarProps) {
     <div className="h-[52px] border-t border-border bg-bg-surface flex items-center px-5 gap-3 flex-shrink-0">
       <span
         className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${
-          hasAnalysis ? "bg-success animate-pulse" : "bg-text-tertiary"
+          hasAnalysis
+            ? analysis.aiAvailable
+              ? "bg-success animate-pulse"
+              : "bg-warning animate-pulse"
+            : "bg-text-tertiary"
         }`}
       />
       <span className="text-xs text-text-secondary flex-1">
