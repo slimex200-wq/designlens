@@ -106,6 +106,30 @@ export function MoodboardGrid({ references, onSelectRef }: MoodboardGridProps) {
             {references.length} {t("referencesLabel").toLowerCase()}
           </span>
         </div>
+
+        {/* Aggregated color palette strip (per spec: at top of grid) */}
+        {aggregatedColors.length > 0 && (
+          <div className="mb-4">
+            <span className="text-[10px] uppercase tracking-[1.2px] text-text-tertiary font-semibold mb-1.5 block">
+              {t("colorPalette")}
+            </span>
+            <div className="flex gap-1 h-8 rounded-lg overflow-hidden">
+              {aggregatedColors.map((c, i) => (
+                <div
+                  key={i}
+                  className="flex-1 transition-all hover:flex-[2] cursor-pointer relative group/strip"
+                  style={{ backgroundColor: c.hex }}
+                  title={`${c.hex} — ${c.role}`}
+                >
+                  <span className="absolute bottom-0 left-0 right-0 text-center text-[8px] text-white opacity-0 group-hover/strip:opacity-100 transition-opacity bg-black/50 py-0.5">
+                    {c.hex}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         <div className="grid grid-cols-2 gap-3">
           {references.map((ref) => {
             const isActive = focusedId === ref.id;
