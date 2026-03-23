@@ -184,6 +184,13 @@
     "layout": "Layout",
     "unpin": "Unpin"
   },
+  "refDetail": {
+    "noAnalysis": "This reference hasn't been analyzed yet.",
+    "colors": "Colors",
+    "typography": "Typography",
+    "layout": "Layout",
+    "tokens": "Tokens"
+  },
   "review": {
     "title": "UI Review",
     "emptyState": "Analyze at least one reference first to build a design system for comparison.",

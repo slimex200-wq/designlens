@@ -1,8 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import type { ReferenceImage, ColorInfo, AnalysisResult } from "@/lib/types";
+import { RefDetailModal } from "./RefDetailModal";
 
 interface MoodboardGridProps {
   references: ReferenceImage[];
@@ -11,7 +12,7 @@ interface MoodboardGridProps {
 
 export function MoodboardGrid({ references, onSelectRef }: MoodboardGridProps) {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
-  const [pinnedId, setPinnedId] = useState<string | null>(null);
+  const [modalRefId, setModalRefId] = useState<string | null>(null);
   const [patterns, setPatterns] = useState<string[] | null>(null);
   const [loadingPatterns, setLoadingPatterns] = useState(false);
   const t = useTranslations("moodboard");
@@ -21,8 +22,8 @@ export function MoodboardGrid({ references, onSelectRef }: MoodboardGridProps) {
     [references]
   );
 
-  // Priority: pinned > hovered > aggregate
-  const focusedId = pinnedId ?? hoveredId;
+  // Hover drives the insights panel
+  const focusedId = hoveredId;
   const focusedRef = focusedId
     ? references.find((r) => r.id === focusedId) ?? null
     : null;
@@ -111,7 +112,7 @@ export function MoodboardGrid({ references, onSelectRef }: MoodboardGridProps) {
             return (
               <button
                 key={ref.id}
-                onClick={() => setPinnedId(pinnedId === ref.id ? null : ref.id)}
+                onClick={() => setModalRefId(ref.id)}
                 onMouseEnter={() => setHoveredId(ref.id)}
                 onMouseLeave={() => setHoveredId(null)}
                 className={`group rounded-lg border bg-bg-deep overflow-hidden transition-all cursor-pointer text-left ${
@@ -160,15 +161,7 @@ export function MoodboardGrid({ references, onSelectRef }: MoodboardGridProps) {
           <h3 className="text-[13px] font-semibold text-text-primary truncate">
             {focusedAnalysis ? focusedRef!.fileName : t("insights")}
           </h3>
-          {pinnedId && (
-            <button
-              onClick={() => setPinnedId(null)}
-              className="text-[9px] px-1.5 py-0.5 rounded bg-accent-dim text-accent font-medium cursor-pointer hover:bg-accent-border transition-colors flex-shrink-0"
-            >
-              {t("unpin")}
-            </button>
-          )}
-          {!pinnedId && hoveredId && focusedAnalysis && (
+          {hoveredId && focusedAnalysis && (
             <span className="text-[9px] px-1.5 py-0.5 rounded bg-bg-elevated text-text-tertiary font-medium flex-shrink-0">
               HOVER
             </span>
@@ -283,6 +276,17 @@ export function MoodboardGrid({ references, onSelectRef }: MoodboardGridProps) {
           </>
         )}
       </div>
+
+      {/* Detail modal */}
+      {modalRefId && (() => {
+        const modalRef = references.find((r) => r.id === modalRefId);
+        return modalRef ? (
+          <RefDetailModal
+            reference={modalRef}
+            onClose={() => setModalRefId(null)}
+          />
+        ) : null;
+      })()}
     </div>
   );
 }
