@@ -1,16 +1,19 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import type { Project } from "@/lib/types";
+import { LocaleToggle } from "@/components/ui/LocaleToggle";
 
 type Tool = "analyze" | "moodboard" | "review" | "tokens";
 
-const TOOLS: { id: Tool; label: string; icon: string }[] = [
-  { id: "analyze", label: "Analyze", icon: "\u2699" },
-  { id: "moodboard", label: "Moodboard", icon: "\u25A3" },
-  { id: "review", label: "UI Review", icon: "\u2713" },
-  { id: "tokens", label: "Tokens", icon: "{ }" },
-];
+const TOOL_IDS: Tool[] = ["analyze", "moodboard", "review", "tokens"];
+const TOOL_ICONS: Record<Tool, string> = {
+  analyze: "\u2699",
+  moodboard: "\u25A3",
+  review: "\u2713",
+  tokens: "{ }",
+};
 
 interface SidebarProps {
   activeTool: Tool;
@@ -29,6 +32,7 @@ export function Sidebar({
   onProjectChange,
   refCount,
 }: SidebarProps) {
+  const t = useTranslations("sidebar");
   const [collapsed, setCollapsed] = useState(() => {
     if (typeof window === "undefined") return false;
     return localStorage.getItem("sidebar-collapsed") === "true";
@@ -37,6 +41,13 @@ export function Sidebar({
   useEffect(() => {
     localStorage.setItem("sidebar-collapsed", String(collapsed));
   }, [collapsed]);
+
+  const toolLabels: Record<Tool, string> = {
+    analyze: t("analyze"),
+    moodboard: t("moodboard"),
+    review: t("uiReview"),
+    tokens: t("tokens"),
+  };
 
   return (
     <aside
@@ -52,7 +63,7 @@ export function Sidebar({
         <button
           onClick={() => setCollapsed((c) => !c)}
           className={`w-6 h-6 rounded-md bg-bg-elevated border border-border flex items-center justify-center text-[10px] text-text-secondary cursor-pointer hover:border-border-hover hover:text-text-primary transition-all ${collapsed ? "mx-auto" : "ml-auto"}`}
-          title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          title={collapsed ? t("expandSidebar") : t("collapseSidebar")}
         >
           {collapsed ? "\u276F" : "\u276E"}
         </button>
@@ -62,31 +73,31 @@ export function Sidebar({
       <div className="py-3 px-1.5">
         {!collapsed && (
           <div className="text-[10px] uppercase tracking-[1.2px] text-text-tertiary px-2 mb-1.5 font-semibold">
-            Tools
+            {t("tools")}
           </div>
         )}
-        {TOOLS.map((tool) => (
+        {TOOL_IDS.map((id) => (
           <button
-            key={tool.id}
-            onClick={() => onToolChange(tool.id)}
-            title={collapsed ? tool.label : undefined}
+            key={id}
+            onClick={() => onToolChange(id)}
+            title={collapsed ? toolLabels[id] : undefined}
             className={`w-full flex items-center ${collapsed ? "justify-center" : ""} gap-2 px-2 py-1.5 rounded-md text-[13px] tracking-tight transition-all cursor-pointer ${
-              activeTool === tool.id
+              activeTool === id
                 ? "bg-accent-dim text-accent"
                 : "text-text-secondary hover:bg-bg-hover hover:text-text-primary"
             }`}
           >
             <span
               className={`w-[18px] text-center text-xs flex-shrink-0 ${
-                activeTool === tool.id ? "opacity-100" : "opacity-60"
+                activeTool === id ? "opacity-100" : "opacity-60"
               }`}
             >
-              {tool.icon}
+              {TOOL_ICONS[id]}
             </span>
             {!collapsed && (
               <>
-                {tool.label}
-                {tool.id === "analyze" && refCount > 0 && (
+                {toolLabels[id]}
+                {id === "analyze" && refCount > 0 && (
                   <span className="ml-auto text-[10px] px-1.5 py-px rounded-full bg-accent-dim text-accent-text font-medium">
                     {refCount}
                   </span>
@@ -104,7 +115,7 @@ export function Sidebar({
       <div className="py-3 px-1.5">
         {!collapsed && (
           <div className="text-[10px] uppercase tracking-[1.2px] text-text-tertiary px-2 mb-1.5 font-semibold">
-            Projects
+            {t("projects")}
           </div>
         )}
         {projects.map((project) => (
@@ -138,26 +149,27 @@ export function Sidebar({
       <div className="mt-auto p-2 border-t border-border">
         <a
           href="/app/trends"
-          title={collapsed ? "Trends" : undefined}
+          title={collapsed ? t("trends") : undefined}
           className={`flex items-center ${collapsed ? "justify-center" : ""} gap-2 px-2 py-1.5 rounded-md text-xs text-text-tertiary cursor-pointer hover:bg-bg-hover hover:text-text-secondary transition-all`}
         >
           <span className="text-xs flex-shrink-0">{"\u2197"}</span>
-          {!collapsed && " Trends"}
+          {!collapsed && ` ${t("trends")}`}
         </a>
         <div
-          title={collapsed ? "Settings" : undefined}
+          title={collapsed ? t("settings") : undefined}
           className={`flex items-center ${collapsed ? "justify-center" : ""} gap-2 px-2 py-1.5 rounded-md text-xs text-text-tertiary cursor-pointer hover:bg-bg-hover hover:text-text-secondary transition-all`}
         >
           <span className="text-xs flex-shrink-0">{"\u2699"}</span>
-          {!collapsed && " Settings"}
+          {!collapsed && ` ${t("settings")}`}
         </div>
         <div
-          title={collapsed ? "Help & Docs" : undefined}
+          title={collapsed ? t("helpDocs") : undefined}
           className={`flex items-center ${collapsed ? "justify-center" : ""} gap-2 px-2 py-1.5 rounded-md text-xs text-text-tertiary cursor-pointer hover:bg-bg-hover hover:text-text-secondary transition-all`}
         >
           <span className="text-xs flex-shrink-0">?</span>
-          {!collapsed && " Help & Docs"}
+          {!collapsed && ` ${t("helpDocs")}`}
         </div>
+        <LocaleToggle collapsed={collapsed} />
       </div>
     </aside>
   );

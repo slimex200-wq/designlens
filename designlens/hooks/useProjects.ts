@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import type { Project, ReferenceImage } from "@/lib/types";
 import { getProjects, saveProjectsSafe } from "@/lib/storage";
+import { SAMPLE_PROJECT } from "@/lib/sample-project";
 
 const DEFAULT_PROJECT: Project = {
   id: "default",
@@ -14,14 +15,15 @@ const DEFAULT_PROJECT: Project = {
 
 export function useProjects() {
   const [projects, setProjects] = useState<Project[]>([]);
-  const [activeProjectId, setActiveProjectId] = useState<string>("default");
+  const [activeProjectId, setActiveProjectId] = useState<string>("sample");
 
   useEffect(() => {
     const stored = getProjects();
     if (stored.length === 0) {
-      const initial = [DEFAULT_PROJECT];
+      const initial = [SAMPLE_PROJECT, DEFAULT_PROJECT];
       saveProjectsSafe(initial);
       setProjects(initial);
+      setActiveProjectId("sample");
     } else {
       setProjects(stored);
       setActiveProjectId(stored[0].id);

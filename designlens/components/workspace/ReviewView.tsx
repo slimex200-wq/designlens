@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef, useMemo } from "react";
+import { useTranslations } from "next-intl";
 import type { ReferenceImage, TokenSet, ReviewResult, ReviewIssue } from "@/lib/types";
 
 interface ReviewViewProps {
@@ -17,6 +18,8 @@ export function ReviewView({ references, onToolChange }: ReviewViewProps) {
   const [isDragging, setIsDragging] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const fileRef = useRef<File | null>(null);
+  const t = useTranslations("review");
+  const tc = useTranslations("common");
 
   const analyzedRefs = useMemo(
     () => references.filter((r) => r.status === "analyzed" && r.analysis),
@@ -101,13 +104,13 @@ export function ReviewView({ references, onToolChange }: ReviewViewProps) {
             &#x2713;
           </div>
           <p className="text-sm text-text-secondary mb-4">
-            Analyze at least one reference first to build a design system for comparison.
+            {t("emptyState")}
           </p>
           <button
             onClick={() => onToolChange("analyze")}
             className="px-4 py-2 rounded-md text-xs bg-accent-dim text-accent border border-accent-border font-medium hover:opacity-85 transition-opacity cursor-pointer"
           >
-            Go to Analyze
+            {tc("goToAnalyze")}
           </button>
         </div>
       </div>
@@ -141,12 +144,12 @@ export function ReviewView({ references, onToolChange }: ReviewViewProps) {
             }}
           />
           <div className="text-2xl text-text-tertiary mb-3">&#x2713;</div>
-          <h4 className="text-sm font-medium mb-1">Drop your UI screenshot to review</h4>
+          <h4 className="text-sm font-medium mb-1">{t("dropTitle")}</h4>
           <p className="text-[11px] text-text-tertiary">
-            We&apos;ll compare it against your design system
+            {t("dropDescription")}
           </p>
           <p className="text-[10px] text-text-tertiary mt-3">
-            Design system built from {analyzedRefs.length} reference{analyzedRefs.length !== 1 ? "s" : ""}
+            {t("designSystemFrom", { count: analyzedRefs.length })}
           </p>
         </div>
       </div>
@@ -178,17 +181,17 @@ export function ReviewView({ references, onToolChange }: ReviewViewProps) {
     <div className="flex-1 flex flex-col overflow-hidden">
       {/* Top bar */}
       <div className="h-10 flex items-center px-4 border-b border-border gap-3 flex-shrink-0">
-        <span className="text-[13px] font-medium text-text-primary">UI Review</span>
+        <span className="text-[13px] font-medium text-text-primary">{t("title")}</span>
         {reviewResult && (
           <span className={`text-sm font-bold ${scoreColor}`}>{reviewResult.score}/100</span>
         )}
-        {loading && <span className="text-[11px] text-text-tertiary animate-pulse">Analyzing...</span>}
+        {loading && <span className="text-[11px] text-text-tertiary animate-pulse">{t("analyzingUi")}</span>}
         {error && <span className="text-[11px] text-error">{error}</span>}
         <button
           onClick={dismiss}
           className="ml-auto px-3 py-1 rounded-md text-xs bg-bg-elevated border border-border text-text-secondary cursor-pointer font-medium hover:border-border-hover hover:text-text-primary transition-all"
         >
-          Dismiss
+          {tc("dismiss")}
         </button>
       </div>
 
@@ -237,14 +240,14 @@ export function ReviewView({ references, onToolChange }: ReviewViewProps) {
               {/* Score badge */}
               <div className="text-center py-4">
                 <div className={`text-5xl font-bold ${scoreColor}`}>{reviewResult.score}</div>
-                <div className="text-[11px] text-text-tertiary mt-1">Design System Score</div>
+                <div className="text-[11px] text-text-tertiary mt-1">{t("designSystemScore")}</div>
               </div>
 
               <div className="h-px bg-border" />
 
               {/* Issues list */}
               <div className="text-[11px] text-text-tertiary font-medium uppercase tracking-wider">
-                {sortedIssues.length} Issue{sortedIssues.length !== 1 ? "s" : ""} Found
+                {t("issuesFound", { count: sortedIssues.length })}
               </div>
               {sortedIssues.map((issue, i) => (
                 <button
@@ -277,14 +280,14 @@ export function ReviewView({ references, onToolChange }: ReviewViewProps) {
               ))}
               {sortedIssues.length === 0 && (
                 <p className="text-[12px] text-text-tertiary text-center py-4">
-                  No issues found. Your UI matches the design system well.
+                  {t("noIssues")}
                 </p>
               )}
             </div>
           ) : (
             <div className="flex-1 flex items-center justify-center h-full">
               <p className="text-[13px] text-text-tertiary text-center p-5">
-                {loading ? "Analyzing your UI..." : "Review results will appear here"}
+                {loading ? t("analyzingUi") : t("resultsPlaceholder")}
               </p>
             </div>
           )}

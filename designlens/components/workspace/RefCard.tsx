@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import type { ReferenceImage } from "@/lib/types";
 
 interface RefCardProps {
@@ -9,6 +10,8 @@ interface RefCardProps {
 }
 
 export function RefCard({ reference, selected, onClick }: RefCardProps) {
+  const t = useTranslations("refCard");
+
   const statusClasses: Record<string, string> = {
     analyzed: "bg-success-dim text-success",
     processing: "bg-accent-dim text-accent",
@@ -17,10 +20,10 @@ export function RefCard({ reference, selected, onClick }: RefCardProps) {
   };
 
   const statusLabel: Record<string, string> = {
-    analyzed: "Analyzed",
-    processing: "Processing...",
-    uploading: "Uploading...",
-    error: "Error",
+    analyzed: t("analyzed"),
+    processing: t("processing"),
+    uploading: t("uploading"),
+    error: t("error"),
   };
 
   return (
@@ -56,9 +59,9 @@ export function RefCard({ reference, selected, onClick }: RefCardProps) {
         <h5 className="text-[11px] font-medium mb-0.5 truncate">{reference.fileName}</h5>
         <span className="text-[10px] text-text-tertiary">
           {reference.analysis
-            ? `${reference.analysis.colors.length} colors`
+            ? t("colorsCount", { count: reference.analysis.colors.length })
             : reference.status === "processing"
-            ? "Analyzing..."
+            ? t("analyzing")
             : ""}
         </span>
       </div>

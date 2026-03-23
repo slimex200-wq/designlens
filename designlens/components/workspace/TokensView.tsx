@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import type { ReferenceImage, TokenSet } from "@/lib/types";
 import { exportTokens } from "@/lib/tokens";
 
@@ -14,6 +15,8 @@ type ExportFormat = "css" | "tailwind" | "json";
 export function TokensView({ references, onToolChange }: TokensViewProps) {
   const [format, setFormat] = useState<ExportFormat>("css");
   const [copied, setCopied] = useState(false);
+  const t = useTranslations("tokensView");
+  const tc = useTranslations("common");
 
   const analyzedRefs = useMemo(
     () => references.filter((r) => r.status === "analyzed" && r.analysis),
@@ -23,11 +26,11 @@ export function TokensView({ references, onToolChange }: TokensViewProps) {
   const mergedTokens = useMemo((): TokenSet => {
     const merged: TokenSet = { colors: {}, spacing: {}, radius: {}, typography: [] };
     for (const ref of analyzedRefs) {
-      const t = ref.analysis!.tokens;
-      Object.assign(merged.colors, t.colors);
-      Object.assign(merged.spacing, t.spacing);
-      Object.assign(merged.radius, t.radius);
-      merged.typography.push(...t.typography);
+      const tk = ref.analysis!.tokens;
+      Object.assign(merged.colors, tk.colors);
+      Object.assign(merged.spacing, tk.spacing);
+      Object.assign(merged.radius, tk.radius);
+      merged.typography.push(...tk.typography);
     }
     return merged;
   }, [analyzedRefs]);
@@ -40,10 +43,10 @@ export function TokensView({ references, onToolChange }: TokensViewProps) {
     });
   }, [mergedTokens, format]);
 
-  const groups: { title: string; entries: [string, string][]; colorPreview?: boolean }[] = [
-    { title: "Colors", entries: Object.entries(mergedTokens.colors), colorPreview: true },
-    { title: "Spacing", entries: Object.entries(mergedTokens.spacing) },
-    { title: "Radius", entries: Object.entries(mergedTokens.radius) },
+  const groups: { title: string; key: string; entries: [string, string][]; colorPreview?: boolean }[] = [
+    { title: t("colors"), key: "colors", entries: Object.entries(mergedTokens.colors), colorPreview: true },
+    { title: t("spacing"), key: "spacing", entries: Object.entries(mergedTokens.spacing) },
+    { title: t("radius"), key: "radius", entries: Object.entries(mergedTokens.radius) },
   ];
 
   const hasTokens = groups.some((g) => g.entries.length > 0) || mergedTokens.typography.length > 0;
@@ -56,13 +59,13 @@ export function TokensView({ references, onToolChange }: TokensViewProps) {
             {"{ }"}
           </div>
           <p className="text-sm text-text-secondary mb-4">
-            Analyze references first to generate design tokens for export.
+            {t("emptyState")}
           </p>
           <button
             onClick={() => onToolChange("analyze")}
             className="px-4 py-2 rounded-md text-xs bg-accent-dim text-accent border border-accent-border font-medium hover:opacity-85 transition-opacity cursor-pointer"
           >
-            Go to Analyze
+            {tc("goToAnalyze")}
           </button>
         </div>
       </div>
@@ -74,22 +77,22 @@ export function TokensView({ references, onToolChange }: TokensViewProps) {
       {/* Left: Token list */}
       <div className="flex-1 p-5 overflow-y-auto">
         <div className="flex justify-between items-center mb-5">
-          <h2 className="text-lg font-semibold tracking-tight">Design Tokens</h2>
+          <h2 className="text-lg font-semibold tracking-tight">{t("title")}</h2>
           <span className="text-[11px] text-text-tertiary">
-            from {analyzedRefs.length} reference{analyzedRefs.length !== 1 ? "s" : ""}
+            {t("fromReferences", { count: analyzedRefs.length })}
           </span>
         </div>
 
         {!hasTokens && (
           <p className="text-sm text-text-tertiary">
-            AI analysis didn&apos;t extract tokens. Try uploading more detailed UI screenshots.
+            {t("noTokens")}
           </p>
         )}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-5">
           {groups.map((group) =>
             group.entries.length > 0 ? (
-              <div key={group.title} className="rounded-lg border border-border bg-bg-surface p-4">
+              <div key={group.key} className="rounded-lg border border-border bg-bg-surface p-4">
                 <div className="text-[10px] uppercase tracking-[1.2px] text-text-tertiary font-semibold mb-3">
                   {group.title}
                 </div>
@@ -119,18 +122,18 @@ export function TokensView({ references, onToolChange }: TokensViewProps) {
           {mergedTokens.typography.length > 0 && (
             <div className="rounded-lg border border-border bg-bg-surface p-4">
               <div className="text-[10px] uppercase tracking-[1.2px] text-text-tertiary font-semibold mb-3">
-                Typography
+                {t("typography")}
               </div>
               <div className="flex flex-col gap-1">
-                {mergedTokens.typography.map((t, i) => (
+                {mergedTokens.typography.map((tk, i) => (
                   <div
                     key={i}
                     className="flex items-center font-mono text-[11px] px-2 py-1.5 rounded hover:bg-bg-hover transition-colors"
                   >
-                    <span className="text-accent-text">{t.role}</span>
+                    <span className="text-accent-text">{tk.role}</span>
                     <span className="text-text-tertiary mx-1.5">:</span>
                     <span className="text-text-secondary">
-                      {t.size}/{t.weight}
+                      {tk.size}/{tk.weight}
                     </span>
                   </div>
                 ))}
@@ -142,7 +145,7 @@ export function TokensView({ references, onToolChange }: TokensViewProps) {
 
       {/* Right: Export panel */}
       <div className="w-[280px] border-l border-border bg-bg-surface p-4 flex flex-col gap-4 flex-shrink-0">
-        <h3 className="text-[13px] font-semibold text-text-primary">Export</h3>
+        <h3 className="text-[13px] font-semibold text-text-primary">{t("export")}</h3>
 
         {/* Format selection */}
         <div className="flex flex-col gap-1.5">
@@ -156,7 +159,7 @@ export function TokensView({ references, onToolChange }: TokensViewProps) {
                   : "border-border text-text-secondary bg-bg-deep hover:border-border-hover hover:text-text-primary"
               }`}
             >
-              {f === "css" ? "CSS Custom Properties" : f === "tailwind" ? "Tailwind Config" : "JSON"}
+              {f === "css" ? t("cssProperties") : f === "tailwind" ? t("tailwindConfig") : t("json")}
             </button>
           ))}
         </div>
@@ -173,29 +176,29 @@ export function TokensView({ references, onToolChange }: TokensViewProps) {
           onClick={handleExport}
           className="w-full py-2.5 rounded-md bg-text-primary text-bg-deep text-[12px] font-semibold cursor-pointer hover:opacity-85 transition-opacity"
         >
-          {copied ? "Copied!" : "Copy to Clipboard"}
+          {copied ? tc("copied") : tc("copy")}
         </button>
 
         {/* Stats */}
         <div className="h-px bg-border" />
         <div className="flex flex-col gap-1.5">
           <span className="text-[10px] uppercase tracking-[1.2px] text-text-tertiary font-semibold">
-            Summary
+            {t("summary")}
           </span>
           <div className="flex justify-between text-[11px]">
-            <span className="text-text-tertiary">Colors</span>
+            <span className="text-text-tertiary">{t("colors")}</span>
             <span className="text-text-secondary">{Object.keys(mergedTokens.colors).length}</span>
           </div>
           <div className="flex justify-between text-[11px]">
-            <span className="text-text-tertiary">Spacing</span>
+            <span className="text-text-tertiary">{t("spacing")}</span>
             <span className="text-text-secondary">{Object.keys(mergedTokens.spacing).length}</span>
           </div>
           <div className="flex justify-between text-[11px]">
-            <span className="text-text-tertiary">Radius</span>
+            <span className="text-text-tertiary">{t("radius")}</span>
             <span className="text-text-secondary">{Object.keys(mergedTokens.radius).length}</span>
           </div>
           <div className="flex justify-between text-[11px]">
-            <span className="text-text-tertiary">Typography</span>
+            <span className="text-text-tertiary">{t("typography")}</span>
             <span className="text-text-secondary">{mergedTokens.typography.length}</span>
           </div>
         </div>

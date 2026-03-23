@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import type { ReferenceImage } from "@/lib/types";
 import { UploadZone } from "./UploadZone";
 import { RefCard } from "./RefCard";
@@ -12,12 +13,15 @@ interface RefGridProps {
 }
 
 export function RefGrid({ references, selectedRefId, onSelectRef, onFiles }: RefGridProps) {
+  const t = useTranslations("refGrid");
+  const tc = useTranslations("common");
+
   return (
     <div className="flex-1 p-5 overflow-y-auto flex flex-col gap-4">
       {/* Header */}
       <div className="flex justify-between items-center">
-        <h2 className="text-lg font-semibold tracking-tight">References</h2>
-        <span className="text-[11px] text-text-tertiary">{references.length} files</span>
+        <h2 className="text-lg font-semibold tracking-tight">{t("title")}</h2>
+        <span className="text-[11px] text-text-tertiary">{tc("files", { count: references.length })}</span>
       </div>
 
       {/* Upload zone */}

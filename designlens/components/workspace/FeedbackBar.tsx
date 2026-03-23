@@ -1,12 +1,14 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import type { AnalysisResult } from "@/lib/types";
 
 interface FeedbackBarProps {
   analysis: AnalysisResult | null;
 }
 
-function generateInsight(analysis: AnalysisResult): string {
+function useGenerateInsight(analysis: AnalysisResult) {
+  const t = useTranslations("feedbackBar");
   const colorCount = analysis.colors.length;
   const bgColor = analysis.colors.find((c) => c.role === "background");
   const accentColor = analysis.colors.find((c) => c.role === "accent");
@@ -17,19 +19,20 @@ function generateInsight(analysis: AnalysisResult): string {
     const isLight = bgColor.hex.replace("#", "").split("").reduce((sum, c, i) => {
       return i % 2 === 0 ? sum + parseInt(c, 16) : sum;
     }, 0) > 20;
-    parts.push(isLight ? "light theme detected" : "dark theme detected");
+    parts.push(isLight ? t("lightTheme") : t("darkTheme"));
   }
 
-  parts.push(`${colorCount} colors extracted`);
+  parts.push(t("colorsExtracted", { count: colorCount }));
 
   if (accentColor) {
-    parts.push(`accent color ${accentColor.hex.toUpperCase()}`);
+    parts.push(t("accentColor", { hex: accentColor.hex.toUpperCase() }));
   }
 
   return parts.join(", ") + ".";
 }
 
 export function FeedbackBar({ analysis }: FeedbackBarProps) {
+  const t = useTranslations("feedbackBar");
   const hasAnalysis = analysis !== null;
 
   return (
@@ -45,19 +48,28 @@ export function FeedbackBar({ analysis }: FeedbackBarProps) {
       />
       <span className="text-xs text-text-secondary flex-1">
         {hasAnalysis ? (
-          <>
-            <strong className="text-text-primary font-medium">AI Insight:</strong>{" "}
-            {generateInsight(analysis)}
-          </>
+          <FeedbackContent analysis={analysis} />
         ) : (
-          "Upload references to get AI insights"
+          t("uploadPrompt")
         )}
       </span>
       {hasAnalysis && (
         <button className="px-3 py-1.5 rounded-md text-[11px] bg-accent-dim border border-accent-border text-accent cursor-pointer font-medium hover:bg-[rgba(147,197,253,0.12)] transition-all">
-          View Details
+          {t("viewDetails")}
         </button>
       )}
     </div>
+  );
+}
+
+function FeedbackContent({ analysis }: { analysis: AnalysisResult }) {
+  const t = useTranslations("feedbackBar");
+  const insight = useGenerateInsight(analysis);
+
+  return (
+    <>
+      <strong className="text-text-primary font-medium">{t("aiInsight")}</strong>{" "}
+      {insight}
+    </>
   );
 }

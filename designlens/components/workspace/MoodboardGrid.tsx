@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 import type { ReferenceImage, ColorInfo } from "@/lib/types";
 
 interface MoodboardGridProps {
@@ -11,6 +12,7 @@ interface MoodboardGridProps {
 export function MoodboardGrid({ references, onSelectRef }: MoodboardGridProps) {
   const [patterns, setPatterns] = useState<string[] | null>(null);
   const [loadingPatterns, setLoadingPatterns] = useState(false);
+  const t = useTranslations("moodboard");
 
   const analyzedRefs = useMemo(
     () => references.filter((r) => r.status === "analyzed" && r.analysis),
@@ -75,7 +77,7 @@ export function MoodboardGrid({ references, onSelectRef }: MoodboardGridProps) {
   if (references.length === 0) {
     return (
       <div className="flex-1 flex items-center justify-center">
-        <p className="text-sm text-text-tertiary">No references yet. Upload some to get started.</p>
+        <p className="text-sm text-text-tertiary">{t("noReferences")}</p>
       </div>
     );
   }
@@ -85,8 +87,8 @@ export function MoodboardGrid({ references, onSelectRef }: MoodboardGridProps) {
       {/* Left: Compact image grid */}
       <div className="flex-1 p-5 overflow-y-auto">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-semibold tracking-tight">Moodboard</h2>
-          <span className="text-[11px] text-text-tertiary">{references.length} references</span>
+          <h2 className="text-lg font-semibold tracking-tight">{t("title")}</h2>
+          <span className="text-[11px] text-text-tertiary">{references.length} {t("referencesLabel").toLowerCase()}</span>
         </div>
         <div className="grid grid-cols-3 gap-2">
           {references.map((ref) => (
@@ -130,13 +132,13 @@ export function MoodboardGrid({ references, onSelectRef }: MoodboardGridProps) {
 
       {/* Right: Insights panel */}
       <div className="w-[280px] border-l border-border bg-bg-surface p-4 overflow-y-auto flex flex-col gap-4 flex-shrink-0">
-        <h3 className="text-[13px] font-semibold text-text-primary">Insights</h3>
+        <h3 className="text-[13px] font-semibold text-text-primary">{t("insights")}</h3>
 
         {/* Color Palette */}
         {aggregatedColors.length > 0 && (
           <div className="flex flex-col gap-2">
             <span className="text-[10px] uppercase tracking-[1.2px] text-text-tertiary font-semibold">
-              Color Palette
+              {t("colorPalette")}
             </span>
             <div className="flex gap-1 h-7 rounded-lg overflow-hidden">
               {aggregatedColors.map((c, i) => (
@@ -170,14 +172,14 @@ export function MoodboardGrid({ references, onSelectRef }: MoodboardGridProps) {
 
         <div className="h-px bg-border" />
 
-        {/* Analyze Patterns — prominent placement */}
+        {/* Analyze Patterns */}
         {analyzedRefs.length >= 2 && !patterns && (
           <button
             onClick={analyzePatterns}
             disabled={loadingPatterns}
             className="w-full py-2.5 rounded-md text-xs bg-accent-dim text-accent border border-accent-border font-medium hover:opacity-85 transition-opacity cursor-pointer disabled:opacity-50"
           >
-            {loadingPatterns ? "Analyzing..." : "Analyze Patterns"}
+            {loadingPatterns ? t("analyzing") : t("analyzePatterns")}
           </button>
         )}
 
@@ -185,7 +187,7 @@ export function MoodboardGrid({ references, onSelectRef }: MoodboardGridProps) {
         {patterns && (
           <div className="flex flex-col gap-2">
             <span className="text-[10px] uppercase tracking-[1.2px] text-text-tertiary font-semibold">
-              Common Patterns
+              {t("commonPatterns")}
             </span>
             <ul className="flex flex-col gap-2">
               {patterns.map((p, i) => (
@@ -204,18 +206,18 @@ export function MoodboardGrid({ references, onSelectRef }: MoodboardGridProps) {
             <div className="h-px bg-border" />
             <div className="flex flex-col gap-1.5">
               <span className="text-[10px] uppercase tracking-[1.2px] text-text-tertiary font-semibold">
-                Summary
+                {t("summary")}
               </span>
               <div className="flex justify-between text-[11px]">
-                <span className="text-text-tertiary">References</span>
+                <span className="text-text-tertiary">{t("referencesLabel")}</span>
                 <span className="text-text-secondary">{references.length}</span>
               </div>
               <div className="flex justify-between text-[11px]">
-                <span className="text-text-tertiary">Analyzed</span>
+                <span className="text-text-tertiary">{t("analyzedLabel")}</span>
                 <span className="text-text-secondary">{analyzedRefs.length}</span>
               </div>
               <div className="flex justify-between text-[11px]">
-                <span className="text-text-tertiary">Unique colors</span>
+                <span className="text-text-tertiary">{t("uniqueColors")}</span>
                 <span className="text-text-secondary">{aggregatedColors.length}</span>
               </div>
             </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 
 interface UploadZoneProps {
   onFiles: (files: File[]) => void;
@@ -9,6 +10,7 @@ interface UploadZoneProps {
 export function UploadZone({ onFiles }: UploadZoneProps) {
   const [isDragging, setIsDragging] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const t = useTranslations("uploadZone");
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -59,8 +61,8 @@ export function UploadZone({ onFiles }: UploadZoneProps) {
         onChange={handleChange}
       />
       <div className="text-xl text-text-tertiary mb-2">+</div>
-      <h4 className="text-[13px] font-medium mb-1">Drop references here</h4>
-      <p className="text-[11px] text-text-tertiary">PNG, JPG, WebP</p>
+      <h4 className="text-[13px] font-medium mb-1">{t("dropHere")}</h4>
+      <p className="text-[11px] text-text-tertiary">{t("formats")}</p>
     </div>
   );
 }

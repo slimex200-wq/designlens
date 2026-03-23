@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+  <rect width="800" height="600" fill="#F0F4F8"/>
+  <!-- Phone frame centered -->
+  <rect x="275" y="20" width="250" height="560" rx="24" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="2"/>
+  <!-- Status bar -->
+  <rect x="350" y="32" width="100" height="4" rx="2" fill="#CBD5E1"/>
+  <!-- App header -->
+  <rect x="295" y="56" width="210" height="44" fill="#FFFFFF"/>
+  <rect x="310" y="68" width="80" height="16" rx="3" fill="#1E293B"/>
+  <circle cx="480" cy="78" r="12" fill="#F1F5F9"/>
+  <!-- Search bar -->
+  <rect x="295" y="110" width="210" height="36" rx="10" fill="#F1F5F9"/>
+  <rect x="315" y="122" width="80" height="8" rx="2" fill="#94A3B8"/>
+  <!-- Cards -->
+  <rect x="295" y="160" width="210" height="90" rx="12" fill="#EEF2FF"/>
+  <rect x="310" y="176" width="100" height="12" rx="3" fill="#4F46E5"/>
+  <rect x="310" y="196" width="160" height="8" rx="2" fill="#818CF8"/>
+  <rect x="310" y="212" width="70" height="24" rx="6" fill="#4F46E5"/>
+  <rect x="295" y="264" width="100" height="100" rx="12" fill="#FEF3C7"/>
+  <rect x="310" y="280" width="60" height="10" rx="2" fill="#D97706"/>
+  <rect x="310" y="300" width="70" height="8" rx="2" fill="#F59E0B"/>
+  <rect x="310" y="336" width="50" height="16" rx="4" fill="#D97706"/>
+  <rect x="405" y="264" width="100" height="100" rx="12" fill="#DCFCE7"/>
+  <rect x="420" y="280" width="60" height="10" rx="2" fill="#16A34A"/>
+  <rect x="420" y="300" width="70" height="8" rx="2" fill="#22C55E"/>
+  <rect x="420" y="336" width="50" height="16" rx="4" fill="#16A34A"/>
+  <!-- List items -->
+  <rect x="295" y="380" width="210" height="48" rx="8" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1"/>
+  <circle cx="320" cy="404" r="14" fill="#F1F5F9"/>
+  <rect x="345" y="394" width="100" height="10" rx="2" fill="#1E293B"/>
+  <rect x="345" y="410" width="70" height="8" rx="2" fill="#94A3B8"/>
+  <rect x="295" y="436" width="210" height="48" rx="8" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1"/>
+  <circle cx="320" cy="460" r="14" fill="#F1F5F9"/>
+  <rect x="345" y="450" width="100" height="10" rx="2" fill="#1E293B"/>
+  <rect x="345" y="466" width="70" height="8" rx="2" fill="#94A3B8"/>
+  <!-- Bottom nav -->
+  <rect x="275" y="508" width="250" height="52" rx="0" fill="#FFFFFF"/>
+  <rect x="275" y="508" width="250" height="1" fill="#E2E8F0"/>
+  <circle cx="325" cy="534" r="10" fill="#4F46E5"/>
+  <circle cx="400" cy="534" r="10" fill="#E2E8F0"/>
+  <circle cx="475" cy="534" r="10" fill="#E2E8F0"/>
+</svg>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect, useRef } from "react";
+import { useTranslations } from "next-intl";
 import { Sidebar } from "@/components/workspace/Sidebar";
 import { RefGrid } from "@/components/workspace/RefGrid";
 import { AnalysisPanel } from "@/components/workspace/AnalysisPanel";
@@ -41,6 +42,8 @@ export default function WorkspacePage() {
   const [selectedRefId, setSelectedRefId] = useState<string | null>(null);
   const { showToast } = useToast();
   const { remaining, decrement } = useRateLimit();
+  const t = useTranslations("workspace");
+  const tc = useTranslations("common");
 
   const {
     projects,
@@ -61,7 +64,7 @@ export default function WorkspacePage() {
   // Wrap handleFiles to track rate limit
   const handleFilesWithLimit = async (files: File[]) => {
     if (remaining <= 0) {
-      showToast("error", "Rate limit reached — analyses reset hourly.");
+      showToast("error", t("rateLimitReached"));
       return;
     }
     decrement();
@@ -76,6 +79,13 @@ export default function WorkspacePage() {
   );
 
   const selectedAnalysis = selectedRef?.analysis ?? null;
+
+  const toolLabels: Record<Tool, string> = {
+    analyze: t("analyze"),
+    moodboard: t("moodboard"),
+    review: t("uiReview"),
+    tokens: t("tokens"),
+  };
 
   return (
     <>
@@ -94,16 +104,10 @@ export default function WorkspacePage() {
         {/* Topbar */}
         <div className="h-12 flex items-center px-5 border-b border-border gap-3 flex-shrink-0">
           <div className="text-[13px] text-text-secondary flex items-center gap-1.5">
-            {activeProject?.name ?? "Project"}
+            {activeProject?.name ?? t("project")}
             <span className="text-text-tertiary">/</span>
-            <span className="text-text-primary font-medium capitalize">
-              {activeTool === "review"
-                ? "UI Review"
-                : activeTool === "tokens"
-                ? "Tokens"
-                : activeTool === "moodboard"
-                ? "Moodboard"
-                : "Analyze"}
+            <span className="text-text-primary font-medium">
+              {toolLabels[activeTool]}
             </span>
           </div>
 
@@ -117,17 +121,17 @@ export default function WorkspacePage() {
                 ? "text-warning border-warning-dim bg-warning-dim"
                 : "text-error border-error-dim bg-error-dim",
             ].join(" ")}
-            title="Analyses remaining this hour"
+            title={t("rateLimitTitle")}
           >
-            {remaining}/{RATE_LIMIT} analyses
+            {tc("analyses", { remaining, limit: RATE_LIMIT })}
           </div>
 
           <div className="ml-auto flex gap-2 items-center">
             <button className="px-3 py-1.5 rounded-md text-xs bg-bg-elevated border border-border text-text-secondary cursor-pointer font-medium hover:border-border-hover hover:text-text-primary transition-all">
-              Share
+              {tc("share")}
             </button>
             <label className="px-3 py-1.5 rounded-md text-xs bg-text-primary text-bg-deep cursor-pointer font-medium hover:opacity-85 transition-opacity">
-              + Upload
+              {tc("upload")}
               <input
                 type="file"
                 accept="image/png,image/jpeg,image/webp"
