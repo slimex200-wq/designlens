@@ -17,7 +17,6 @@ export function MoodboardGrid({ references, onSelectRef }: MoodboardGridProps) {
     [references]
   );
 
-  // Aggregate colors from all analyzed refs, sorted by frequency, max 12
   const aggregatedColors = useMemo(() => {
     const colorMap = new Map<string, { hex: string; role: string; total: number }>();
     for (const ref of analyzedRefs) {
@@ -39,7 +38,6 @@ export function MoodboardGrid({ references, onSelectRef }: MoodboardGridProps) {
   const analyzePatterns = async () => {
     setLoadingPatterns(true);
     try {
-      // Build a summary of all analyses to send to AI
       const summaries = analyzedRefs.map((r) => ({
         fileName: r.fileName,
         colors: r.analysis!.colors.map((c: ColorInfo) => c.hex),
@@ -47,17 +45,16 @@ export function MoodboardGrid({ references, onSelectRef }: MoodboardGridProps) {
         typography: r.analysis!.typography.map((t) => `${t.size}/${t.weight}`),
       }));
 
-      const res = await fetch("/api/analyze", {
+      const res = await fetch("/api/patterns", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "patterns", references: summaries }),
+        body: JSON.stringify({ references: summaries }),
       });
 
       if (res.ok) {
         const data = await res.json();
         setPatterns(data.patterns ?? ["Similar color palettes detected", "Consistent spacing patterns", "Shared typography scale"]);
       } else {
-        // Fallback patterns
         setPatterns([
           "Similar color palettes detected across references",
           "Consistent spacing and layout patterns",
@@ -75,48 +72,30 @@ export function MoodboardGrid({ references, onSelectRef }: MoodboardGridProps) {
     }
   };
 
-  return (
-    <div className="flex-1 p-5 overflow-y-auto flex flex-col gap-5">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <h2 className="text-lg font-semibold tracking-tight">Moodboard</h2>
-        <span className="text-[11px] text-text-tertiary">{references.length} references</span>
+  if (references.length === 0) {
+    return (
+      <div className="flex-1 flex items-center justify-center">
+        <p className="text-sm text-text-tertiary">No references yet. Upload some to get started.</p>
       </div>
+    );
+  }
 
-      {/* Aggregated color palette */}
-      {aggregatedColors.length > 0 && (
-        <div className="flex flex-col gap-2">
-          <span className="text-[10px] uppercase tracking-[1.2px] text-text-tertiary font-semibold">
-            Color Palette
-          </span>
-          <div className="flex gap-1 h-8 rounded-lg overflow-hidden">
-            {aggregatedColors.map((c, i) => (
-              <div
-                key={i}
-                className="flex-1 transition-all hover:flex-[2] cursor-pointer relative group"
-                style={{ backgroundColor: c.hex }}
-                title={`${c.hex} - ${c.role}`}
-              >
-                <span className="absolute bottom-0 left-0 right-0 text-center text-[8px] text-white opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 py-px">
-                  {c.hex}
-                </span>
-              </div>
-            ))}
-          </div>
+  return (
+    <div className="flex-1 flex overflow-hidden">
+      {/* Left: Compact image grid */}
+      <div className="flex-1 p-5 overflow-y-auto">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-lg font-semibold tracking-tight">Moodboard</h2>
+          <span className="text-[11px] text-text-tertiary">{references.length} references</span>
         </div>
-      )}
-
-      {/* Moodboard grid */}
-      {references.length > 0 ? (
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-3 gap-2">
           {references.map((ref) => (
             <button
               key={ref.id}
               onClick={() => onSelectRef(ref.id)}
               className="group rounded-lg border border-border bg-bg-deep overflow-hidden transition-all hover:border-border-hover cursor-pointer text-left"
             >
-              {/* Large thumbnail */}
-              <div className="aspect-[4/3] bg-bg-elevated overflow-hidden">
+              <div className="aspect-[3/2] bg-bg-elevated overflow-hidden">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={ref.filePath}
@@ -124,18 +103,16 @@ export function MoodboardGrid({ references, onSelectRef }: MoodboardGridProps) {
                   className="w-full h-full object-cover transition-transform group-hover:scale-105"
                 />
               </div>
-              {/* Info */}
-              <div className="p-3">
-                <p className="text-[12px] font-medium text-text-primary truncate">
+              <div className="px-2 py-1.5">
+                <p className="text-[11px] font-medium text-text-primary truncate">
                   {ref.fileName}
                 </p>
-                {/* Color dots */}
                 {ref.analysis && ref.analysis.colors.length > 0 && (
-                  <div className="flex gap-1 mt-2">
-                    {ref.analysis.colors.slice(0, 6).map((c, i) => (
+                  <div className="flex gap-0.5 mt-1">
+                    {ref.analysis.colors.slice(0, 5).map((c, i) => (
                       <div
                         key={i}
-                        className="w-4 h-4 rounded-full border border-border"
+                        className="w-3 h-3 rounded-full border border-border"
                         style={{ backgroundColor: c.hex }}
                         title={`${c.hex} - ${c.role}`}
                       />
@@ -149,37 +126,102 @@ export function MoodboardGrid({ references, onSelectRef }: MoodboardGridProps) {
             </button>
           ))}
         </div>
-      ) : (
-        <div className="flex-1 flex items-center justify-center">
-          <p className="text-sm text-text-tertiary">No references yet. Upload some to get started.</p>
-        </div>
-      )}
+      </div>
 
-      {/* Analyze Patterns button */}
-      {analyzedRefs.length >= 2 && !patterns && (
-        <button
-          onClick={analyzePatterns}
-          disabled={loadingPatterns}
-          className="self-start px-4 py-2 rounded-md text-xs bg-accent-dim text-accent border border-accent-border font-medium hover:opacity-85 transition-opacity cursor-pointer disabled:opacity-50"
-        >
-          {loadingPatterns ? "Analyzing..." : "Analyze Patterns"}
-        </button>
-      )}
+      {/* Right: Insights panel */}
+      <div className="w-[280px] border-l border-border bg-bg-surface p-4 overflow-y-auto flex flex-col gap-4 flex-shrink-0">
+        <h3 className="text-[13px] font-semibold text-text-primary">Insights</h3>
 
-      {/* Common Patterns card */}
-      {patterns && (
-        <div className="rounded-lg border border-border bg-bg-surface p-4">
-          <h3 className="text-[13px] font-semibold text-text-primary mb-3">Common Patterns</h3>
-          <ul className="flex flex-col gap-2">
-            {patterns.map((p, i) => (
-              <li key={i} className="flex items-start gap-2 text-[12px] text-text-secondary">
-                <span className="text-accent mt-0.5 flex-shrink-0">&#x2022;</span>
-                {p}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+        {/* Color Palette */}
+        {aggregatedColors.length > 0 && (
+          <div className="flex flex-col gap-2">
+            <span className="text-[10px] uppercase tracking-[1.2px] text-text-tertiary font-semibold">
+              Color Palette
+            </span>
+            <div className="flex gap-1 h-7 rounded-lg overflow-hidden">
+              {aggregatedColors.map((c, i) => (
+                <div
+                  key={i}
+                  className="flex-1 transition-all hover:flex-[2] cursor-pointer relative group"
+                  style={{ backgroundColor: c.hex }}
+                  title={`${c.hex} - ${c.role}`}
+                >
+                  <span className="absolute bottom-0 left-0 right-0 text-center text-[7px] text-white opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 py-px">
+                    {c.hex}
+                  </span>
+                </div>
+              ))}
+            </div>
+            {/* Color list */}
+            <div className="flex flex-col gap-1 mt-1">
+              {aggregatedColors.slice(0, 6).map((c, i) => (
+                <div key={i} className="flex items-center gap-2">
+                  <div
+                    className="w-3 h-3 rounded-sm border border-border flex-shrink-0"
+                    style={{ backgroundColor: c.hex }}
+                  />
+                  <span className="text-[11px] text-text-secondary font-mono">{c.hex}</span>
+                  <span className="text-[10px] text-text-tertiary ml-auto">{c.role}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div className="h-px bg-border" />
+
+        {/* Analyze Patterns — prominent placement */}
+        {analyzedRefs.length >= 2 && !patterns && (
+          <button
+            onClick={analyzePatterns}
+            disabled={loadingPatterns}
+            className="w-full py-2.5 rounded-md text-xs bg-accent-dim text-accent border border-accent-border font-medium hover:opacity-85 transition-opacity cursor-pointer disabled:opacity-50"
+          >
+            {loadingPatterns ? "Analyzing..." : "Analyze Patterns"}
+          </button>
+        )}
+
+        {/* Patterns result */}
+        {patterns && (
+          <div className="flex flex-col gap-2">
+            <span className="text-[10px] uppercase tracking-[1.2px] text-text-tertiary font-semibold">
+              Common Patterns
+            </span>
+            <ul className="flex flex-col gap-2">
+              {patterns.map((p, i) => (
+                <li key={i} className="flex items-start gap-2 text-[11px] text-text-secondary leading-relaxed">
+                  <span className="text-accent mt-0.5 flex-shrink-0">&#x2022;</span>
+                  {p}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {/* Stats */}
+        {analyzedRefs.length > 0 && (
+          <>
+            <div className="h-px bg-border" />
+            <div className="flex flex-col gap-1.5">
+              <span className="text-[10px] uppercase tracking-[1.2px] text-text-tertiary font-semibold">
+                Summary
+              </span>
+              <div className="flex justify-between text-[11px]">
+                <span className="text-text-tertiary">References</span>
+                <span className="text-text-secondary">{references.length}</span>
+              </div>
+              <div className="flex justify-between text-[11px]">
+                <span className="text-text-tertiary">Analyzed</span>
+                <span className="text-text-secondary">{analyzedRefs.length}</span>
+              </div>
+              <div className="flex justify-between text-[11px]">
+                <span className="text-text-tertiary">Unique colors</span>
+                <span className="text-text-secondary">{aggregatedColors.length}</span>
+              </div>
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
 }
