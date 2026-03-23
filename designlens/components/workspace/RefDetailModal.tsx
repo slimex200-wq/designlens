@@ -18,14 +18,7 @@ export function RefDetailModal({ reference, onClose }: RefDetailModalProps) {
   const [hovering, setHovering] = useState(false);
   const [origin, setOrigin] = useState({ x: 50, y: 50 });
 
-  // Color picker state
-  const [pickerActive, setPickerActive] = useState(false);
-  const [pickedColor, setPickedColor] = useState<string | null>(null);
-  const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 });
-  const [copiedHex, setCopiedHex] = useState<string | null>(null);
   const imgRef = useRef<HTMLImageElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
 
   // ESC to close
   useEffect(() => {
@@ -44,51 +37,12 @@ export function RefDetailModal({ reference, onClose }: RefDetailModalProps) {
     };
   }, []);
 
-  // Draw image to hidden canvas for color picker
-  const initCanvas = useCallback(() => {
-    const img = imgRef.current;
-    const canvas = canvasRef.current;
-    if (!img || !canvas || !img.naturalWidth) return;
-    canvas.width = img.naturalWidth;
-    canvas.height = img.naturalHeight;
-    const ctx = canvas.getContext("2d", { willReadFrequently: true });
-    if (!ctx) return;
-    ctx.drawImage(img, 0, 0);
-    ctxRef.current = ctx;
-  }, []);
-
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const x = ((e.clientX - rect.left) / rect.width) * 100;
     const y = ((e.clientY - rect.top) / rect.height) * 100;
     setOrigin({ x, y });
-
-    // Color picker sampling
-    if (pickerActive && ctxRef.current && canvasRef.current) {
-      const px = Math.floor((x / 100) * canvasRef.current.width);
-      const py = Math.floor((y / 100) * canvasRef.current.height);
-      const pixel = ctxRef.current.getImageData(px, py, 1, 1).data;
-      const hex = `#${pixel[0].toString(16).padStart(2, "0")}${pixel[1].toString(16).padStart(2, "0")}${pixel[2].toString(16).padStart(2, "0")}`.toUpperCase();
-      setPickedColor(hex);
-      setCursorPos({ x: e.clientX, y: e.clientY });
-    }
-  }, [pickerActive]);
-
-  const handleColorClick = useCallback((e: React.MouseEvent) => {
-    if (!pickerActive || !pickedColor) return;
-    e.stopPropagation();
-    navigator.clipboard.writeText(pickedColor).then(() => {
-      setCopiedHex(pickedColor);
-      setTimeout(() => setCopiedHex(null), 1500);
-    });
-  }, [pickerActive, pickedColor]);
-
-  const isLight = (hex: string) => {
-    const r = parseInt(hex.slice(1, 3), 16);
-    const g = parseInt(hex.slice(3, 5), 16);
-    const b = parseInt(hex.slice(5, 7), 16);
-    return (r * 299 + g * 587 + b * 114) / 1000 > 128;
-  };
+  }, []);
 
   return (
     <div
@@ -98,55 +52,18 @@ export function RefDetailModal({ reference, onClose }: RefDetailModalProps) {
       {/* Backdrop */}
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
 
-      {/* Hidden canvas for color picker */}
-      <canvas ref={canvasRef} className="hidden" />
-
       {/* Modal */}
       <div
         className="relative flex bg-bg-surface border border-border rounded-xl overflow-hidden max-w-[1100px] w-full max-h-[85vh] shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Left: Image with hover zoom (Talbots-style) */}
-        <div className="flex-1 bg-bg-deep flex flex-col min-w-0 overflow-hidden">
-          {/* Image toolbar */}
-          <div className="h-9 flex items-center px-3 gap-2 border-b border-border flex-shrink-0">
-            <button
-              onClick={() => {
-                const next = !pickerActive;
-                setPickerActive(next);
-                if (next) initCanvas();
-                if (!next) setPickedColor(null);
-              }}
-              className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition-all cursor-pointer ${
-                pickerActive
-                  ? "bg-accent-dim text-accent border border-accent-border"
-                  : "bg-bg-elevated text-text-secondary border border-border hover:border-border-hover"
-              }`}
-            >
-              &#x1F3A8; {t("colorPicker")}
-            </button>
-            {pickedColor && (
-              <div className="flex items-center gap-1.5 ml-2">
-                <div
-                  className="w-5 h-5 rounded border border-border flex-shrink-0"
-                  style={{ backgroundColor: pickedColor }}
-                />
-                <span className="text-[12px] font-mono text-text-primary">{pickedColor}</span>
-                {copiedHex === pickedColor && (
-                  <span className="text-[10px] text-success">{t("copied")}</span>
-                )}
-              </div>
-            )}
-          </div>
-
-          {/* Image area — hover to zoom in place */}
-          <div
-            className="flex-1 overflow-hidden cursor-crosshair"
-            onMouseEnter={() => setHovering(true)}
-            onMouseLeave={() => setHovering(false)}
-            onMouseMove={handleMouseMove}
-            onClick={handleColorClick}
-          >
+        <div
+          className="flex-1 bg-bg-deep overflow-hidden cursor-crosshair min-w-0"
+          onMouseEnter={() => setHovering(true)}
+          onMouseLeave={() => setHovering(false)}
+          onMouseMove={handleMouseMove}
+        >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               ref={imgRef}
@@ -165,26 +82,7 @@ export function RefDetailModal({ reference, onClose }: RefDetailModalProps) {
                     }
               }
               draggable={false}
-              onLoad={initCanvas}
             />
-          </div>
-
-          {/* Floating color tooltip */}
-          {pickerActive && pickedColor && hovering && (
-            <div
-              className="fixed z-[60] pointer-events-none flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg shadow-lg border"
-              style={{
-                left: cursorPos.x + 16,
-                top: cursorPos.y - 40,
-                backgroundColor: pickedColor,
-                borderColor: isLight(pickedColor) ? "rgba(0,0,0,0.15)" : "rgba(255,255,255,0.15)",
-                color: isLight(pickedColor) ? "#000" : "#fff",
-              }}
-            >
-              <span className="text-[11px] font-mono font-medium">{pickedColor}</span>
-              <span className="text-[9px] opacity-60">{t("clickToCopy")}</span>
-            </div>
-          )}
         </div>
 
         {/* Right: Analysis panel */}
