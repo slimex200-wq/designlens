@@ -45,6 +45,9 @@ export function RefCard({ reference, selected, onClick }: RefCardProps) {
             src={reference.filePath}
             alt={reference.fileName}
             className="w-full h-full object-cover"
+            onError={(e) => {
+              (e.target as HTMLImageElement).style.display = "none";
+            }}
           />
         ) : null}
         <span

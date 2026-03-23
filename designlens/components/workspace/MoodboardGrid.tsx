@@ -103,6 +103,9 @@ export function MoodboardGrid({ references, onSelectRef }: MoodboardGridProps) {
                   src={ref.filePath}
                   alt={ref.fileName}
                   className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = "none";
+                  }}
                 />
               </div>
               <div className="px-2 py-1.5">
