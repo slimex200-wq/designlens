@@ -4,10 +4,6 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import { useTranslations } from "next-intl";
 import type { ReferenceImage } from "@/lib/types";
 
-const MIN_ZOOM = 1;
-const MAX_ZOOM = 5;
-const ZOOM_STEP = 0.15;
-
 interface RefDetailModalProps {
   reference: ReferenceImage;
   onClose: () => void;
@@ -17,11 +13,14 @@ export function RefDetailModal({ reference, onClose }: RefDetailModalProps) {
   const t = useTranslations("refDetail");
   const analysis = reference.analysis;
 
-  const [zoom, setZoom] = useState(1);
-  const [pan, setPan] = useState({ x: 0, y: 0 });
-  const [dragging, setDragging] = useState(false);
-  const dragStart = useRef({ x: 0, y: 0, panX: 0, panY: 0 });
-  const containerRef = useRef<HTMLDivElement>(null);
+  const [pickerActive, setPickerActive] = useState(false);
+  const [pickedColor, setPickedColor] = useState<string | null>(null);
+  const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 });
+  const [copiedHex, setCopiedHex] = useState<string | null>(null);
+
+  const imgRef = useRef<HTMLImageElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
 
   // ESC to close
   useEffect(() => {
@@ -40,45 +39,51 @@ export function RefDetailModal({ reference, onClose }: RefDetailModalProps) {
     };
   }, []);
 
-  // Scroll wheel zoom
-  const handleWheel = useCallback((e: React.WheelEvent) => {
+  // Draw image to hidden canvas for pixel sampling
+  const initCanvas = useCallback(() => {
+    const img = imgRef.current;
+    const canvas = canvasRef.current;
+    if (!img || !canvas || !img.naturalWidth) return;
+
+    canvas.width = img.naturalWidth;
+    canvas.height = img.naturalHeight;
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+    if (!ctx) return;
+    ctx.drawImage(img, 0, 0);
+    ctxRef.current = ctx;
+  }, []);
+
+  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLImageElement>) => {
+    if (!pickerActive || !ctxRef.current || !imgRef.current) return;
+    const rect = imgRef.current.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width;
+    const y = (e.clientY - rect.top) / rect.height;
+
+    const px = Math.floor(x * canvasRef.current!.width);
+    const py = Math.floor(y * canvasRef.current!.height);
+    const pixel = ctxRef.current.getImageData(px, py, 1, 1).data;
+    const hex = `#${pixel[0].toString(16).padStart(2, "0")}${pixel[1].toString(16).padStart(2, "0")}${pixel[2].toString(16).padStart(2, "0")}`.toUpperCase();
+
+    setPickedColor(hex);
+    setCursorPos({ x: e.clientX, y: e.clientY });
+  }, [pickerActive]);
+
+  const handleClick = useCallback((e: React.MouseEvent) => {
+    if (!pickerActive || !pickedColor) return;
     e.stopPropagation();
-    const delta = e.deltaY > 0 ? -ZOOM_STEP : ZOOM_STEP;
-    setZoom((prev) => {
-      const next = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, prev + delta));
-      // Reset pan when zooming back to 1
-      if (next <= 1) setPan({ x: 0, y: 0 });
-      return next;
+    navigator.clipboard.writeText(pickedColor).then(() => {
+      setCopiedHex(pickedColor);
+      setTimeout(() => setCopiedHex(null), 1500);
     });
-  }, []);
+  }, [pickerActive, pickedColor]);
 
-  // Drag to pan
-  const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    if (zoom <= 1) return;
-    e.preventDefault();
-    setDragging(true);
-    dragStart.current = { x: e.clientX, y: e.clientY, panX: pan.x, panY: pan.y };
-  }, [zoom, pan]);
-
-  const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    if (!dragging) return;
-    const dx = e.clientX - dragStart.current.x;
-    const dy = e.clientY - dragStart.current.y;
-    setPan({ x: dragStart.current.panX + dx, y: dragStart.current.panY + dy });
-  }, [dragging]);
-
-  const handleMouseUp = useCallback(() => {
-    setDragging(false);
-  }, []);
-
-  // Double click to reset
-  const handleDoubleClick = useCallback(() => {
-    setZoom(1);
-    setPan({ x: 0, y: 0 });
-  }, []);
-
-  const isZoomed = zoom > 1;
-  const zoomPercent = Math.round(zoom * 100);
+  // Luminance check for text contrast
+  const isLight = (hex: string) => {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return (r * 299 + g * 587 + b * 114) / 1000 > 128;
+  };
 
   return (
     <div
@@ -88,48 +93,77 @@ export function RefDetailModal({ reference, onClose }: RefDetailModalProps) {
       {/* Backdrop */}
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
 
+      {/* Hidden canvas for pixel sampling */}
+      <canvas ref={canvasRef} className="hidden" />
+
       {/* Modal */}
       <div
         className="relative flex bg-bg-surface border border-border rounded-xl overflow-hidden max-w-[1100px] w-full max-h-[85vh] shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Left: Image with pinch zoom + drag */}
-        <div
-          ref={containerRef}
-          className="flex-1 bg-bg-deep flex items-center justify-center min-w-0 p-4 relative overflow-hidden select-none"
-          style={{ cursor: isZoomed ? (dragging ? "grabbing" : "grab") : "zoom-in" }}
-          onWheel={handleWheel}
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseUp}
-          onDoubleClick={handleDoubleClick}
-        >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={reference.filePath}
-            alt={reference.fileName}
-            className="max-w-full max-h-[75vh] object-contain rounded-lg pointer-events-none"
-            draggable={false}
-            style={{
-              transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
-              transition: dragging ? "none" : "transform 0.15s ease-out",
-            }}
-          />
+        {/* Left: Image */}
+        <div className="flex-1 bg-bg-deep flex flex-col min-w-0 overflow-hidden">
+          {/* Image toolbar */}
+          <div className="h-9 flex items-center px-3 gap-2 border-b border-border flex-shrink-0">
+            <button
+              onClick={() => {
+                const next = !pickerActive;
+                setPickerActive(next);
+                if (next) initCanvas();
+                if (!next) setPickedColor(null);
+              }}
+              className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition-all cursor-pointer ${
+                pickerActive
+                  ? "bg-accent-dim text-accent border border-accent-border"
+                  : "bg-bg-elevated text-text-secondary border border-border hover:border-border-hover"
+              }`}
+            >
+              &#x1F3A8; {t("colorPicker")}
+            </button>
+            {pickedColor && (
+              <div className="flex items-center gap-1.5 ml-2">
+                <div
+                  className="w-5 h-5 rounded border border-border flex-shrink-0"
+                  style={{ backgroundColor: pickedColor }}
+                />
+                <span className="text-[12px] font-mono text-text-primary">{pickedColor}</span>
+                {copiedHex === pickedColor && (
+                  <span className="text-[10px] text-success">{t("copied")}</span>
+                )}
+              </div>
+            )}
+          </div>
 
-          {/* Zoom indicator */}
-          {isZoomed && (
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/60 text-[11px] text-white/80 pointer-events-none">
-              <span>{zoomPercent}%</span>
-              <span className="text-white/40">|</span>
-              <span className="text-white/50">{t("doubleClickReset")}</span>
-            </div>
-          )}
+          {/* Image area */}
+          <div className="flex-1 flex items-center justify-center p-4">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              ref={imgRef}
+              src={reference.filePath}
+              alt={reference.fileName}
+              className="max-w-full max-h-[70vh] object-contain rounded-lg"
+              style={{ cursor: pickerActive ? "crosshair" : "default" }}
+              draggable={false}
+              onLoad={initCanvas}
+              onMouseMove={handleMouseMove}
+              onClick={handleClick}
+            />
+          </div>
 
-          {/* Zoom hint when not zoomed */}
-          {!isZoomed && (
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-black/60 text-[10px] text-white/50 pointer-events-none">
-              {t("scrollToZoom")}
+          {/* Floating color tooltip */}
+          {pickerActive && pickedColor && (
+            <div
+              className="fixed z-[60] pointer-events-none flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg shadow-lg border"
+              style={{
+                left: cursorPos.x + 16,
+                top: cursorPos.y - 40,
+                backgroundColor: pickedColor,
+                borderColor: isLight(pickedColor) ? "rgba(0,0,0,0.15)" : "rgba(255,255,255,0.15)",
+                color: isLight(pickedColor) ? "#000" : "#fff",
+              }}
+            >
+              <span className="text-[11px] font-mono font-medium">{pickedColor}</span>
+              <span className="text-[9px] opacity-60">{t("clickToCopy")}</span>
             </div>
           )}
         </div>
@@ -210,16 +244,9 @@ export function RefDetailModal({ reference, onClose }: RefDetailModalProps) {
                   {t("typography")}
                 </span>
                 {analysis.typography.map((ty, i) => (
-                  <div
-                    key={i}
-                    className="flex items-center justify-between text-[11px]"
-                  >
-                    <span className="text-text-secondary">
-                      {ty.size} / {ty.weight}
-                    </span>
-                    <span className="text-[10px] text-text-tertiary">
-                      {ty.role}
-                    </span>
+                  <div key={i} className="flex items-center justify-between text-[11px]">
+                    <span className="text-text-secondary">{ty.size} / {ty.weight}</span>
+                    <span className="text-[10px] text-text-tertiary">{ty.role}</span>
                   </div>
                 ))}
               </div>
@@ -245,14 +272,9 @@ export function RefDetailModal({ reference, onClose }: RefDetailModalProps) {
                 {Object.keys(analysis.layout.spacing).length > 0 && (
                   <div className="flex flex-col gap-1 mt-1">
                     {Object.entries(analysis.layout.spacing).map(([k, v]) => (
-                      <div
-                        key={k}
-                        className="flex justify-between text-[10px]"
-                      >
+                      <div key={k} className="flex justify-between text-[10px]">
                         <span className="text-text-tertiary">{k}</span>
-                        <span className="text-text-secondary font-mono">
-                          {v}
-                        </span>
+                        <span className="text-text-secondary font-mono">{v}</span>
                       </div>
                     ))}
                   </div>
@@ -273,20 +295,13 @@ export function RefDetailModal({ reference, onClose }: RefDetailModalProps) {
                   {Object.entries(analysis.tokens.colors)
                     .slice(0, 8)
                     .map(([name, hex]) => (
-                      <div
-                        key={name}
-                        className="flex items-center gap-2 text-[10px]"
-                      >
+                      <div key={name} className="flex items-center gap-2 text-[10px]">
                         <div
                           className="w-2.5 h-2.5 rounded-sm border border-border flex-shrink-0"
                           style={{ backgroundColor: hex }}
                         />
-                        <span className="text-text-tertiary font-mono truncate">
-                          {name}
-                        </span>
-                        <span className="text-text-secondary font-mono ml-auto">
-                          {hex}
-                        </span>
+                        <span className="text-text-tertiary font-mono truncate">{name}</span>
+                        <span className="text-text-secondary font-mono ml-auto">{hex}</span>
                       </div>
                     ))}
                 </div>

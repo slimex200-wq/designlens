@@ -190,8 +190,9 @@
     "typography": "타이포그래피",
     "layout": "레이아웃",
     "tokens": "토큰",
-    "scrollToZoom": "스크롤로 확대",
-    "doubleClickReset": "더블클릭으로 초기화"
+    "colorPicker": "색상 추출",
+    "clickToCopy": "클릭하여 복사",
+    "copied": "복사됨!"
   },
   "review": {
     "title": "UI 리뷰",

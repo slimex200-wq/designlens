@@ -52,9 +52,16 @@ export async function reviewUI(
   mimeType: string,
   designSystem: TokenSet
 ): Promise<ReviewResult> {
+  // Compact the design system to reduce prompt size
+  const compact = JSON.stringify({
+    colors: designSystem.colors,
+    spacing: designSystem.spacing,
+    radius: designSystem.radius,
+  });
+
   const response = await client.messages.create({
-    model: "claude-sonnet-4-6",
-    max_tokens: 3000,
+    model: "claude-haiku-4-5-20251001",
+    max_tokens: 1500,
     messages: [
       {
         role: "user",
@@ -65,17 +72,10 @@ export async function reviewUI(
           },
           {
             type: "text",
-            text: `Review this UI against the following design system:
-${JSON.stringify(designSystem, null, 2)}
+            text: `Review this UI against this design system: ${compact}
 
-Evaluate: visual hierarchy, color consistency, spacing regularity, contrast/accessibility.
-
-Return JSON only:
-{
-  "score": 0-100,
-  "issues": [{"area": "description", "severity": "high"|"medium"|"low", "suggestion": "actionable fix", "bounds": {"x": 0-100, "y": 0-100, "width": 0-100, "height": 0-100}}],
-  "improved": { same TokenSet format with suggested improvements }
-}`,
+Check: hierarchy, color consistency, spacing, contrast. Return JSON only, max 5 issues:
+{"score":0-100,"issues":[{"area":"string","severity":"high"|"medium"|"low","suggestion":"string","bounds":{"x":0-100,"y":0-100,"width":0-100,"height":0-100}}],"improved":{"colors":{},"spacing":{},"radius":{},"typography":[]}}`,
           },
         ],
       },

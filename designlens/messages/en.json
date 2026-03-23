@@ -190,8 +190,9 @@
     "typography": "Typography",
     "layout": "Layout",
     "tokens": "Tokens",
-    "scrollToZoom": "Scroll to zoom",
-    "doubleClickReset": "Double-click to reset"
+    "colorPicker": "Color Picker",
+    "clickToCopy": "click to copy",
+    "copied": "Copied!"
   },
   "review": {
     "title": "UI Review",
