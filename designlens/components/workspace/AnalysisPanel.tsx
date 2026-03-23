@@ -1,0 +1,71 @@
+"use client";
+
+import { useState } from "react";
+import type { AnalysisResult } from "@/lib/types";
+import { ColorTab } from "./ColorTab";
+import { TypographyTab } from "./TypographyTab";
+import { LayoutTab } from "./LayoutTab";
+import { TokenTab } from "./TokenTab";
+
+type Tab = "colors" | "typography" | "layout" | "tokens";
+
+const TABS: { id: Tab; label: string }[] = [
+  { id: "colors", label: "Colors" },
+  { id: "typography", label: "Typography" },
+  { id: "layout", label: "Layout" },
+  { id: "tokens", label: "Tokens" },
+];
+
+interface AnalysisPanelProps {
+  analysis: AnalysisResult | null;
+  fileName: string | null;
+}
+
+export function AnalysisPanel({ analysis, fileName }: AnalysisPanelProps) {
+  const [activeTab, setActiveTab] = useState<Tab>("colors");
+
+  return (
+    <div className="w-[360px] border-l border-border bg-bg-surface overflow-y-auto flex flex-col flex-shrink-0">
+      {/* Header */}
+      <div className="px-5 py-4 border-b border-border flex items-center justify-between">
+        <h3 className="text-sm font-semibold tracking-tight">Analysis</h3>
+        {fileName && (
+          <span className="text-[11px] text-text-tertiary">{fileName}</span>
+        )}
+      </div>
+
+      {/* Tab row */}
+      <div className="flex border-b border-border">
+        {TABS.map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className={`flex-1 py-2.5 text-center text-[11px] font-medium cursor-pointer transition-all border-b-2 ${
+              activeTab === tab.id
+                ? "text-text-primary border-accent"
+                : "text-text-tertiary border-transparent hover:text-text-secondary"
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Body */}
+      {analysis ? (
+        <div className="p-5 flex flex-col gap-5 flex-1">
+          {activeTab === "colors" && <ColorTab colors={analysis.colors} />}
+          {activeTab === "typography" && <TypographyTab typography={analysis.typography} />}
+          {activeTab === "layout" && <LayoutTab layout={analysis.layout} />}
+          {activeTab === "tokens" && <TokenTab tokens={analysis.tokens} />}
+        </div>
+      ) : (
+        <div className="flex-1 flex items-center justify-center p-5">
+          <p className="text-[13px] text-text-tertiary text-center">
+            Select a reference to view analysis
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
