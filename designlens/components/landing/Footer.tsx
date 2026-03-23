@@ -20,7 +20,7 @@ export function Footer() {
               <Link
                 key={link}
                 href="#"
-                className="block text-[12px] text-text-tertiary mb-1.5 hover:text-text-secondary transition-colors"
+                className="block text-[12px] text-text-tertiary py-1.5 hover:text-text-secondary transition-colors"
               >
                 {link}
               </Link>
