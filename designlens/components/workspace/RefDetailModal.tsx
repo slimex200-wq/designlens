@@ -4,6 +4,8 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import { useTranslations } from "next-intl";
 import type { ReferenceImage } from "@/lib/types";
 
+const ZOOM_SCALE = 2.5;
+
 interface RefDetailModalProps {
   reference: ReferenceImage;
   onClose: () => void;
@@ -13,11 +15,14 @@ export function RefDetailModal({ reference, onClose }: RefDetailModalProps) {
   const t = useTranslations("refDetail");
   const analysis = reference.analysis;
 
+  const [hovering, setHovering] = useState(false);
+  const [origin, setOrigin] = useState({ x: 50, y: 50 });
+
+  // Color picker state
   const [pickerActive, setPickerActive] = useState(false);
   const [pickedColor, setPickedColor] = useState<string | null>(null);
   const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 });
   const [copiedHex, setCopiedHex] = useState<string | null>(null);
-
   const imgRef = useRef<HTMLImageElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
@@ -39,12 +44,11 @@ export function RefDetailModal({ reference, onClose }: RefDetailModalProps) {
     };
   }, []);
 
-  // Draw image to hidden canvas for pixel sampling
+  // Draw image to hidden canvas for color picker
   const initCanvas = useCallback(() => {
     const img = imgRef.current;
     const canvas = canvasRef.current;
     if (!img || !canvas || !img.naturalWidth) return;
-
     canvas.width = img.naturalWidth;
     canvas.height = img.naturalHeight;
     const ctx = canvas.getContext("2d", { willReadFrequently: true });
@@ -53,22 +57,24 @@ export function RefDetailModal({ reference, onClose }: RefDetailModalProps) {
     ctxRef.current = ctx;
   }, []);
 
-  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLImageElement>) => {
-    if (!pickerActive || !ctxRef.current || !imgRef.current) return;
-    const rect = imgRef.current.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width;
-    const y = (e.clientY - rect.top) / rect.height;
+  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    setOrigin({ x, y });
 
-    const px = Math.floor(x * canvasRef.current!.width);
-    const py = Math.floor(y * canvasRef.current!.height);
-    const pixel = ctxRef.current.getImageData(px, py, 1, 1).data;
-    const hex = `#${pixel[0].toString(16).padStart(2, "0")}${pixel[1].toString(16).padStart(2, "0")}${pixel[2].toString(16).padStart(2, "0")}`.toUpperCase();
-
-    setPickedColor(hex);
-    setCursorPos({ x: e.clientX, y: e.clientY });
+    // Color picker sampling
+    if (pickerActive && ctxRef.current && canvasRef.current) {
+      const px = Math.floor((x / 100) * canvasRef.current.width);
+      const py = Math.floor((y / 100) * canvasRef.current.height);
+      const pixel = ctxRef.current.getImageData(px, py, 1, 1).data;
+      const hex = `#${pixel[0].toString(16).padStart(2, "0")}${pixel[1].toString(16).padStart(2, "0")}${pixel[2].toString(16).padStart(2, "0")}`.toUpperCase();
+      setPickedColor(hex);
+      setCursorPos({ x: e.clientX, y: e.clientY });
+    }
   }, [pickerActive]);
 
-  const handleClick = useCallback((e: React.MouseEvent) => {
+  const handleColorClick = useCallback((e: React.MouseEvent) => {
     if (!pickerActive || !pickedColor) return;
     e.stopPropagation();
     navigator.clipboard.writeText(pickedColor).then(() => {
@@ -77,7 +83,6 @@ export function RefDetailModal({ reference, onClose }: RefDetailModalProps) {
     });
   }, [pickerActive, pickedColor]);
 
-  // Luminance check for text contrast
   const isLight = (hex: string) => {
     const r = parseInt(hex.slice(1, 3), 16);
     const g = parseInt(hex.slice(3, 5), 16);
@@ -93,7 +98,7 @@ export function RefDetailModal({ reference, onClose }: RefDetailModalProps) {
       {/* Backdrop */}
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
 
-      {/* Hidden canvas for pixel sampling */}
+      {/* Hidden canvas for color picker */}
       <canvas ref={canvasRef} className="hidden" />
 
       {/* Modal */}
@@ -101,7 +106,7 @@ export function RefDetailModal({ reference, onClose }: RefDetailModalProps) {
         className="relative flex bg-bg-surface border border-border rounded-xl overflow-hidden max-w-[1100px] w-full max-h-[85vh] shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Left: Image */}
+        {/* Left: Image with hover zoom (Talbots-style) */}
         <div className="flex-1 bg-bg-deep flex flex-col min-w-0 overflow-hidden">
           {/* Image toolbar */}
           <div className="h-9 flex items-center px-3 gap-2 border-b border-border flex-shrink-0">
@@ -134,24 +139,38 @@ export function RefDetailModal({ reference, onClose }: RefDetailModalProps) {
             )}
           </div>
 
-          {/* Image area */}
-          <div className="flex-1 flex items-center justify-center p-4">
+          {/* Image area — hover to zoom in place */}
+          <div
+            className="flex-1 overflow-hidden cursor-crosshair"
+            onMouseEnter={() => setHovering(true)}
+            onMouseLeave={() => setHovering(false)}
+            onMouseMove={handleMouseMove}
+            onClick={handleColorClick}
+          >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               ref={imgRef}
               src={reference.filePath}
               alt={reference.fileName}
-              className="max-w-full max-h-[70vh] object-contain rounded-lg"
-              style={{ cursor: pickerActive ? "crosshair" : "default" }}
+              className="w-full h-full object-contain transition-transform duration-200 ease-out"
+              style={
+                hovering
+                  ? {
+                      transform: `scale(${ZOOM_SCALE})`,
+                      transformOrigin: `${origin.x}% ${origin.y}%`,
+                    }
+                  : {
+                      transform: "scale(1)",
+                      transformOrigin: "center center",
+                    }
+              }
               draggable={false}
               onLoad={initCanvas}
-              onMouseMove={handleMouseMove}
-              onClick={handleClick}
             />
           </div>
 
           {/* Floating color tooltip */}
-          {pickerActive && pickedColor && (
+          {pickerActive && pickedColor && hovering && (
             <div
               className="fixed z-[60] pointer-events-none flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg shadow-lg border"
               style={{
@@ -223,12 +242,8 @@ export function RefDetailModal({ reference, onClose }: RefDetailModalProps) {
                       className="w-3 h-3 rounded-sm border border-border flex-shrink-0"
                       style={{ backgroundColor: c.hex }}
                     />
-                    <span className="text-[11px] text-text-secondary font-mono">
-                      {c.hex}
-                    </span>
-                    <span className="text-[10px] text-text-tertiary ml-auto">
-                      {c.role} · {c.percentage}%
-                    </span>
+                    <span className="text-[11px] text-text-secondary font-mono">{c.hex}</span>
+                    <span className="text-[10px] text-text-tertiary ml-auto">{c.role} · {c.percentage}%</span>
                   </div>
                 ))}
               </div>
@@ -261,13 +276,9 @@ export function RefDetailModal({ reference, onClose }: RefDetailModalProps) {
                 <span className="text-[10px] uppercase tracking-[1.2px] text-text-tertiary font-semibold">
                   {t("layout")}
                 </span>
-                <p className="text-[11px] text-text-secondary leading-relaxed">
-                  {analysis.layout.type}
-                </p>
+                <p className="text-[11px] text-text-secondary leading-relaxed">{analysis.layout.type}</p>
                 {analysis.layout.grid && (
-                  <p className="text-[10px] text-text-tertiary leading-relaxed">
-                    {analysis.layout.grid}
-                  </p>
+                  <p className="text-[10px] text-text-tertiary leading-relaxed">{analysis.layout.grid}</p>
                 )}
                 {Object.keys(analysis.layout.spacing).length > 0 && (
                   <div className="flex flex-col gap-1 mt-1">
