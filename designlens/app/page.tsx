@@ -1,9 +1,21 @@
+import { Nav } from "@/components/landing/Nav";
+import { Hero } from "@/components/landing/Hero";
+import { Features } from "@/components/landing/Features";
+import { Workflow } from "@/components/landing/Workflow";
+import { Evolving } from "@/components/landing/Evolving";
+import { FinalCta } from "@/components/landing/FinalCta";
+import { Footer } from "@/components/landing/Footer";
+
 export default function Home() {
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <h1 className="text-4xl font-extrabold tracking-tight text-text-primary">
-        DesignLens
-      </h1>
-    </div>
+    <>
+      <Nav />
+      <Hero />
+      <Features />
+      <Workflow />
+      <Evolving />
+      <FinalCta />
+      <Footer />
+    </>
   );
 }
