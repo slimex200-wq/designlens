@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef, useMemo, Dispatch } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import type { ReferenceImage, TokenSet, ReviewResult, ReviewIssue } from "@/lib/types";
 
 type ReviewState = {
@@ -30,6 +30,7 @@ export function ReviewView({ references, onToolChange, reviewState, reviewDispat
   const inputRef = useRef<HTMLInputElement>(null);
   const t = useTranslations("review");
   const tc = useTranslations("common");
+  const locale = useLocale();
 
   const { image: reviewImage, result: reviewResult, loading, error } = reviewState;
 
@@ -61,6 +62,7 @@ export function ReviewView({ references, onToolChange, reviewState, reviewDispat
         const formData = new FormData();
         formData.append("image", file);
         formData.append("designSystem", JSON.stringify(mergedTokens));
+        formData.append("locale", locale);
 
         const res = await fetch("/api/review", { method: "POST", body: formData });
         if (!res.ok) throw new Error(`API error: ${res.status}`);

@@ -41,12 +41,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Invalid design system format" }, { status: 400 });
     }
 
+    const localeStr = (formData.get("locale") as string | null) ?? "en";
+
     const buffer = Buffer.from(await file.arrayBuffer());
     const { base64, mime } = await resizeForApi(buffer, file.type);
 
     let result;
     try {
-      result = await reviewUI(base64, mime, designSystem);
+      result = await reviewUI(base64, mime, designSystem, localeStr);
     } catch (aiError) {
       console.error("AI review failed, returning fallback:", aiError);
       // Graceful fallback instead of 502

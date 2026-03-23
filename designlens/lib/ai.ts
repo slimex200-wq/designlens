@@ -3,7 +3,7 @@ import type { TypographyInfo, LayoutInfo, TokenSet, ReviewResult } from "./types
 
 const client = new Anthropic();
 
-export async function analyzeDesign(imageBase64: string, mimeType: string) {
+export async function analyzeDesign(imageBase64: string, mimeType: string, locale: string = "en") {
   const response = await client.messages.create({
     model: "claude-sonnet-4-6",
     max_tokens: 2000,
@@ -50,7 +50,8 @@ export async function analyzeDesign(imageBase64: string, mimeType: string) {
 export async function reviewUI(
   imageBase64: string,
   mimeType: string,
-  designSystem: TokenSet
+  designSystem: TokenSet,
+  locale: string = "en"
 ): Promise<ReviewResult> {
   // Compact the design system to reduce prompt size
   const compact = JSON.stringify({
@@ -74,7 +75,7 @@ export async function reviewUI(
             type: "text",
             text: `Review this UI against this design system: ${compact}
 
-Check: hierarchy, color consistency, spacing, contrast. Return JSON only, max 5 issues:
+Check: hierarchy, color consistency, spacing, contrast.${locale === "ko" ? " Write area and suggestion fields in Korean." : ""} Return JSON only, max 5 issues:
 {"score":0-100,"issues":[{"area":"string","severity":"high"|"medium"|"low","suggestion":"string","bounds":{"x":0-100,"y":0-100,"width":0-100,"height":0-100}}],"improved":{"colors":{},"spacing":{},"radius":{},"typography":[]}}`,
           },
         ],
