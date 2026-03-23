@@ -10,9 +10,10 @@ interface RefGridProps {
   selectedRefId: string | null;
   onSelectRef: (id: string) => void;
   onFiles: (files: File[]) => void;
+  onDeleteRef?: (id: string) => void;
 }
 
-export function RefGrid({ references, selectedRefId, onSelectRef, onFiles }: RefGridProps) {
+export function RefGrid({ references, selectedRefId, onSelectRef, onFiles, onDeleteRef }: RefGridProps) {
   const t = useTranslations("refGrid");
   const tc = useTranslations("common");
 
@@ -36,6 +37,7 @@ export function RefGrid({ references, selectedRefId, onSelectRef, onFiles }: Ref
               reference={ref}
               selected={selectedRefId === ref.id}
               onClick={() => onSelectRef(ref.id)}
+              onDelete={onDeleteRef ? () => onDeleteRef(ref.id) : undefined}
             />
           ))}
         </div>

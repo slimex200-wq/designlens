@@ -52,6 +52,7 @@ export default function WorkspacePage() {
     activeProject,
     addReference,
     updateReference,
+    removeReference,
   } = useProjects();
 
   const { handleFiles } = useUpload({
@@ -171,6 +172,10 @@ export default function WorkspacePage() {
                 selectedRefId={selectedRefId}
                 onSelectRef={setSelectedRefId}
                 onFiles={handleFilesWithLimit}
+                onDeleteRef={(refId) => {
+                  if (selectedRefId === refId) setSelectedRefId(null);
+                  removeReference(activeProjectId, refId);
+                }}
               />
               {selectedRef && (
                 <AnalysisPanel

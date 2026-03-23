@@ -7,9 +7,10 @@ interface RefCardProps {
   reference: ReferenceImage;
   selected: boolean;
   onClick: () => void;
+  onDelete?: () => void;
 }
 
-export function RefCard({ reference, selected, onClick }: RefCardProps) {
+export function RefCard({ reference, selected, onClick, onDelete }: RefCardProps) {
   const t = useTranslations("refCard");
 
   const statusClasses: Record<string, string> = {
@@ -29,12 +30,26 @@ export function RefCard({ reference, selected, onClick }: RefCardProps) {
   return (
     <div
       onClick={onClick}
-      className={`rounded-lg overflow-hidden border transition-all cursor-pointer hover:-translate-y-px relative ${
+      className={`group rounded-lg overflow-hidden border transition-all cursor-pointer hover:-translate-y-px relative ${
         selected
           ? "border-accent shadow-[0_0_0_1px_var(--accent)]"
           : "border-border hover:border-border-hover"
       }`}
     >
+      {/* Delete button */}
+      {onDelete && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete();
+          }}
+          className="absolute top-1.5 left-1.5 z-10 w-5 h-5 rounded-full bg-bg-deep/80 border border-border text-text-tertiary text-[10px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-error-dim hover:text-error hover:border-error cursor-pointer"
+          title={t("delete")}
+        >
+          &#x2715;
+        </button>
+      )}
+
       {/* Thumbnail */}
       <div className="h-[100px] relative bg-bg-elevated">
         {reference.status === "processing" || reference.status === "uploading" ? (

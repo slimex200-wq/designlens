@@ -145,7 +145,8 @@
     "uploading": "Uploading...",
     "error": "Error",
     "colorsCount": "{count} colors",
-    "analyzing": "Analyzing..."
+    "analyzing": "Analyzing...",
+    "delete": "Delete"
   },
   "analysisPanel": {
     "title": "Analysis",
@@ -177,7 +178,11 @@
     "summary": "Summary",
     "referencesLabel": "References",
     "analyzedLabel": "Analyzed",
-    "uniqueColors": "Unique colors"
+    "uniqueColors": "Unique colors",
+    "noAnalysis": "Upload and analyze references in the Analyze tab to see aggregated color palettes and design patterns here.",
+    "typography": "Typography",
+    "layout": "Layout",
+    "unpin": "Unpin"
   },
   "review": {
     "title": "UI Review",

@@ -145,7 +145,8 @@
     "uploading": "업로드 중...",
     "error": "오류",
     "colorsCount": "{count}개 색상",
-    "analyzing": "분석 중..."
+    "analyzing": "분석 중...",
+    "delete": "삭제"
   },
   "analysisPanel": {
     "title": "분석",
@@ -177,7 +178,11 @@
     "summary": "요약",
     "referencesLabel": "레퍼런스",
     "analyzedLabel": "분석됨",
-    "uniqueColors": "고유 색상"
+    "uniqueColors": "고유 색상",
+    "noAnalysis": "Analyze 탭에서 레퍼런스를 업로드하고 분석하면 여기에 종합된 색상 팔레트와 디자인 패턴이 표시됩니다.",
+    "typography": "타이포그래피",
+    "layout": "레이아웃",
+    "unpin": "고정 해제"
   },
   "review": {
     "title": "UI 리뷰",

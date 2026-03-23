@@ -6,6 +6,7 @@ import { validateFile } from "@/lib/upload";
 import { hashFile } from "@/lib/hash";
 import { extractColors } from "@/lib/colors";
 import { getCachedAnalysis, setCachedAnalysis } from "@/lib/storage";
+import { saveImage } from "@/lib/image-store";
 import type { ToastType, ToastAction } from "@/components/ui/Toast";
 
 interface UseUploadOptions {
@@ -35,8 +36,9 @@ export function useUpload({ projectId, addReference, updateReference, showToast 
         const previewUrl = URL.createObjectURL(file);
         const refId = `ref_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 
-        // Convert to persistent data URL in background
+        // Convert to persistent data URL and save to IndexedDB
         fileToDataUrl(file).then((dataUrl) => {
+          saveImage(refId, dataUrl).catch(() => {});
           updateReference(projectId, refId, (r) => ({
             ...r,
             filePath: dataUrl,
@@ -219,31 +221,12 @@ async function processFile(
   }
 }
 
+/** Convert file to data URL without resizing — IndexedDB has no size limit. */
 async function fileToDataUrl(file: File): Promise<string> {
-  const MAX_DIM = 400;
-  try {
-    const bitmap = await createImageBitmap(file);
-    const scale = Math.min(1, MAX_DIM / Math.max(bitmap.width, bitmap.height));
-    const w = Math.round(bitmap.width * scale);
-    const h = Math.round(bitmap.height * scale);
-    const canvas = new OffscreenCanvas(w, h);
-    const ctx = canvas.getContext("2d")!;
-    ctx.drawImage(bitmap, 0, 0, w, h);
-    bitmap.close();
-    const blob = await canvas.convertToBlob({ type: "image/jpeg", quality: 0.7 });
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = reject;
-      reader.readAsDataURL(blob);
-    });
-  } catch {
-    // Fallback: read original file as data URL
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-  }
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
 }
