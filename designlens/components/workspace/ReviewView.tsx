@@ -1,25 +1,37 @@
 "use client";
 
-import { useState, useCallback, useRef, useMemo } from "react";
+import { useState, useCallback, useRef, useMemo, Dispatch } from "react";
 import { useTranslations } from "next-intl";
 import type { ReferenceImage, TokenSet, ReviewResult, ReviewIssue } from "@/lib/types";
+
+type ReviewState = {
+  image: string | null;
+  result: ReviewResult | null;
+  loading: boolean;
+  error: string | null;
+};
+
+type ReviewAction =
+  | { type: "START"; image: string }
+  | { type: "SUCCESS"; result: ReviewResult }
+  | { type: "ERROR"; error: string }
+  | { type: "DISMISS" };
 
 interface ReviewViewProps {
   references: ReferenceImage[];
   onToolChange: (tool: "analyze" | "moodboard" | "review" | "tokens") => void;
+  reviewState: ReviewState;
+  reviewDispatch: Dispatch<ReviewAction>;
 }
 
-export function ReviewView({ references, onToolChange }: ReviewViewProps) {
-  const [reviewImage, setReviewImage] = useState<string | null>(null);
-  const [reviewResult, setReviewResult] = useState<ReviewResult | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+export function ReviewView({ references, onToolChange, reviewState, reviewDispatch }: ReviewViewProps) {
   const [highlightedIssue, setHighlightedIssue] = useState<number | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  const fileRef = useRef<File | null>(null);
   const t = useTranslations("review");
   const tc = useTranslations("common");
+
+  const { image: reviewImage, result: reviewResult, loading, error } = reviewState;
 
   const analyzedRefs = useMemo(
     () => references.filter((r) => r.status === "analyzed" && r.analysis),
@@ -42,12 +54,8 @@ export function ReviewView({ references, onToolChange }: ReviewViewProps) {
     async (files: File[]) => {
       const file = files[0];
       if (!file) return;
-      fileRef.current = file;
       const url = URL.createObjectURL(file);
-      setReviewImage(url);
-      setReviewResult(null);
-      setError(null);
-      setLoading(true);
+      reviewDispatch({ type: "START", image: url });
 
       try {
         const formData = new FormData();
@@ -58,14 +66,12 @@ export function ReviewView({ references, onToolChange }: ReviewViewProps) {
         if (!res.ok) throw new Error(`API error: ${res.status}`);
 
         const result: ReviewResult = await res.json();
-        setReviewResult(result);
+        reviewDispatch({ type: "SUCCESS", result });
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Review failed");
-      } finally {
-        setLoading(false);
+        reviewDispatch({ type: "ERROR", error: err instanceof Error ? err.message : "Review failed" });
       }
     },
-    [mergedTokens]
+    [mergedTokens, reviewDispatch]
   );
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
@@ -89,9 +95,7 @@ export function ReviewView({ references, onToolChange }: ReviewViewProps) {
   );
 
   const dismiss = () => {
-    setReviewImage(null);
-    setReviewResult(null);
-    setError(null);
+    reviewDispatch({ type: "DISMISS" });
     setHighlightedIssue(null);
   };
 

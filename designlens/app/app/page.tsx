@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect, useRef, useCallback } from "react";
+import { useState, useMemo, useEffect, useRef, useCallback, useReducer } from "react";
 import { useTranslations } from "next-intl";
 import { Sidebar } from "@/components/workspace/Sidebar";
 import { RefGrid } from "@/components/workspace/RefGrid";
@@ -12,8 +12,35 @@ import { TokensView } from "@/components/workspace/TokensView";
 import { useProjects } from "@/hooks/useProjects";
 import { useUpload } from "@/hooks/useUpload";
 import { useToast } from "@/components/ui/Toast";
+import type { ReviewResult } from "@/lib/types";
 
 type Tool = "analyze" | "moodboard" | "review" | "tokens";
+
+type ReviewState = {
+  image: string | null;
+  result: ReviewResult | null;
+  loading: boolean;
+  error: string | null;
+};
+
+type ReviewAction =
+  | { type: "START"; image: string }
+  | { type: "SUCCESS"; result: ReviewResult }
+  | { type: "ERROR"; error: string }
+  | { type: "DISMISS" };
+
+function reviewReducer(_state: ReviewState, action: ReviewAction): ReviewState {
+  switch (action.type) {
+    case "START":
+      return { image: action.image, result: null, loading: true, error: null };
+    case "SUCCESS":
+      return { ..._state, result: action.result, loading: false };
+    case "ERROR":
+      return { ..._state, error: action.error, loading: false };
+    case "DISMISS":
+      return { image: null, result: null, loading: false, error: null };
+  }
+}
 
 const RATE_LIMIT = 20; // analyses per hour
 const RATE_WINDOW_MS = 60 * 60 * 1000; // 1 hour
@@ -44,6 +71,10 @@ export default function WorkspacePage() {
   const { remaining, decrement } = useRateLimit();
   const t = useTranslations("workspace");
   const tc = useTranslations("common");
+
+  const [reviewState, reviewDispatch] = useReducer(reviewReducer, {
+    image: null, result: null, loading: false, error: null,
+  });
 
   const {
     projects,
@@ -198,6 +229,8 @@ export default function WorkspacePage() {
             <ReviewView
               references={references}
               onToolChange={setActiveTool}
+              reviewState={reviewState}
+              reviewDispatch={reviewDispatch}
             />
           )}
 
