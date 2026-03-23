@@ -75,12 +75,19 @@ export default function TrendsPage() {
     return (
       <div className="flex-1 flex items-center justify-center">
         <div className="text-center max-w-sm">
-          <div className="w-12 h-12 rounded-xl bg-bg-elevated border border-border flex items-center justify-center mx-auto mb-4 text-lg text-text-tertiary">
+          <div className="w-14 h-14 rounded-2xl bg-bg-elevated border border-border flex items-center justify-center mx-auto mb-5 text-2xl text-text-tertiary">
             &#x2197;
           </div>
-          <p className="text-sm text-text-secondary">
-            No analyses yet. Start by analyzing some references.
+          <h2 className="text-base font-semibold text-text-primary mb-2">No trends yet</h2>
+          <p className="text-sm text-text-secondary mb-5 leading-relaxed">
+            Analyze a few references first. Once you have some data, design trends like popular colors, layouts, and typography will appear here.
           </p>
+          <a
+            href="/app"
+            className="inline-flex px-4 py-2 rounded-md text-xs bg-accent-dim text-accent border border-accent-border font-medium hover:opacity-85 transition-opacity"
+          >
+            Go to Workspace
+          </a>
         </div>
       </div>
     );

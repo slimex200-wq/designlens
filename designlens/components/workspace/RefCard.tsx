@@ -37,14 +37,16 @@ export function RefCard({ reference, selected, onClick }: RefCardProps) {
     >
       {/* Thumbnail */}
       <div className="h-[100px] relative bg-bg-elevated">
-        {reference.filePath && (
+        {reference.status === "processing" || reference.status === "uploading" ? (
+          <div className="w-full h-full animate-pulse bg-gradient-to-r from-bg-elevated via-bg-hover to-bg-elevated bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+        ) : reference.filePath ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={reference.filePath}
             alt={reference.fileName}
             className="w-full h-full object-cover"
           />
-        )}
+        ) : null}
         <span
           className={`absolute top-1.5 right-1.5 px-1.5 py-0.5 rounded text-[9px] font-semibold tracking-wide ${
             statusClasses[reference.status] ?? ""

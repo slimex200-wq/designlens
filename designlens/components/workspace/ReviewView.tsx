@@ -284,10 +284,30 @@ export function ReviewView({ references, onToolChange }: ReviewViewProps) {
                 </p>
               )}
             </div>
+          ) : loading ? (
+            <div className="p-4 flex flex-col gap-3">
+              {/* Skeleton score */}
+              <div className="text-center py-4">
+                <div className="w-20 h-14 rounded-lg bg-bg-elevated mx-auto animate-pulse" />
+                <div className="w-32 h-3 rounded bg-bg-elevated mx-auto mt-2 animate-pulse" />
+              </div>
+              <div className="h-px bg-border" />
+              {/* Skeleton issues */}
+              {[1, 2, 3].map((n) => (
+                <div key={n} className="p-3 rounded-lg bg-bg-deep border border-border">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-12 h-4 rounded bg-bg-elevated animate-pulse" />
+                    <div className="w-24 h-4 rounded bg-bg-elevated animate-pulse" />
+                  </div>
+                  <div className="w-full h-3 rounded bg-bg-elevated animate-pulse" />
+                  <div className="w-3/4 h-3 rounded bg-bg-elevated animate-pulse mt-1.5" />
+                </div>
+              ))}
+            </div>
           ) : (
             <div className="flex-1 flex items-center justify-center h-full">
               <p className="text-[13px] text-text-tertiary text-center p-5">
-                {loading ? t("analyzingUi") : t("resultsPlaceholder")}
+                {t("resultsPlaceholder")}
               </p>
             </div>
           )}
