@@ -190,7 +190,8 @@
     "typography": "타이포그래피",
     "layout": "레이아웃",
     "tokens": "토큰",
-    "hoverToZoom": "이미지 위에 마우스를 올려 확대"
+    "scrollToZoom": "스크롤로 확대",
+    "doubleClickReset": "더블클릭으로 초기화"
   },
   "review": {
     "title": "UI 리뷰",

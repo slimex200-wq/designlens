@@ -190,7 +190,8 @@
     "typography": "Typography",
     "layout": "Layout",
     "tokens": "Tokens",
-    "hoverToZoom": "Hover image to zoom"
+    "scrollToZoom": "Scroll to zoom",
+    "doubleClickReset": "Double-click to reset"
   },
   "review": {
     "title": "UI Review",
