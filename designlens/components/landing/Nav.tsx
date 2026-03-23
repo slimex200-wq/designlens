@@ -16,12 +16,12 @@ export function Nav() {
         DesignLens
       </span>
 
-      <div className="flex gap-8">
+      <div className="flex gap-2">
         {links.map((l) => (
           <Link
             key={l.label}
             href={l.href}
-            className="text-text-secondary text-[13px] font-medium tracking-[-0.2px] hover:text-text-primary transition-colors"
+            className="text-text-secondary text-[13px] font-medium tracking-[-0.2px] hover:text-text-primary transition-colors px-3 py-2.5 min-h-[44px] flex items-center"
           >
             {l.label}
           </Link>
@@ -31,13 +31,13 @@ export function Nav() {
       <div className="flex items-center gap-3">
         <Link
           href="#"
-          className="text-text-secondary text-[13px] font-medium hover:text-text-primary transition-colors"
+          className="text-text-secondary text-[13px] font-medium hover:text-text-primary transition-colors px-3 py-2.5 min-h-[44px] flex items-center"
         >
           Log in
         </Link>
         <Link
           href="/app"
-          className="bg-text-primary text-bg-deep px-[18px] py-[7px] rounded-md text-[13px] font-semibold hover:opacity-85 transition-opacity"
+          className="bg-text-primary text-bg-deep px-[18px] py-2.5 rounded-md text-[13px] font-semibold hover:opacity-85 transition-opacity min-h-[44px] flex items-center"
         >
           Get Started
         </Link>
