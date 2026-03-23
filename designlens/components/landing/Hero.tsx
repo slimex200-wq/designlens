@@ -27,13 +27,13 @@ export function Hero() {
       {/* CTAs */}
       <div className="flex gap-3 animate-[fadeInUp_0.7s_ease_0.4s_both]">
         <Link
-          href="#"
+          href="/app"
           className="px-7 py-3 rounded-lg text-sm font-semibold tracking-[-0.2px] bg-[#F0F2F5] text-bg-deep hover:opacity-85 hover:-translate-y-px transition-all"
         >
           Start for free
         </Link>
         <Link
-          href="#"
+          href="#features"
           className="px-7 py-3 rounded-lg text-sm font-semibold tracking-[-0.2px] bg-transparent text-text-secondary border border-border hover:border-border-hover hover:text-text-primary transition-all"
         >
           See how it works

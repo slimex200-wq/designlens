@@ -15,13 +15,13 @@ export function FinalCta() {
         </p>
         <div className="flex gap-3 justify-center">
           <Link
-            href="#"
+            href="/app"
             className="px-7 py-3 rounded-lg text-sm font-semibold tracking-[-0.2px] bg-[#F0F2F5] text-bg-deep hover:opacity-85 hover:-translate-y-px transition-all"
           >
             Get Started Free
           </Link>
           <Link
-            href="#"
+            href="/app"
             className="px-7 py-3 rounded-lg text-sm font-semibold tracking-[-0.2px] bg-transparent text-text-secondary border border-border hover:border-border-hover hover:text-text-primary transition-all"
           >
             View Demo

@@ -36,7 +36,7 @@ export function Nav() {
           Log in
         </Link>
         <Link
-          href="#"
+          href="/app"
           className="bg-text-primary text-bg-deep px-[18px] py-[7px] rounded-md text-[13px] font-semibold hover:opacity-85 transition-opacity"
         >
           Get Started
