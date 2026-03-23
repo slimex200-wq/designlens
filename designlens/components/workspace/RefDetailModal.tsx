@@ -58,18 +58,16 @@ export function RefDetailModal({ reference, onClose }: RefDetailModalProps) {
         onClick={(e) => e.stopPropagation()}
       >
         {/* Left: Image with hover zoom (Talbots-style) */}
-        <div
-          className="flex-1 bg-bg-deep overflow-hidden cursor-crosshair min-w-0"
-          onMouseEnter={() => setHovering(true)}
-          onMouseLeave={() => setHovering(false)}
-          onMouseMove={handleMouseMove}
-        >
+        <div className="flex-1 bg-bg-deep overflow-hidden min-w-0 flex items-center justify-center p-4">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               ref={imgRef}
               src={reference.filePath}
               alt={reference.fileName}
-              className="w-full h-full object-contain transition-transform duration-200 ease-out"
+              className="max-w-full max-h-[75vh] object-contain rounded-lg transition-transform duration-300 ease-out cursor-crosshair"
+              onMouseEnter={() => setHovering(true)}
+              onMouseLeave={() => { setHovering(false); setOrigin({ x: 50, y: 50 }); }}
+              onMouseMove={handleMouseMove}
               style={
                 hovering
                   ? {
