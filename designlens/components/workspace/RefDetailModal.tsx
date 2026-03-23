@@ -4,6 +4,9 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import { useTranslations } from "next-intl";
 import type { ReferenceImage } from "@/lib/types";
 
+const LENS_SIZE = 200;
+const ZOOM_FACTOR = 2.5;
+
 interface RefDetailModalProps {
   reference: ReferenceImage;
   onClose: () => void;
@@ -12,9 +15,10 @@ interface RefDetailModalProps {
 export function RefDetailModal({ reference, onClose }: RefDetailModalProps) {
   const t = useTranslations("refDetail");
   const analysis = reference.analysis;
-  const [zooming, setZooming] = useState(false);
-  const [zoomPos, setZoomPos] = useState({ x: 50, y: 50 });
-  const imgContainerRef = useRef<HTMLDivElement>(null);
+  const [lensActive, setLensActive] = useState(false);
+  const [lensPos, setLensPos] = useState({ x: 0, y: 0 });
+  const [imgRect, setImgRect] = useState({ x: 0, y: 0, w: 0, h: 0 });
+  const imgRef = useRef<HTMLImageElement>(null);
 
   // ESC to close
   useEffect(() => {
@@ -34,10 +38,10 @@ export function RefDetailModal({ reference, onClose }: RefDetailModalProps) {
   }, []);
 
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * 100;
-    const y = ((e.clientY - rect.top) / rect.height) * 100;
-    setZoomPos({ x, y });
+    if (!imgRef.current) return;
+    const rect = imgRef.current.getBoundingClientRect();
+    setImgRect({ x: rect.left, y: rect.top, w: rect.width, h: rect.height });
+    setLensPos({ x: e.clientX, y: e.clientY });
   }, []);
 
   return (
@@ -53,38 +57,45 @@ export function RefDetailModal({ reference, onClose }: RefDetailModalProps) {
         className="relative flex bg-bg-surface border border-border rounded-xl overflow-hidden max-w-[1100px] w-full max-h-[85vh] shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Left: Image with zoom */}
+        {/* Left: Image with glass lens zoom */}
         <div
-          ref={imgContainerRef}
-          className="flex-1 bg-bg-deep flex items-center justify-center min-w-0 p-4 relative overflow-hidden cursor-zoom-in"
-          onClick={(e) => {
-            e.stopPropagation();
-            setZooming((prev) => !prev);
-          }}
-          onMouseMove={zooming ? handleMouseMove : undefined}
-          onMouseLeave={() => setZooming(false)}
-          style={zooming ? { cursor: "zoom-out" } : undefined}
+          className="flex-1 bg-bg-deep flex items-center justify-center min-w-0 p-4 relative overflow-hidden"
+          onMouseMove={handleMouseMove}
+          onMouseEnter={() => setLensActive(true)}
+          onMouseLeave={() => setLensActive(false)}
+          style={{ cursor: "none" }}
         >
+          {/* Blurred backdrop when lens active */}
+          {lensActive && (
+            <div className="absolute inset-0 z-[1] pointer-events-none backdrop-blur-[2px] bg-black/10 transition-opacity duration-200" />
+          )}
+
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
+            ref={imgRef}
             src={reference.filePath}
             alt={reference.fileName}
-            className="max-w-full max-h-[75vh] object-contain rounded-lg transition-transform duration-150"
-            style={
-              zooming
-                ? {
-                    transform: "scale(2.5)",
-                    transformOrigin: `${zoomPos.x}% ${zoomPos.y}%`,
-                  }
-                : undefined
-            }
+            className="max-w-full max-h-[75vh] object-contain rounded-lg relative z-[2] pointer-events-none select-none"
             draggable={false}
           />
-          {/* Zoom hint */}
-          {!zooming && (
-            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-black/60 text-[10px] text-white/70 pointer-events-none">
-              {t("clickToZoom")}
-            </div>
+
+          {/* Glass lens */}
+          {lensActive && imgRect.w > 0 && (
+            <div
+              className="fixed z-[60] rounded-full pointer-events-none"
+              style={{
+                width: LENS_SIZE,
+                height: LENS_SIZE,
+                left: lensPos.x - LENS_SIZE / 2,
+                top: lensPos.y - LENS_SIZE / 2,
+                border: "2px solid rgba(255,255,255,0.25)",
+                boxShadow: "0 8px 32px rgba(0,0,0,0.5), inset 0 0 20px rgba(255,255,255,0.05)",
+                backgroundImage: `url(${reference.filePath})`,
+                backgroundSize: `${imgRect.w * ZOOM_FACTOR}px ${imgRect.h * ZOOM_FACTOR}px`,
+                backgroundPosition: `${-((lensPos.x - imgRect.x) * ZOOM_FACTOR - LENS_SIZE / 2)}px ${-((lensPos.y - imgRect.y) * ZOOM_FACTOR - LENS_SIZE / 2)}px`,
+                backgroundRepeat: "no-repeat",
+              }}
+            />
           )}
         </div>
 
