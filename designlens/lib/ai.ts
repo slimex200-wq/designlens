@@ -34,7 +34,8 @@ export async function analyzeDesign(imageBase64: string, mimeType: string) {
     ],
   });
 
-  const text = response.content[0].type === "text" ? response.content[0].text : "";
+  const raw = response.content[0].type === "text" ? response.content[0].text : "";
+  const text = raw.replace(/^```(?:json)?\s*\n?/i, "").replace(/\n?```\s*$/i, "").trim();
   try {
     return JSON.parse(text) as {
       typography: TypographyInfo[];
@@ -81,7 +82,8 @@ Return JSON only:
     ],
   });
 
-  const text = response.content[0].type === "text" ? response.content[0].text : "";
+  const raw = response.content[0].type === "text" ? response.content[0].text : "";
+  const text = raw.replace(/^```(?:json)?\s*\n?/i, "").replace(/\n?```\s*$/i, "").trim();
   try {
     return JSON.parse(text) as ReviewResult;
   } catch {

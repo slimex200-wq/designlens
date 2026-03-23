@@ -25,7 +25,16 @@ export async function POST(request: NextRequest) {
     const buffer = Buffer.from(await file.arrayBuffer());
     const base64 = buffer.toString("base64");
 
-    const result = await reviewUI(base64, file.type, designSystem);
+    let result;
+    try {
+      result = await reviewUI(base64, file.type, designSystem);
+    } catch (aiError) {
+      console.error("AI review failed:", aiError);
+      return NextResponse.json(
+        { error: "AI review failed. Check your API key and try again." },
+        { status: 502 }
+      );
+    }
     return NextResponse.json(result);
   } catch (error) {
     console.error("Review failed:", error);
