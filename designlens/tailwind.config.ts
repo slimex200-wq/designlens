@@ -30,6 +30,18 @@ const config: Config = {
           border: "var(--accent-border)",
           text: "var(--accent-text)",
         },
+        success: {
+          DEFAULT: "var(--success)",
+          dim: "var(--success-dim)",
+        },
+        warning: {
+          DEFAULT: "var(--warning)",
+          dim: "var(--warning-dim)",
+        },
+        error: {
+          DEFAULT: "var(--error)",
+          dim: "var(--error-dim)",
+        },
       },
       fontFamily: {
         sans: ["Inter", "-apple-system", "BlinkMacSystemFont", "sans-serif"],
