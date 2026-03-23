@@ -189,7 +189,8 @@
     "colors": "색상",
     "typography": "타이포그래피",
     "layout": "레이아웃",
-    "tokens": "토큰"
+    "tokens": "토큰",
+    "clickToZoom": "클릭하여 확대"
   },
   "review": {
     "title": "UI 리뷰",

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useTranslations } from "next-intl";
 import type { ReferenceImage } from "@/lib/types";
 
@@ -12,6 +12,9 @@ interface RefDetailModalProps {
 export function RefDetailModal({ reference, onClose }: RefDetailModalProps) {
   const t = useTranslations("refDetail");
   const analysis = reference.analysis;
+  const [zooming, setZooming] = useState(false);
+  const [zoomPos, setZoomPos] = useState({ x: 50, y: 50 });
+  const imgContainerRef = useRef<HTMLDivElement>(null);
 
   // ESC to close
   useEffect(() => {
@@ -30,6 +33,13 @@ export function RefDetailModal({ reference, onClose }: RefDetailModalProps) {
     };
   }, []);
 
+  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    setZoomPos({ x, y });
+  }, []);
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-6"
@@ -43,14 +53,39 @@ export function RefDetailModal({ reference, onClose }: RefDetailModalProps) {
         className="relative flex bg-bg-surface border border-border rounded-xl overflow-hidden max-w-[1100px] w-full max-h-[85vh] shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Left: Full image */}
-        <div className="flex-1 bg-bg-deep flex items-center justify-center min-w-0 p-4">
+        {/* Left: Image with zoom */}
+        <div
+          ref={imgContainerRef}
+          className="flex-1 bg-bg-deep flex items-center justify-center min-w-0 p-4 relative overflow-hidden cursor-zoom-in"
+          onClick={(e) => {
+            e.stopPropagation();
+            setZooming((prev) => !prev);
+          }}
+          onMouseMove={zooming ? handleMouseMove : undefined}
+          onMouseLeave={() => setZooming(false)}
+          style={zooming ? { cursor: "zoom-out" } : undefined}
+        >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={reference.filePath}
             alt={reference.fileName}
-            className="max-w-full max-h-[75vh] object-contain rounded-lg"
+            className="max-w-full max-h-[75vh] object-contain rounded-lg transition-transform duration-150"
+            style={
+              zooming
+                ? {
+                    transform: "scale(2.5)",
+                    transformOrigin: `${zoomPos.x}% ${zoomPos.y}%`,
+                  }
+                : undefined
+            }
+            draggable={false}
           />
+          {/* Zoom hint */}
+          {!zooming && (
+            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-black/60 text-[10px] text-white/70 pointer-events-none">
+              {t("clickToZoom")}
+            </div>
+          )}
         </div>
 
         {/* Right: Analysis panel */}

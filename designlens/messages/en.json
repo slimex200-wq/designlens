@@ -189,7 +189,8 @@
     "colors": "Colors",
     "typography": "Typography",
     "layout": "Layout",
-    "tokens": "Tokens"
+    "tokens": "Tokens",
+    "clickToZoom": "Click to zoom"
   },
   "review": {
     "title": "UI Review",
