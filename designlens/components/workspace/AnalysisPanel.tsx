@@ -19,9 +19,10 @@ const TABS: { id: Tab; label: string }[] = [
 interface AnalysisPanelProps {
   analysis: AnalysisResult | null;
   fileName: string | null;
+  onClose?: () => void;
 }
 
-export function AnalysisPanel({ analysis, fileName }: AnalysisPanelProps) {
+export function AnalysisPanel({ analysis, fileName, onClose }: AnalysisPanelProps) {
   const [activeTab, setActiveTab] = useState<Tab>("colors");
 
   return (
@@ -29,9 +30,20 @@ export function AnalysisPanel({ analysis, fileName }: AnalysisPanelProps) {
       {/* Header */}
       <div className="px-5 py-4 border-b border-border flex items-center justify-between">
         <h3 className="text-sm font-semibold tracking-tight">Analysis</h3>
-        {fileName && (
-          <span className="text-[11px] text-text-tertiary">{fileName}</span>
-        )}
+        <div className="flex items-center gap-2">
+          {fileName && (
+            <span className="text-[11px] text-text-tertiary">{fileName}</span>
+          )}
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="w-5 h-5 rounded flex items-center justify-center text-text-tertiary hover:text-text-primary hover:bg-bg-hover transition-all cursor-pointer text-xs"
+              title="Close panel"
+            >
+              ✕
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Tab row */}

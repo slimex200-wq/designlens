@@ -152,10 +152,13 @@ export default function WorkspacePage() {
                 onSelectRef={setSelectedRefId}
                 onFiles={handleFilesWithLimit}
               />
-              <AnalysisPanel
-                analysis={selectedAnalysis}
-                fileName={selectedRef?.fileName ?? null}
-              />
+              {selectedRef && (
+                <AnalysisPanel
+                  analysis={selectedAnalysis}
+                  fileName={selectedRef.fileName}
+                  onClose={() => setSelectedRefId(null)}
+                />
+              )}
             </>
           )}
 
@@ -180,8 +183,8 @@ export default function WorkspacePage() {
           )}
         </div>
 
-        {/* AI Feedback bar */}
-        <FeedbackBar analysis={selectedAnalysis} />
+        {/* AI Feedback bar — only when analysis available */}
+        {selectedAnalysis && <FeedbackBar analysis={selectedAnalysis} />}
       </div>
     </>
   );
