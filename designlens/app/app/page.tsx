@@ -7,6 +7,7 @@ import { AnalysisPanel } from "@/components/workspace/AnalysisPanel";
 import { FeedbackBar } from "@/components/workspace/FeedbackBar";
 import { ReviewView } from "@/components/workspace/ReviewView";
 import { MoodboardGrid } from "@/components/workspace/MoodboardGrid";
+import { TokensView } from "@/components/workspace/TokensView";
 import { useProjects } from "@/hooks/useProjects";
 import { useUpload } from "@/hooks/useUpload";
 import { useToast } from "@/components/ui/Toast";
@@ -177,9 +178,10 @@ export default function WorkspacePage() {
           )}
 
           {activeTool === "tokens" && (
-            <div className="flex-1 flex items-center justify-center">
-              <p className="text-text-tertiary text-sm">Tokens view coming soon</p>
-            </div>
+            <TokensView
+              references={references}
+              onToolChange={setActiveTool}
+            />
           )}
         </div>
 
