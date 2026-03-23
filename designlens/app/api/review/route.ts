@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { reviewUI } from "@/lib/ai";
 import type { TokenSet } from "@/lib/types";
 
+export const maxDuration = 30;
+
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
