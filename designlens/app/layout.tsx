@@ -27,6 +27,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang={locale} className={`${inter.variable} ${jetbrainsMono.variable}`}>
       <body className="font-sans">
+        <a href="#main-content" className="skip-link">
+          Skip to content
+        </a>
         <NextIntlClientProvider messages={messages}>
           <ToastProvider>{children}</ToastProvider>
         </NextIntlClientProvider>

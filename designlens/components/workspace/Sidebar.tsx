@@ -51,6 +51,7 @@ export function Sidebar({
 
   return (
     <aside
+      aria-label={t("tools")}
       className={`${collapsed ? "w-[52px]" : "w-60"} h-screen bg-bg-surface border-r border-border flex flex-col flex-shrink-0 transition-[width] duration-200`}
     >
       {/* Header */}

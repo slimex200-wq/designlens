@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useMemo, useEffect, useRef, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { Sidebar } from "@/components/workspace/Sidebar";
 import { RefGrid } from "@/components/workspace/RefGrid";
@@ -80,6 +80,21 @@ export default function WorkspacePage() {
 
   const selectedAnalysis = selectedRef?.analysis ?? null;
 
+  // Escape key closes analysis panel
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (e.key === "Escape" && selectedRefId) {
+        setSelectedRefId(null);
+      }
+    },
+    [selectedRefId]
+  );
+
+  useEffect(() => {
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [handleKeyDown]);
+
   const toolLabels: Record<Tool, string> = {
     analyze: t("analyze"),
     moodboard: t("moodboard"),
@@ -100,7 +115,7 @@ export default function WorkspacePage() {
       />
 
       {/* Main area */}
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <main id="main-content" className="flex-1 flex flex-col overflow-hidden">
         {/* Topbar */}
         <div className="h-12 flex items-center px-5 border-b border-border gap-3 flex-shrink-0">
           <div className="text-[13px] text-text-secondary flex items-center gap-1.5">
@@ -191,7 +206,7 @@ export default function WorkspacePage() {
 
         {/* AI Feedback bar — only when analysis available */}
         {selectedAnalysis && <FeedbackBar analysis={selectedAnalysis} />}
-      </div>
+      </main>
     </>
   );
 }

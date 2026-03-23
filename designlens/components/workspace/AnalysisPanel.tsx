@@ -28,7 +28,7 @@ export function AnalysisPanel({ analysis, fileName, onClose }: AnalysisPanelProp
   ];
 
   return (
-    <div className="w-[360px] border-l border-border bg-bg-surface overflow-y-auto flex flex-col flex-shrink-0">
+    <section aria-label={t("title")} className="w-[360px] border-l border-border bg-bg-surface overflow-y-auto flex flex-col flex-shrink-0">
       {/* Header */}
       <div className="px-5 py-4 border-b border-border flex items-center justify-between">
         <h3 className="text-sm font-semibold tracking-tight">{t("title")}</h3>
@@ -87,6 +87,6 @@ export function AnalysisPanel({ analysis, fileName, onClose }: AnalysisPanelProp
           </p>
         </div>
       )}
-    </div>
+    </section>
   );
 }
