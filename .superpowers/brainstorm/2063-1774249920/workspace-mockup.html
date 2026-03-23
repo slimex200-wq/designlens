@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DesignLens - Workspace</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg-deep: #0C0D0F;
+    --bg-surface: #131519;
+    --bg-elevated: #1A1D23;
+    --bg-hover: #1F2229;
+    --border: #1E2028;
+    --border-hover: #2A2D38;
+    --text-primary: #E8EAED;
+    --text-secondary: #5A5F6B;
+    --text-tertiary: #3A3F4B;
+    --accent: #93C5FD;
+    --accent-dim: rgba(147,197,253,0.08);
+    --accent-border: rgba(147,197,253,0.15);
+    --accent-text: rgba(147,197,253,0.7);
+    --success: #4ADE80;
+    --success-dim: rgba(74,222,128,0.08);
+    --warning: #FBBF24;
+    --warning-dim: rgba(251,191,36,0.08);
+    --error: #F87171;
+    --error-dim: rgba(248,113,113,0.08);
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg-deep);
+    color: var(--text-primary);
+    height: 100vh; overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+    display: flex;
+  }
+
+  /* ── LEFT SIDEBAR ── */
+  .sidebar {
+    width: 240px; height: 100vh;
+    background: var(--bg-surface);
+    border-right: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    flex-shrink: 0;
+  }
+  .sidebar-header {
+    padding: 16px 16px 12px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+  }
+  .sidebar-logo {
+    font-size: 15px; font-weight: 700; letter-spacing: -0.3px;
+    color: var(--text-primary);
+  }
+  .sidebar-avatar {
+    width: 24px; height: 24px; border-radius: 6px;
+    background: var(--bg-elevated); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; color: var(--text-secondary);
+  }
+
+  .sidebar-section { padding: 12px 8px; }
+  .sidebar-label {
+    font-size: 10px; text-transform: uppercase; letter-spacing: 1.2px;
+    color: var(--text-tertiary); padding: 0 8px; margin-bottom: 6px;
+    font-weight: 600;
+  }
+  .sidebar-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 8px; border-radius: 6px; font-size: 13px;
+    color: var(--text-secondary); cursor: pointer;
+    transition: all 0.15s; letter-spacing: -0.1px;
+  }
+  .sidebar-item:hover { background: var(--bg-hover); color: var(--text-primary); }
+  .sidebar-item.active {
+    background: var(--accent-dim); color: var(--accent);
+  }
+  .sidebar-item .icon {
+    width: 18px; text-align: center; font-size: 12px;
+    opacity: 0.6;
+  }
+  .sidebar-item.active .icon { opacity: 1; }
+  .sidebar-item .badge {
+    margin-left: auto; font-size: 10px; padding: 1px 6px;
+    border-radius: 10px; background: var(--accent-dim);
+    color: var(--accent-text); font-weight: 500;
+  }
+
+  .sidebar-divider {
+    height: 1px; background: var(--border); margin: 4px 8px;
+  }
+
+  /* Projects */
+  .project-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 8px; border-radius: 6px; font-size: 13px;
+    color: var(--text-secondary); cursor: pointer;
+    transition: all 0.15s;
+  }
+  .project-item:hover { background: var(--bg-hover); color: var(--text-primary); }
+  .project-item.active { color: var(--text-primary); background: var(--bg-hover); }
+  .project-dot {
+    width: 8px; height: 8px; border-radius: 3px;
+  }
+  .project-item .count {
+    margin-left: auto; font-size: 11px; color: var(--text-tertiary);
+  }
+
+  .sidebar-footer {
+    margin-top: auto; padding: 12px; border-top: 1px solid var(--border);
+  }
+  .sidebar-footer-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 8px; border-radius: 6px; font-size: 12px;
+    color: var(--text-tertiary); cursor: pointer;
+    transition: all 0.15s;
+  }
+  .sidebar-footer-item:hover { background: var(--bg-hover); color: var(--text-secondary); }
+
+  /* ── MAIN AREA ── */
+  .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+  /* Top bar */
+  .topbar {
+    height: 48px; display: flex; align-items: center;
+    padding: 0 20px; border-bottom: 1px solid var(--border);
+    gap: 12px; flex-shrink: 0;
+  }
+  .topbar-breadcrumb {
+    font-size: 13px; color: var(--text-secondary);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .topbar-breadcrumb .sep { color: var(--text-tertiary); }
+  .topbar-breadcrumb .current { color: var(--text-primary); font-weight: 500; }
+  .topbar-actions {
+    margin-left: auto; display: flex; gap: 8px; align-items: center;
+  }
+  .topbar-btn {
+    padding: 5px 12px; border-radius: 6px; font-size: 12px;
+    background: var(--bg-elevated); border: 1px solid var(--border);
+    color: var(--text-secondary); cursor: pointer;
+    transition: all 0.15s; font-weight: 500;
+  }
+  .topbar-btn:hover { border-color: var(--border-hover); color: var(--text-primary); }
+  .topbar-btn.primary {
+    background: var(--text-primary); color: var(--bg-deep);
+    border: none;
+  }
+
+  /* Content area */
+  .content {
+    flex: 1; display: flex; overflow: hidden;
+  }
+
+  /* ── REFERENCE GRID (left side of content) ── */
+  .ref-panel {
+    flex: 1; padding: 20px; overflow-y: auto;
+    display: flex; flex-direction: column; gap: 16px;
+  }
+  .ref-header {
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .ref-header h2 {
+    font-size: 18px; font-weight: 600; letter-spacing: -0.3px;
+  }
+  .ref-header .count-tag {
+    font-size: 11px; color: var(--text-tertiary);
+  }
+
+  /* Upload zone */
+  .upload-zone {
+    border: 1px dashed var(--border); border-radius: 10px;
+    padding: 28px; text-align: center;
+    transition: all 0.2s; cursor: pointer;
+  }
+  .upload-zone:hover {
+    border-color: var(--border-hover);
+    background: var(--accent-dim);
+  }
+  .upload-icon {
+    font-size: 20px; color: var(--text-tertiary); margin-bottom: 8px;
+  }
+  .upload-zone h4 {
+    font-size: 13px; font-weight: 500; margin-bottom: 4px;
+  }
+  .upload-zone p {
+    font-size: 11px; color: var(--text-tertiary);
+  }
+
+  /* Reference cards grid */
+  .ref-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+  .ref-card {
+    border-radius: 8px; overflow: hidden;
+    border: 1px solid var(--border);
+    transition: all 0.2s; cursor: pointer;
+    position: relative;
+  }
+  .ref-card:hover {
+    border-color: var(--border-hover);
+    transform: translateY(-1px);
+  }
+  .ref-card.selected { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+  .ref-thumb {
+    height: 100px; position: relative;
+  }
+  .ref-card-info {
+    padding: 8px 10px; background: var(--bg-surface);
+  }
+  .ref-card-info h5 {
+    font-size: 11px; font-weight: 500; margin-bottom: 2px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .ref-card-info span {
+    font-size: 10px; color: var(--text-tertiary);
+  }
+  .ref-status {
+    position: absolute; top: 6px; right: 6px;
+    padding: 2px 6px; border-radius: 4px; font-size: 9px;
+    font-weight: 600; letter-spacing: 0.3px;
+  }
+  .ref-status.done { background: var(--success-dim); color: var(--success); }
+  .ref-status.processing { background: var(--accent-dim); color: var(--accent); }
+
+  /* ── ANALYSIS PANEL (right side) ── */
+  .analysis-panel {
+    width: 360px; border-left: 1px solid var(--border);
+    background: var(--bg-surface); overflow-y: auto;
+    display: flex; flex-direction: column; flex-shrink: 0;
+  }
+  .analysis-header {
+    padding: 16px 20px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .analysis-header h3 {
+    font-size: 14px; font-weight: 600; letter-spacing: -0.2px;
+  }
+  .tab-row {
+    display: flex; border-bottom: 1px solid var(--border);
+  }
+  .tab {
+    flex: 1; padding: 10px; text-align: center;
+    font-size: 11px; font-weight: 500; color: var(--text-tertiary);
+    cursor: pointer; transition: all 0.15s;
+    border-bottom: 2px solid transparent;
+  }
+  .tab:hover { color: var(--text-secondary); }
+  .tab.active {
+    color: var(--text-primary);
+    border-bottom-color: var(--accent);
+  }
+
+  .analysis-body { padding: 16px 20px; display: flex; flex-direction: column; gap: 20px; }
+
+  /* Color section */
+  .color-section {}
+  .section-title {
+    font-size: 10px; text-transform: uppercase; letter-spacing: 1px;
+    color: var(--text-tertiary); margin-bottom: 10px; font-weight: 600;
+  }
+  .color-grid {
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .color-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 6px 8px; border-radius: 6px;
+    transition: background 0.15s;
+  }
+  .color-row:hover { background: var(--bg-hover); }
+  .color-swatch {
+    width: 28px; height: 28px; border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.06); flex-shrink: 0;
+  }
+  .color-info { flex: 1; }
+  .color-info .hex {
+    font-size: 12px; font-family: 'JetBrains Mono', monospace;
+    color: var(--text-primary); font-weight: 500;
+  }
+  .color-info .usage {
+    font-size: 10px; color: var(--text-tertiary);
+  }
+  .color-pct {
+    font-size: 11px; color: var(--text-tertiary);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* Typography section */
+  .typo-card {
+    background: var(--bg-deep); border: 1px solid var(--border);
+    border-radius: 8px; padding: 14px; margin-bottom: 6px;
+  }
+  .typo-preview {
+    margin-bottom: 8px; padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .typo-meta {
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .typo-meta span {
+    font-size: 10px; color: var(--text-tertiary);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .typo-meta .role {
+    font-size: 10px; padding: 2px 6px; border-radius: 3px;
+    background: var(--accent-dim); color: var(--accent-text);
+    font-family: 'Inter', sans-serif; font-weight: 500;
+  }
+
+  /* Token section */
+  .token-group { margin-bottom: 12px; }
+  .token-group-title {
+    font-size: 10px; color: var(--text-tertiary); margin-bottom: 6px;
+    font-weight: 500;
+  }
+  .token-line {
+    display: flex; align-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; padding: 4px 8px; border-radius: 4px;
+    margin-bottom: 2px; transition: background 0.15s;
+  }
+  .token-line:hover { background: var(--bg-hover); }
+  .token-key { color: var(--accent-text); }
+  .token-colon { color: var(--text-tertiary); margin: 0 4px; }
+  .token-value { color: var(--text-secondary); }
+
+  /* Export button */
+  .export-section {
+    margin-top: auto; padding: 16px 20px;
+    border-top: 1px solid var(--border);
+  }
+  .export-btn {
+    width: 100%; padding: 10px; border-radius: 8px;
+    background: var(--text-primary); color: var(--bg-deep);
+    font-size: 13px; font-weight: 600; border: none;
+    cursor: pointer; transition: opacity 0.2s;
+    letter-spacing: -0.2px;
+  }
+  .export-btn:hover { opacity: 0.85; }
+  .export-options {
+    display: flex; gap: 6px; margin-top: 8px;
+  }
+  .export-opt {
+    flex: 1; padding: 6px; text-align: center;
+    font-size: 10px; border-radius: 4px;
+    background: var(--bg-deep); border: 1px solid var(--border);
+    color: var(--text-tertiary); cursor: pointer;
+    transition: all 0.15s; font-weight: 500;
+  }
+  .export-opt:hover { border-color: var(--border-hover); color: var(--text-secondary); }
+  .export-opt.active { border-color: var(--accent-border); color: var(--accent); background: var(--accent-dim); }
+
+  /* ── AI FEEDBACK BAR (bottom) ── */
+  .feedback-bar {
+    height: 52px; border-top: 1px solid var(--border);
+    background: var(--bg-surface); display: flex;
+    align-items: center; padding: 0 20px; gap: 12px;
+    flex-shrink: 0;
+  }
+  .feedback-indicator {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--success);
+    animation: pulse 2s infinite;
+  }
+  .feedback-text {
+    font-size: 12px; color: var(--text-secondary); flex: 1;
+  }
+  .feedback-text strong { color: var(--text-primary); font-weight: 500; }
+  .feedback-action {
+    padding: 5px 12px; border-radius: 6px; font-size: 11px;
+    background: var(--accent-dim); border: 1px solid var(--accent-border);
+    color: var(--accent); cursor: pointer; font-weight: 500;
+    transition: all 0.15s;
+  }
+  .feedback-action:hover { background: rgba(147,197,253,0.12); }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <span class="sidebar-logo">DesignLens</span>
+    <div class="sidebar-avatar">S</div>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-label">Tools</div>
+    <div class="sidebar-item active">
+      <span class="icon">&#9881;</span> Analyze
+      <span class="badge">3</span>
+    </div>
+    <div class="sidebar-item">
+      <span class="icon">&#9635;</span> Moodboard
+    </div>
+    <div class="sidebar-item">
+      <span class="icon">&#10003;</span> UI Review
+    </div>
+    <div class="sidebar-item">
+      <span class="icon">{ }</span> Tokens
+    </div>
+  </div>
+
+  <div class="sidebar-divider"></div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-label">Projects</div>
+    <div class="project-item active">
+      <div class="project-dot" style="background:var(--accent);"></div>
+      SaaS Redesign
+      <span class="count">12</span>
+    </div>
+    <div class="project-item">
+      <div class="project-dot" style="background:#5A5F6B;"></div>
+      Portfolio v3
+      <span class="count">5</span>
+    </div>
+    <div class="project-item">
+      <div class="project-dot" style="background:#5A5F6B;"></div>
+      Mobile App
+      <span class="count">8</span>
+    </div>
+  </div>
+
+  <div class="sidebar-footer">
+    <div class="sidebar-footer-item">
+      <span style="font-size:12px;">&#9881;</span> Settings
+    </div>
+    <div class="sidebar-footer-item">
+      <span style="font-size:12px;">?</span> Help & Docs
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="topbar-breadcrumb">
+      SaaS Redesign <span class="sep">/</span> <span class="current">Analyze</span>
+    </div>
+    <div class="topbar-actions">
+      <button class="topbar-btn">Share</button>
+      <button class="topbar-btn primary">+ Upload</button>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+    <!-- Reference grid -->
+    <div class="ref-panel">
+      <div class="ref-header">
+        <h2>References</h2>
+        <span class="count-tag">6 files</span>
+      </div>
+
+      <div class="upload-zone">
+        <div class="upload-icon">+</div>
+        <h4>Drop references here</h4>
+        <p>PNG, JPG, WebP or paste a URL</p>
+      </div>
+
+      <div class="ref-grid">
+        <div class="ref-card selected">
+          <div class="ref-thumb" style="background:linear-gradient(135deg,#0f172a,#1e293b);">
+            <span class="ref-status done">Analyzed</span>
+          </div>
+          <div class="ref-card-info">
+            <h5>linear-homepage.png</h5>
+            <span>1920 x 1080</span>
+          </div>
+        </div>
+        <div class="ref-card">
+          <div class="ref-thumb" style="background:linear-gradient(135deg,#0a0a0a,#171717);">
+            <span class="ref-status done">Analyzed</span>
+          </div>
+          <div class="ref-card-info">
+            <h5>vercel-dashboard.png</h5>
+            <span>1440 x 900</span>
+          </div>
+        </div>
+        <div class="ref-card">
+          <div class="ref-thumb" style="background:linear-gradient(135deg,#111827,#1f2937);">
+            <span class="ref-status done">Analyzed</span>
+          </div>
+          <div class="ref-card-info">
+            <h5>stripe-pricing.png</h5>
+            <span>1920 x 1080</span>
+          </div>
+        </div>
+        <div class="ref-card">
+          <div class="ref-thumb" style="background:linear-gradient(135deg,#18181b,#27272a);">
+            <span class="ref-status processing">Processing...</span>
+          </div>
+          <div class="ref-card-info">
+            <h5>raycast-landing.png</h5>
+            <span>2560 x 1440</span>
+          </div>
+        </div>
+        <div class="ref-card">
+          <div class="ref-thumb" style="background:linear-gradient(135deg,#0c0a09,#1c1917);">
+            <span class="ref-status done">Analyzed</span>
+          </div>
+          <div class="ref-card-info">
+            <h5>superhuman-inbox.png</h5>
+            <span>1440 x 900</span>
+          </div>
+        </div>
+        <div class="ref-card">
+          <div class="ref-thumb" style="background:linear-gradient(135deg,#020617,#0f172a);">
+            <span class="ref-status done">Analyzed</span>
+          </div>
+          <div class="ref-card-info">
+            <h5>arc-browser.png</h5>
+            <span>1920 x 1080</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Analysis panel -->
+    <div class="analysis-panel">
+      <div class="analysis-header">
+        <h3>Analysis</h3>
+        <span style="font-size:11px;color:var(--text-tertiary);">linear-homepage.png</span>
+      </div>
+
+      <div class="tab-row">
+        <div class="tab active">Colors</div>
+        <div class="tab">Typography</div>
+        <div class="tab">Layout</div>
+        <div class="tab">Tokens</div>
+      </div>
+
+      <div class="analysis-body">
+        <!-- Colors -->
+        <div class="color-section">
+          <div class="section-title">Dominant Colors</div>
+          <div class="color-grid">
+            <div class="color-row">
+              <div class="color-swatch" style="background:#08090a;"></div>
+              <div class="color-info">
+                <div class="hex">#08090A</div>
+                <div class="usage">Background</div>
+              </div>
+              <span class="color-pct">42%</span>
+            </div>
+            <div class="color-row">
+              <div class="color-swatch" style="background:#f7f8f8;"></div>
+              <div class="color-info">
+                <div class="hex">#F7F8F8</div>
+                <div class="usage">Primary text</div>
+              </div>
+              <span class="color-pct">28%</span>
+            </div>
+            <div class="color-row">
+              <div class="color-swatch" style="background:#8a8f98;"></div>
+              <div class="color-info">
+                <div class="hex">#8A8F98</div>
+                <div class="usage">Secondary text</div>
+              </div>
+              <span class="color-pct">18%</span>
+            </div>
+            <div class="color-row">
+              <div class="color-swatch" style="background:#5e6ad2;"></div>
+              <div class="color-info">
+                <div class="hex">#5E6AD2</div>
+                <div class="usage">Accent</div>
+              </div>
+              <span class="color-pct">7%</span>
+            </div>
+            <div class="color-row">
+              <div class="color-swatch" style="background:#1e2028;"></div>
+              <div class="color-info">
+                <div class="hex">#1E2028</div>
+                <div class="usage">Border / divider</div>
+              </div>
+              <span class="color-pct">5%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Typography preview -->
+        <div>
+          <div class="section-title">Typography</div>
+          <div class="typo-card">
+            <div class="typo-preview">
+              <span style="font-size:22px;font-weight:600;letter-spacing:-0.5px;">Heading text</span>
+            </div>
+            <div class="typo-meta">
+              <span>Inter / 600 / 22px / -0.5px</span>
+              <span class="role">H2</span>
+            </div>
+          </div>
+          <div class="typo-card">
+            <div class="typo-preview">
+              <span style="font-size:14px;font-weight:400;color:var(--text-secondary);">Body paragraph text with normal weight</span>
+            </div>
+            <div class="typo-meta">
+              <span>Inter / 400 / 14px / -0.15px</span>
+              <span class="role">Body</span>
+            </div>
+          </div>
+          <div class="typo-card">
+            <div class="typo-preview">
+              <span style="font-size:11px;font-weight:500;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:1px;">Label text</span>
+            </div>
+            <div class="typo-meta">
+              <span>Inter / 500 / 11px / 1px</span>
+              <span class="role">Label</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tokens -->
+        <div>
+          <div class="section-title">Generated Tokens</div>
+          <div class="token-group">
+            <div class="token-group-title">Colors</div>
+            <div class="token-line">
+              <span class="token-key">--bg</span>
+              <span class="token-colon">:</span>
+              <span class="token-value">#08090A</span>
+            </div>
+            <div class="token-line">
+              <span class="token-key">--text</span>
+              <span class="token-colon">:</span>
+              <span class="token-value">#F7F8F8</span>
+            </div>
+            <div class="token-line">
+              <span class="token-key">--muted</span>
+              <span class="token-colon">:</span>
+              <span class="token-value">#8A8F98</span>
+            </div>
+            <div class="token-line">
+              <span class="token-key">--accent</span>
+              <span class="token-colon">:</span>
+              <span class="token-value">#5E6AD2</span>
+            </div>
+            <div class="token-line">
+              <span class="token-key">--border</span>
+              <span class="token-colon">:</span>
+              <span class="token-value">#1E2028</span>
+            </div>
+          </div>
+          <div class="token-group">
+            <div class="token-group-title">Spacing</div>
+            <div class="token-line">
+              <span class="token-key">--space-xs</span>
+              <span class="token-colon">:</span>
+              <span class="token-value">4px</span>
+            </div>
+            <div class="token-line">
+              <span class="token-key">--space-sm</span>
+              <span class="token-colon">:</span>
+              <span class="token-value">8px</span>
+            </div>
+            <div class="token-line">
+              <span class="token-key">--space-md</span>
+              <span class="token-colon">:</span>
+              <span class="token-value">16px</span>
+            </div>
+            <div class="token-line">
+              <span class="token-key">--space-lg</span>
+              <span class="token-colon">:</span>
+              <span class="token-value">32px</span>
+            </div>
+          </div>
+          <div class="token-group">
+            <div class="token-group-title">Radius</div>
+            <div class="token-line">
+              <span class="token-key">--radius-sm</span>
+              <span class="token-colon">:</span>
+              <span class="token-value">4px</span>
+            </div>
+            <div class="token-line">
+              <span class="token-key">--radius-md</span>
+              <span class="token-colon">:</span>
+              <span class="token-value">8px</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Export -->
+      <div class="export-section">
+        <div class="export-options">
+          <div class="export-opt active">CSS</div>
+          <div class="export-opt">Tailwind</div>
+          <div class="export-opt">JSON</div>
+        </div>
+        <button class="export-btn" style="margin-top:8px;">Export Tokens</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI Feedback bar -->
+  <div class="feedback-bar">
+    <span class="feedback-indicator"></span>
+    <span class="feedback-text">
+      <strong>AI Insight:</strong> These references share a consistent dark theme with minimal accent usage. Contrast ratio averages 14.2:1.
+    </span>
+    <button class="feedback-action">View Details</button>
+  </div>
+</div>
+
+</body>
+</html>

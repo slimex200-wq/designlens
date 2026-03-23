@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DesignLens - Color Direction v2</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #08090a;
+    color: #f7f8f8;
+    padding: 48px;
+  }
+  h1 {
+    font-size: 40px; font-weight: 800; letter-spacing: -1.5px;
+    margin-bottom: 8px; text-align: center;
+  }
+  .subtitle {
+    text-align: center; color: #8a8f98; font-size: 16px;
+    margin-bottom: 48px;
+  }
+  .palettes {
+    display: flex; flex-direction: column; gap: 40px;
+    max-width: 900px; margin: 0 auto;
+  }
+  .palette {
+    border: 1px solid #1e2028; border-radius: 16px;
+    overflow: hidden; cursor: pointer;
+    transition: all 0.3s;
+  }
+  .palette:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+  }
+  .palette.selected {
+    border-color: #fff;
+    box-shadow: 0 0 0 1px #fff;
+  }
+
+  /* Full landing mockup inside each palette */
+  .mockup-frame {
+    padding: 0;
+    position: relative;
+  }
+
+  /* Hero section mockup */
+  .mock-hero {
+    padding: 80px 48px 48px;
+    text-align: center;
+    position: relative;
+    min-height: 320px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .mock-nav {
+    position: absolute; top: 0; left: 0; right: 0;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 32px; font-size: 13px;
+  }
+  .mock-nav .logo { font-weight: 700; font-size: 16px; }
+  .mock-nav .links { display: flex; gap: 24px; font-size: 12px; }
+  .mock-nav .cta {
+    padding: 6px 16px; border-radius: 6px; font-size: 12px; font-weight: 600;
+  }
+  .mock-hero h2 {
+    font-size: 44px; font-weight: 800; letter-spacing: -2px; line-height: 1.0;
+    margin-bottom: 12px;
+  }
+  .mock-hero p {
+    font-size: 14px; line-height: 1.6; max-width: 400px;
+    margin-bottom: 24px;
+  }
+  .mock-hero .btns {
+    display: flex; gap: 12px;
+  }
+  .mock-hero .btn {
+    padding: 10px 24px; border-radius: 8px; font-size: 13px; font-weight: 600;
+  }
+
+  /* Feature cards mockup */
+  .mock-features {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 12px; padding: 0 32px 32px;
+  }
+  .mock-feat-card {
+    padding: 20px; border-radius: 10px;
+    border: 1px solid;
+  }
+  .mock-feat-card h4 { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+  .mock-feat-card p { font-size: 11px; line-height: 1.5; }
+
+  /* Palette info */
+  .palette-info {
+    padding: 24px 32px;
+    display: flex; justify-content: space-between; align-items: center;
+    border-top: 1px solid rgba(255,255,255,0.06);
+  }
+  .palette-meta h3 { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+  .palette-meta p { font-size: 13px; max-width: 450px; }
+  .swatches { display: flex; gap: 6px; }
+  .swatch {
+    width: 32px; height: 32px; border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .pick-label {
+    text-align: center; margin-top: 48px; color: #8a8f98; font-size: 14px;
+  }
+</style>
+</head>
+<body>
+
+<h1>컬러를 절제하면 디자인이 산다</h1>
+<p class="subtitle">단일 액센트 + 모노크롬. 컬러가 아니라 타이포와 여백이 주인공.</p>
+
+<div class="palettes">
+
+  <!-- A. Pure Mono — 흑백 + 단 하나의 액센트 -->
+  <div class="palette" data-choice="mono" onclick="document.querySelectorAll('.palette').forEach(p=>p.classList.remove('selected'));this.classList.add('selected');">
+    <div class="mockup-frame">
+      <div class="mock-hero" style="background:#0a0a0a;">
+        <div class="mock-nav">
+          <span class="logo" style="color:#fff;">DesignLens</span>
+          <div class="links" style="color:rgba(255,255,255,0.4);"><span>Features</span><span>Pricing</span><span>Docs</span></div>
+          <span class="cta" style="background:#fff;color:#0a0a0a;">Get Started</span>
+        </div>
+        <h2 style="color:#fff;">Design smarter,<br>not from scratch</h2>
+        <p style="color:rgba(255,255,255,0.4);">Upload any design reference. Get colors, typography, layout patterns extracted instantly.</p>
+        <div class="btns">
+          <span class="btn" style="background:#fff;color:#0a0a0a;">Start for free</span>
+          <span class="btn" style="background:transparent;color:rgba(255,255,255,0.6);border:1px solid rgba(255,255,255,0.15);">See demo</span>
+        </div>
+      </div>
+      <div class="mock-features" style="background:#0a0a0a;">
+        <div class="mock-feat-card" style="background:#111;border-color:#1a1a1a;">
+          <h4 style="color:#fff;">Reference Analysis</h4>
+          <p style="color:rgba(255,255,255,0.35);">Upload screenshots. AI extracts design patterns.</p>
+        </div>
+        <div class="mock-feat-card" style="background:#111;border-color:#1a1a1a;">
+          <h4 style="color:#fff;">Moodboard</h4>
+          <p style="color:rgba(255,255,255,0.35);">Collect and organize design references.</p>
+        </div>
+        <div class="mock-feat-card" style="background:#111;border-color:#1a1a1a;">
+          <h4 style="color:#fff;">UI Review</h4>
+          <p style="color:rgba(255,255,255,0.35);">Get actionable feedback on your designs.</p>
+        </div>
+      </div>
+    </div>
+    <div class="palette-info" style="background:#0a0a0a;">
+      <div class="palette-meta">
+        <h3 style="color:#fff;">A. Pure Mono</h3>
+        <p style="color:rgba(255,255,255,0.4);">순수 흑백. 컬러 제로. 타이포그래피와 여백만으로 말한다. Apple 제품 페이지처럼.</p>
+      </div>
+      <div class="swatches">
+        <div class="swatch" style="background:#0a0a0a;"></div>
+        <div class="swatch" style="background:#111;"></div>
+        <div class="swatch" style="background:#1a1a1a;"></div>
+        <div class="swatch" style="background:rgba(255,255,255,0.4);"></div>
+        <div class="swatch" style="background:#fff;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- B. Warm Sand — 모노크롬 + 샴페인 단일 액센트 -->
+  <div class="palette" data-choice="sand" onclick="document.querySelectorAll('.palette').forEach(p=>p.classList.remove('selected'));this.classList.add('selected');">
+    <div class="mockup-frame">
+      <div class="mock-hero" style="background:#111110;">
+        <div class="mock-nav">
+          <span class="logo" style="color:#E2CDB0;">DesignLens</span>
+          <div class="links" style="color:rgba(226,205,176,0.35);"><span>Features</span><span>Pricing</span><span>Docs</span></div>
+          <span class="cta" style="background:#E2CDB0;color:#111110;">Get Started</span>
+        </div>
+        <h2 style="color:#EDEDEF;">Design smarter,<br>not <span style="color:#E2CDB0;">from scratch</span></h2>
+        <p style="color:#706B63;">Upload any design reference. Get colors, typography, layout patterns extracted instantly.</p>
+        <div class="btns">
+          <span class="btn" style="background:#E2CDB0;color:#111110;">Start for free</span>
+          <span class="btn" style="background:transparent;color:#706B63;border:1px solid #2A2622;">See demo</span>
+        </div>
+      </div>
+      <div class="mock-features" style="background:#111110;">
+        <div class="mock-feat-card" style="background:#1A1816;border-color:#2A2622;">
+          <h4 style="color:#EDEDEF;">Reference Analysis</h4>
+          <p style="color:#706B63;">Upload screenshots. AI extracts design patterns.</p>
+        </div>
+        <div class="mock-feat-card" style="background:#1A1816;border-color:#2A2622;">
+          <h4 style="color:#EDEDEF;">Moodboard</h4>
+          <p style="color:#706B63;">Collect and organize design references.</p>
+        </div>
+        <div class="mock-feat-card" style="background:#1A1816;border-color:#2A2622;">
+          <h4 style="color:#EDEDEF;">UI Review</h4>
+          <p style="color:#706B63;">Get actionable feedback on your designs.</p>
+        </div>
+      </div>
+    </div>
+    <div class="palette-info" style="background:#111110;">
+      <div class="palette-meta">
+        <h3 style="color:#EDEDEF;">B. Warm Sand</h3>
+        <p style="color:#706B63;">따뜻한 블랙 + 샴페인 샌드 단일 액센트. 콰이어트 럭셔리. 고급 호텔 웹사이트 같은 절제미.</p>
+      </div>
+      <div class="swatches">
+        <div class="swatch" style="background:#111110;"></div>
+        <div class="swatch" style="background:#1A1816;"></div>
+        <div class="swatch" style="background:#2A2622;"></div>
+        <div class="swatch" style="background:#706B63;"></div>
+        <div class="swatch" style="background:#E2CDB0;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- C. Cool Steel — 뉴트럴 그레이 + 아이스블루 하이라이트 -->
+  <div class="palette" data-choice="steel" onclick="document.querySelectorAll('.palette').forEach(p=>p.classList.remove('selected'));this.classList.add('selected');">
+    <div class="mockup-frame">
+      <div class="mock-hero" style="background:#0C0D0F;">
+        <div class="mock-nav">
+          <span class="logo" style="color:#C8CDD5;">DesignLens</span>
+          <div class="links" style="color:rgba(200,205,213,0.3);"><span>Features</span><span>Pricing</span><span>Docs</span></div>
+          <span class="cta" style="background:#C8CDD5;color:#0C0D0F;">Get Started</span>
+        </div>
+        <h2 style="color:#E8EAED;">Design smarter,<br>not <span style="color:#93C5FD;">from scratch</span></h2>
+        <p style="color:#5A5F6B;">Upload any design reference. Get colors, typography, layout patterns extracted instantly.</p>
+        <div class="btns">
+          <span class="btn" style="background:#E8EAED;color:#0C0D0F;">Start for free</span>
+          <span class="btn" style="background:transparent;color:#5A5F6B;border:1px solid #1E2028;">See demo</span>
+        </div>
+      </div>
+      <div class="mock-features" style="background:#0C0D0F;">
+        <div class="mock-feat-card" style="background:#131519;border-color:#1E2028;">
+          <h4 style="color:#E8EAED;">Reference Analysis</h4>
+          <p style="color:#5A5F6B;">Upload screenshots. AI extracts design patterns.</p>
+        </div>
+        <div class="mock-feat-card" style="background:#131519;border-color:#1E2028;">
+          <h4 style="color:#E8EAED;">Moodboard</h4>
+          <p style="color:#5A5F6B;">Collect and organize design references.</p>
+        </div>
+        <div class="mock-feat-card" style="background:#131519;border-color:#1E2028;">
+          <h4 style="color:#E8EAED;">UI Review</h4>
+          <p style="color:#5A5F6B;">Get actionable feedback on your designs.</p>
+        </div>
+      </div>
+    </div>
+    <div class="palette-info" style="background:#0C0D0F;">
+      <div class="palette-meta">
+        <h3 style="color:#E8EAED;">C. Cool Steel</h3>
+        <p style="color:#5A5F6B;">쿨 그레이 톤. 아이스블루는 헤드라인 강조에만 극소량. Linear처럼 거의 무채색인데 차가운 느낌.</p>
+      </div>
+      <div class="swatches">
+        <div class="swatch" style="background:#0C0D0F;"></div>
+        <div class="swatch" style="background:#131519;"></div>
+        <div class="swatch" style="background:#1E2028;"></div>
+        <div class="swatch" style="background:#5A5F6B;"></div>
+        <div class="swatch" style="background:#93C5FD;"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<p class="pick-label">마음에 드는 방향을 클릭하고 터미널에서 알려주세요. 믹스도 가능!</p>
+
+</body>
+</html>

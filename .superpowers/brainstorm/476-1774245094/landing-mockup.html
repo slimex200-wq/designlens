@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DesignLens - Landing Page Mockup</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #08090a;
+    --text: #f7f8f8;
+    --text-muted: #8a8f98;
+    --accent: #818cf8;
+    --accent2: #c084fc;
+    --accent3: #fb7185;
+    --card-bg: #111214;
+    --border: #1e2028;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    overflow-x: hidden;
+    line-height: 1.6;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 48px; height: 72px;
+    background: rgba(8,9,10,0.8);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-logo {
+    font-size: 20px; font-weight: 700; letter-spacing: -0.5px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .nav-links { display: flex; gap: 32px; }
+  .nav-links a {
+    color: var(--text-muted); text-decoration: none; font-size: 14px;
+    font-weight: 500; transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--text); }
+  .nav-cta {
+    display: flex; gap: 12px; align-items: center;
+  }
+  .btn-ghost {
+    color: var(--text-muted); font-size: 14px; text-decoration: none;
+    font-weight: 500;
+  }
+  .btn-primary {
+    background: var(--text); color: var(--bg);
+    padding: 8px 20px; border-radius: 6px; font-size: 14px;
+    font-weight: 600; text-decoration: none; border: none; cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  .btn-primary:hover { opacity: 0.9; }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center; padding: 120px 48px 80px;
+    position: relative;
+  }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 16px; border-radius: 20px;
+    border: 1px solid var(--border); font-size: 13px;
+    color: var(--text-muted); margin-bottom: 32px;
+    animation: fadeInDown 0.8s ease;
+  }
+  .hero-badge span { color: var(--accent); }
+  .hero h1 {
+    font-size: clamp(48px, 8vw, 80px); font-weight: 800;
+    letter-spacing: -2px; line-height: 1.0;
+    margin-bottom: 24px;
+    animation: fadeInUp 0.8s ease 0.2s both;
+  }
+  .hero h1 .gradient {
+    background: linear-gradient(135deg, var(--accent), var(--accent2), var(--accent3));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .hero p {
+    font-size: 18px; color: var(--text-muted); max-width: 520px;
+    line-height: 1.6; margin-bottom: 40px;
+    animation: fadeInUp 0.8s ease 0.4s both;
+  }
+  .hero-ctas {
+    display: flex; gap: 16px;
+    animation: fadeInUp 0.8s ease 0.6s both;
+  }
+  .btn-large {
+    padding: 14px 32px; border-radius: 8px; font-size: 16px;
+    font-weight: 600; text-decoration: none; cursor: pointer;
+    transition: all 0.3s;
+  }
+  .btn-large.primary {
+    background: var(--text); color: var(--bg); border: none;
+  }
+  .btn-large.secondary {
+    background: transparent; color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .btn-large:hover { transform: translateY(-2px); }
+
+  /* HERO PRODUCT PREVIEW */
+  .hero-preview {
+    margin-top: 64px; width: 100%; max-width: 1000px;
+    border-radius: 16px; overflow: hidden;
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    animation: fadeInUp 1s ease 0.8s both;
+    box-shadow: 0 40px 100px rgba(129,140,248,0.08);
+  }
+  .preview-toolbar {
+    display: flex; align-items: center; gap: 8px;
+    padding: 12px 16px; border-bottom: 1px solid var(--border);
+  }
+  .dot { width: 12px; height: 12px; border-radius: 50%; }
+  .dot.r { background: #ff5f57; }
+  .dot.y { background: #febc2e; }
+  .dot.g { background: #28c840; }
+  .preview-content {
+    padding: 32px; display: grid;
+    grid-template-columns: 1fr 1fr; gap: 24px;
+    min-height: 400px;
+  }
+
+  /* Left: Reference Upload Area */
+  .upload-area {
+    border: 2px dashed var(--border); border-radius: 12px;
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; padding: 32px; gap: 16px;
+    transition: border-color 0.3s;
+  }
+  .upload-area:hover { border-color: var(--accent); }
+  .upload-icon {
+    width: 48px; height: 48px; border-radius: 12px;
+    background: rgba(129,140,248,0.1); display: flex;
+    align-items: center; justify-content: center;
+    font-size: 24px;
+  }
+  .upload-area h3 { font-size: 16px; font-weight: 600; }
+  .upload-area p { font-size: 13px; color: var(--text-muted); }
+
+  /* Right: Analysis Result */
+  .analysis-panel { display: flex; flex-direction: column; gap: 16px; }
+  .color-row {
+    display: flex; gap: 8px; align-items: center;
+  }
+  .color-swatch {
+    width: 32px; height: 32px; border-radius: 8px;
+    transition: transform 0.2s;
+  }
+  .color-swatch:hover { transform: scale(1.2); }
+  .analysis-section {
+    background: rgba(255,255,255,0.03); border-radius: 10px;
+    padding: 16px; border: 1px solid var(--border);
+  }
+  .analysis-section h4 {
+    font-size: 11px; text-transform: uppercase; letter-spacing: 1px;
+    color: var(--text-muted); margin-bottom: 12px;
+  }
+  .token-list {
+    display: flex; flex-wrap: wrap; gap: 6px;
+  }
+  .token {
+    padding: 4px 10px; border-radius: 4px; font-size: 12px;
+    font-family: monospace; background: rgba(129,140,248,0.1);
+    color: var(--accent); border: 1px solid rgba(129,140,248,0.2);
+  }
+  .typo-sample {
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .typo-row {
+    display: flex; justify-content: space-between; align-items: baseline;
+  }
+  .typo-name { font-size: 12px; color: var(--text-muted); }
+
+  /* FEATURES */
+  .features {
+    padding: 128px 48px; border-top: 1px solid var(--border);
+  }
+  .features-header {
+    text-align: center; margin-bottom: 80px;
+  }
+  .features-header h2 {
+    font-size: 48px; font-weight: 700; letter-spacing: -1.5px;
+    margin-bottom: 16px;
+  }
+  .features-header p {
+    font-size: 16px; color: var(--text-muted); max-width: 480px; margin: 0 auto;
+  }
+  .feature-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 24px; max-width: 1000px; margin: 0 auto;
+  }
+  .feature-card {
+    background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: 16px; padding: 32px;
+    transition: all 0.3s;
+  }
+  .feature-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-4px);
+    box-shadow: 0 20px 60px rgba(129,140,248,0.06);
+  }
+  .feature-icon {
+    width: 48px; height: 48px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; margin-bottom: 20px;
+  }
+  .feature-card h3 {
+    font-size: 18px; font-weight: 600; margin-bottom: 8px;
+    letter-spacing: -0.3px;
+  }
+  .feature-card p {
+    font-size: 14px; color: var(--text-muted); line-height: 1.6;
+  }
+
+  /* WORKFLOW */
+  .workflow {
+    padding: 128px 48px; border-top: 1px solid var(--border);
+  }
+  .workflow-header {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 48px; max-width: 1000px; margin: 0 auto 80px;
+    align-items: center;
+  }
+  .workflow-header h2 {
+    font-size: 48px; font-weight: 700; letter-spacing: -1.5px;
+  }
+  .workflow-header p {
+    font-size: 16px; color: var(--text-muted); line-height: 1.7;
+  }
+  .workflow-steps {
+    display: flex; gap: 2px; max-width: 1000px; margin: 0 auto;
+  }
+  .workflow-step {
+    flex: 1; background: var(--card-bg); padding: 32px 24px;
+    border: 1px solid var(--border); position: relative;
+    transition: all 0.3s;
+  }
+  .workflow-step:first-child { border-radius: 16px 0 0 16px; }
+  .workflow-step:last-child { border-radius: 0 16px 16px 0; }
+  .workflow-step:hover {
+    background: rgba(129,140,248,0.05);
+    border-color: rgba(129,140,248,0.3);
+  }
+  .step-num {
+    font-size: 48px; font-weight: 800; color: rgba(129,140,248,0.15);
+    margin-bottom: 16px; letter-spacing: -2px;
+  }
+  .workflow-step h3 {
+    font-size: 16px; font-weight: 600; margin-bottom: 8px;
+  }
+  .workflow-step p {
+    font-size: 13px; color: var(--text-muted); line-height: 1.5;
+  }
+
+  /* CTA */
+  .final-cta {
+    padding: 160px 48px; text-align: center;
+    border-top: 1px solid var(--border);
+  }
+  .final-cta h2 {
+    font-size: 72px; font-weight: 800; letter-spacing: -3px;
+    margin-bottom: 24px; line-height: 1.0;
+  }
+  .final-cta p {
+    font-size: 18px; color: var(--text-muted); margin-bottom: 40px;
+  }
+
+  /* FOOTER */
+  footer {
+    padding: 64px 48px; border-top: 1px solid var(--border);
+    display: flex; justify-content: space-between;
+    max-width: 1000px; margin: 0 auto;
+  }
+  .footer-col h4 {
+    font-size: 13px; font-weight: 600; margin-bottom: 16px;
+    color: var(--text);
+  }
+  .footer-col a {
+    display: block; font-size: 13px; color: var(--text-muted);
+    text-decoration: none; margin-bottom: 8px;
+    transition: color 0.2s;
+  }
+  .footer-col a:hover { color: var(--text); }
+
+  /* ANIMATIONS */
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+  }
+
+  /* Scroll reveal */
+  .reveal {
+    opacity: 0; transform: translateY(40px);
+    transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .reveal.visible {
+    opacity: 1; transform: translateY(0);
+  }
+
+  .label-tag {
+    font-size: 12px; color: var(--accent); font-weight: 600;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    margin-bottom: 16px; display: block;
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">DesignLens</div>
+  <div class="nav-links">
+    <a href="#">Features</a>
+    <a href="#">Pricing</a>
+    <a href="#">Docs</a>
+    <a href="#">Blog</a>
+  </div>
+  <div class="nav-cta">
+    <a href="#" class="btn-ghost">Log in</a>
+    <a href="#" class="btn-primary">Get Started</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">
+    <span>New</span> AI-powered design analysis is here
+  </div>
+  <h1>
+    Design smarter,<br>
+    not <span class="gradient">from scratch</span>
+  </h1>
+  <p>
+    Upload any design reference. Get colors, typography, layout patterns extracted instantly. Then let AI review your UI and suggest improvements.
+  </p>
+  <div class="hero-ctas">
+    <a href="#" class="btn-large primary">Start for free</a>
+    <a href="#" class="btn-large secondary">See how it works</a>
+  </div>
+
+  <!-- Product Preview -->
+  <div class="hero-preview">
+    <div class="preview-toolbar">
+      <div class="dot r"></div>
+      <div class="dot y"></div>
+      <div class="dot g"></div>
+      <span style="margin-left:auto;font-size:12px;color:var(--text-muted);">DesignLens - Workspace</span>
+    </div>
+    <div class="preview-content">
+      <!-- Left: Upload -->
+      <div class="upload-area">
+        <div class="upload-icon">+</div>
+        <h3>Drop a reference</h3>
+        <p>PNG, JPG, or paste a URL</p>
+        <div style="margin-top:12px;display:flex;gap:8px;">
+          <div style="width:60px;height:40px;border-radius:6px;background:#1a1a2e;border:1px solid var(--border);"></div>
+          <div style="width:60px;height:40px;border-radius:6px;background:#1a1a2e;border:1px solid var(--border);"></div>
+          <div style="width:60px;height:40px;border-radius:6px;background:#1a1a2e;border:1px solid var(--border);animation:pulse 2s infinite;"></div>
+        </div>
+      </div>
+
+      <!-- Right: Analysis -->
+      <div class="analysis-panel">
+        <div class="analysis-section">
+          <h4>Colors Extracted</h4>
+          <div class="color-row">
+            <div class="color-swatch" style="background:#6366f1;"></div>
+            <div class="color-swatch" style="background:#0f172a;"></div>
+            <div class="color-swatch" style="background:#f8fafc;"></div>
+            <div class="color-swatch" style="background:#22d3ee;"></div>
+            <div class="color-swatch" style="background:#f43f5e;"></div>
+          </div>
+        </div>
+        <div class="analysis-section">
+          <h4>Typography</h4>
+          <div class="typo-sample">
+            <div class="typo-row">
+              <span style="font-size:20px;font-weight:700;">Heading</span>
+              <span class="typo-name">Inter 700 / 20px</span>
+            </div>
+            <div class="typo-row">
+              <span style="font-size:14px;font-weight:400;">Body text</span>
+              <span class="typo-name">Inter 400 / 14px</span>
+            </div>
+          </div>
+        </div>
+        <div class="analysis-section">
+          <h4>Design Tokens</h4>
+          <div class="token-list">
+            <span class="token">--primary: #6366f1</span>
+            <span class="token">--bg: #0f172a</span>
+            <span class="token">--radius: 8px</span>
+            <span class="token">--space: 16px</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features reveal">
+  <div class="features-header">
+    <span class="label-tag">Features</span>
+    <h2>Everything you need to<br>design with confidence</h2>
+    <p>From reference analysis to design tokens, one seamless workflow.</p>
+  </div>
+  <div class="feature-grid">
+    <div class="feature-card">
+      <div class="feature-icon" style="background:rgba(129,140,248,0.1);">
+        <span style="color:var(--accent);">&#9881;</span>
+      </div>
+      <h3>Reference Analysis</h3>
+      <p>Upload any screenshot. AI extracts colors, typography, spacing, and layout patterns automatically.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:rgba(192,132,252,0.1);">
+        <span style="color:var(--accent2);">&#9635;</span>
+      </div>
+      <h3>Moodboard Builder</h3>
+      <p>Collect references, organize by project, and let AI find common design patterns across them.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:rgba(251,113,133,0.1);">
+        <span style="color:var(--accent3);">&#10003;</span>
+      </div>
+      <h3>UI Review</h3>
+      <p>Upload your UI. Get actionable feedback on visual hierarchy, consistency, and accessibility.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:rgba(52,211,153,0.1);">
+        <span style="color:#34d399;">{ }</span>
+      </div>
+      <h3>Design Tokens</h3>
+      <p>Export CSS variables, Tailwind config, or JSON tokens. Ready to paste into your codebase.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:rgba(251,191,36,0.1);">
+        <span style="color:#fbbf24;">&#9733;</span>
+      </div>
+      <h3>AI Suggestions</h3>
+      <p>Get intelligent improvement suggestions based on modern design principles and your reference style.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:rgba(96,165,250,0.1);">
+        <span style="color:#60a5fa;">&#8644;</span>
+      </div>
+      <h3>Before & After</h3>
+      <p>Compare your original design with AI-enhanced versions side by side.</p>
+    </div>
+  </div>
+</section>
+
+<!-- WORKFLOW -->
+<section class="workflow reveal">
+  <div class="workflow-header">
+    <div>
+      <span class="label-tag">How it works</span>
+      <h2>From reference<br>to refined UI</h2>
+    </div>
+    <p>
+      Upload references you love. Build a design system from them.
+      Then let AI review your work against that system.
+      Ship pixel-perfect designs every time.
+    </p>
+  </div>
+  <div class="workflow-steps">
+    <div class="workflow-step">
+      <div class="step-num">01</div>
+      <h3>Upload References</h3>
+      <p>Drag in screenshots from sites you love. Paste URLs. Build your inspiration library.</p>
+    </div>
+    <div class="workflow-step">
+      <div class="step-num">02</div>
+      <h3>Auto Analyze</h3>
+      <p>Colors, fonts, spacing, layout patterns are extracted and organized automatically.</p>
+    </div>
+    <div class="workflow-step">
+      <div class="step-num">03</div>
+      <h3>Build System</h3>
+      <p>Generate a unified design system from multiple references. Export as tokens.</p>
+    </div>
+    <div class="workflow-step">
+      <div class="step-num">04</div>
+      <h3>Get Feedback</h3>
+      <p>Upload your UI. AI compares it against your design system and suggests improvements.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="final-cta reveal">
+  <h2>Stop guessing.<br><span class="gradient">Start designing.</span></h2>
+  <p>Free to start. No credit card required.</p>
+  <div class="hero-ctas" style="justify-content:center;">
+    <a href="#" class="btn-large primary">Get Started Free</a>
+    <a href="#" class="btn-large secondary">View Demo</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-col">
+    <h4>Product</h4>
+    <a href="#">Features</a>
+    <a href="#">Pricing</a>
+    <a href="#">Changelog</a>
+  </div>
+  <div class="footer-col">
+    <h4>Resources</h4>
+    <a href="#">Docs</a>
+    <a href="#">API</a>
+    <a href="#">Blog</a>
+  </div>
+  <div class="footer-col">
+    <h4>Company</h4>
+    <a href="#">About</a>
+    <a href="#">Careers</a>
+    <a href="#">Contact</a>
+  </div>
+  <div class="footer-col">
+    <h4>Legal</h4>
+    <a href="#">Privacy</a>
+    <a href="#">Terms</a>
+  </div>
+</footer>
+
+<script>
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.1 });
+  reveals.forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>
