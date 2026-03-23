@@ -20,7 +20,7 @@ DesignLens is a SaaS web application that helps developers and designers extract
 | Image analysis (algorithmic) | Color extraction, typography detection via canvas/sharp |
 | Image analysis (AI) | Claude API (multimodal) for UI feedback and layout analysis |
 | Storage | Local/cloud image storage (MVP: local uploads) |
-| Database | MVP: localStorage → later Postgres/Supabase |
+| Database | MVP: localStorage for user state, SQLite (via Turso/libsql) for trend aggregation → later Postgres/Supabase |
 | Deployment | Vercel |
 
 ---
@@ -37,7 +37,7 @@ DesignLens is a SaaS web application that helps developers and designers extract
 --border:        #1E2028    // default borders
 --border-hover:  #2A2D38    // hover borders
 --text-primary:  #E8EAED    // headings, primary text
---text-secondary:#5A5F6B    // body, descriptions
+--text-secondary:#8A8F9B    // body, descriptions (WCAG AA compliant)
 --text-tertiary: #3A3F4B    // labels, placeholders
 --accent:        #93C5FD    // ice blue, used sparingly
 --accent-dim:    rgba(147,197,253,0.08)  // accent backgrounds
@@ -94,7 +94,14 @@ Three-panel layout:
 
 ### 1. Reference Analysis
 
-**Input:** User uploads screenshot (PNG/JPG/WebP) or pastes URL.
+**Input:** User uploads screenshot (PNG/JPG/WebP). URL paste is post-MVP (requires server-side proxy for CORS).
+
+**Upload constraints:**
+- Max file size: 10MB
+- Max resolution: 4096x4096
+- Accepted MIME: image/png, image/jpeg, image/webp
+- Uploads use `multipart/form-data`
+- On limit exceeded: show inline error with specific reason
 
 **Algorithmic extraction:**
 - Dominant colors (top 5-8) with percentage breakdown
@@ -125,7 +132,7 @@ Three-panel layout:
 2. Claude API analyzes: visual hierarchy, consistency, accessibility (contrast ratios), spacing regularity
 3. Generate actionable suggestions with specific improvement areas highlighted
 
-**Output:** Before/after comparison view with annotated suggestions.
+**Output:** Before/after comparison replaces the content area (ref grid) with a split view. Annotated suggestions overlay bounding boxes on the original. User can dismiss to return to ref grid.
 
 ### 4. Design Token Export
 
@@ -138,16 +145,17 @@ Token categories: colors, typography, spacing, border-radius, shadows.
 
 ### 5. Self-Evolving System
 
-**Data collection (anonymized):**
-- Color palettes analyzed across all users
+**MVP scope:** Per-user trend tracking only. A read-only page at `/app/trends` showing color frequency charts and layout pattern stats from the current user's analysis history (stored in localStorage + synced to SQLite for aggregate queries).
+
+**Data collection (anonymized, opt-in):**
+- Color palettes analyzed
 - Layout patterns frequency
 - Typography trends
-- Seasonal shifts
 
-**Feedback loop:**
-- Trending design patterns dashboard (public or per-user)
-- App's own UI tokens can be updated based on aggregated trends
-- MVP: Manual trend report; later: automated A/B testing of UI changes
+**Feedback loop (post-MVP):**
+- Cross-user trending design patterns dashboard
+- App's own UI tokens updated based on aggregated trends
+- Automated A/B testing of UI changes
 
 ---
 
@@ -196,26 +204,40 @@ User opens /app
 
 ## API Design (Internal)
 
+### Types
+```typescript
+type TokenSet = {
+  colors: Record<string, string>;      // e.g. { "--primary": "#6366f1" }
+  spacing: Record<string, string>;     // e.g. { "--space-md": "16px" }
+  radius: Record<string, string>;      // e.g. { "--radius-md": "8px" }
+  typography: Array<{ role: string; size: string; weight: number; letterSpacing: string }>;
+}
+
+type BoundingBox = { x: number; y: number; width: number; height: number }  // percentage-based (0-100)
+```
+
 ### Image Analysis
 ```
 POST /api/analyze
-Body: { image: File | URL }
+Content-Type: multipart/form-data
+Body: FormData { image: File }
 Response: {
-  colors: [{ hex, role, percentage }],
-  typography: [{ size, weight, letterSpacing, role }],
-  layout: { type, spacing, grid },
-  tokens: { colors: {}, spacing: {}, radius: {} }
+  colors: [{ hex: string, role: string, percentage: number }],
+  typography: [{ size: string, weight: number, letterSpacing: string, role: string }],
+  layout: { type: string, spacing: Record<string,string>, grid: string },
+  tokens: TokenSet
 }
 ```
 
 ### AI Review
 ```
 POST /api/review
-Body: { image: File, designSystem: TokenSet }
+Content-Type: multipart/form-data
+Body: FormData { image: File, designSystem: JSON string of TokenSet }
 Response: {
   score: number,
-  issues: [{ area, severity, suggestion, coordinates }],
-  improved: { tokens: TokenSet }
+  issues: [{ area: string, severity: "high"|"medium"|"low", suggestion: string, bounds: BoundingBox }],
+  improved: TokenSet
 }
 ```
 
@@ -229,6 +251,44 @@ Response: {
   period: "2026-03"
 }
 ```
+
+---
+
+## Error Handling
+
+| Scenario | Behavior |
+|----------|----------|
+| Claude API down/rate-limited | Show "Analysis unavailable" banner, algorithmic extraction still runs, retry button |
+| Corrupt/invalid image | Inline error on upload card: "Couldn't process this file" with dismiss |
+| Empty analysis (solid color image) | Show result with note: "Limited patterns detected — try a more complex reference" |
+| Upload exceeds size limit | Reject before upload, show max size in error message |
+| Network error | Toast notification with retry action |
+| localStorage full | Warn user, suggest exporting/clearing old projects |
+
+### API Cost Management
+- Cache analysis results by image content hash (SHA-256)
+- Re-analyzing same image returns cached result instantly
+- Rate limit: 20 analyses/hour per session (MVP)
+- Display "X analyses remaining" in topbar
+
+---
+
+## Responsive Strategy
+
+MVP is desktop-first (min-width: 1024px). On smaller screens:
+- Show "Desktop recommended" banner
+- Sidebar collapses to icon-only (48px)
+- Analysis panel becomes a slide-over drawer
+- Post-MVP: full mobile layout
+
+---
+
+## Accessibility Notes
+
+- `--text-secondary` adjusted to `#8A8F9B` (meets WCAG AA 4.5:1 on `#0C0D0F`)
+- `--text-tertiary` is used only for decorative labels, not critical content
+- All interactive elements have visible focus rings
+- Keyboard navigation for sidebar, tabs, and upload zone
 
 ---
 
