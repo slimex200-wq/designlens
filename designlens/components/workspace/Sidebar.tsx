@@ -104,6 +104,12 @@ export function Sidebar({
 
       {/* Footer */}
       <div className="mt-auto p-3 border-t border-border">
+        <a
+          href="/app/trends"
+          className="flex items-center gap-2 px-2 py-1.5 rounded-md text-xs text-text-tertiary cursor-pointer hover:bg-bg-hover hover:text-text-secondary transition-all"
+        >
+          <span className="text-xs">{"\u2197"}</span> Trends
+        </a>
         <div className="flex items-center gap-2 px-2 py-1.5 rounded-md text-xs text-text-tertiary cursor-pointer hover:bg-bg-hover hover:text-text-secondary transition-all">
           <span className="text-xs">{"\u2699"}</span> Settings
         </div>
