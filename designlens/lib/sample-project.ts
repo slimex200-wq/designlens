@@ -252,10 +252,81 @@ export const SAMPLE_REVIEW_RESULTS: Record<string, ReviewResult> = {
   },
 };
 
-// Placeholder — will be replaced with real data in Task 9
 export const SAMPLE_ENHANCE_RESULTS: Record<string, EnhanceResult> = {
-  en: { enhancements: [], improvedScore: 85 },
-  ko: { enhancements: [], improvedScore: 85 },
+  en: {
+    enhancements: [
+      {
+        issueIndex: 0,
+        type: "color",
+        before: "#17171C",
+        after: "#5E6AD2",
+        bounds: { x: 91, y: 2, width: 6, height: 4 },
+        description: "Change Sign up button background from near-black to accent purple for clear CTA visibility.",
+      },
+      {
+        issueIndex: 1,
+        type: "contrast",
+        before: "3.9:1",
+        after: "5.2:1",
+        bounds: { x: 2, y: 54, width: 31, height: 5 },
+        description: "Lighten sub-heading text from #8A8A8E to #A0A0AB to meet WCAG AA 4.5:1 minimum.",
+      },
+      {
+        issueIndex: 2,
+        type: "spacing",
+        before: "100px",
+        after: "64px",
+        bounds: { x: 2, y: 59, width: 96, height: 10 },
+        description: "Reduce hero-to-preview gap from ~100px to 64px to match the section spacing system.",
+      },
+      {
+        issueIndex: 3,
+        type: "typography",
+        before: "400",
+        after: "500",
+        bounds: { x: 47, y: 2, width: 36, height: 4 },
+        description: "Increase nav link font weight from 400 to 500 for better legibility on dark background.",
+      },
+    ],
+    improvedScore: 85,
+  },
+  ko: {
+    enhancements: [
+      {
+        issueIndex: 0,
+        type: "color",
+        before: "#17171C",
+        after: "#5E6AD2",
+        bounds: { x: 91, y: 2, width: 6, height: 4 },
+        description: "Sign up 버튼 배경을 거의 검정에서 액센트 퍼플로 변경하여 CTA 가시성 확보.",
+      },
+      {
+        issueIndex: 1,
+        type: "contrast",
+        before: "3.9:1",
+        after: "5.2:1",
+        bounds: { x: 2, y: 54, width: 31, height: 5 },
+        description: "서브 헤딩 텍스트를 #8A8A8E에서 #A0A0AB로 밝혀 WCAG AA 4.5:1 기준 충족.",
+      },
+      {
+        issueIndex: 2,
+        type: "spacing",
+        before: "100px",
+        after: "64px",
+        bounds: { x: 2, y: 59, width: 96, height: 10 },
+        description: "히어로-프리뷰 간격을 ~100px에서 64px로 줄여 섹션 간격 시스템과 일치.",
+      },
+      {
+        issueIndex: 3,
+        type: "typography",
+        before: "400",
+        after: "500",
+        bounds: { x: 47, y: 2, width: 36, height: 4 },
+        description: "네비게이션 링크 폰트 weight를 400에서 500으로 증가하여 다크 배경에서 가독성 향상.",
+      },
+    ],
+    improvedScore: 85,
+  },
 };
 
 export const SAMPLE_PROJECT: Project = {
