@@ -11,6 +11,7 @@ import { MoodboardGrid } from "@/components/workspace/MoodboardGrid";
 import { TokensView } from "@/components/workspace/TokensView";
 import { useProjects } from "@/hooks/useProjects";
 import { useUpload } from "@/hooks/useUpload";
+import { useBreakpoint } from "@/hooks/useBreakpoint";
 import { useToast } from "@/components/ui/Toast";
 import type { ReviewResult } from "@/lib/types";
 
@@ -69,6 +70,7 @@ export default function WorkspacePage() {
   const [selectedRefId, setSelectedRefId] = useState<string | null>(null);
   const { showToast } = useToast();
   const { remaining, decrement } = useRateLimit();
+  const bp = useBreakpoint();
   const t = useTranslations("workspace");
   const tc = useTranslations("common");
 
@@ -149,19 +151,32 @@ export default function WorkspacePage() {
       {/* Main area */}
       <main id="main-content" className="flex-1 flex flex-col overflow-hidden">
         {/* Topbar */}
-        <div className="h-12 flex items-center px-5 border-b border-border gap-3 flex-shrink-0">
-          <div className="text-[13px] text-text-secondary flex items-center gap-1.5">
-            {activeProject?.name ?? t("project")}
-            <span className="text-text-tertiary">/</span>
-            <span className="text-text-primary font-medium">
-              {toolLabels[activeTool]}
-            </span>
-          </div>
+        <div className="min-h-[48px] flex items-center px-3 md:px-5 border-b border-border gap-2 md:gap-3 flex-shrink-0">
+          {/* Mobile: project selector dropdown */}
+          {bp === "mobile" && projects.length > 1 ? (
+            <select
+              value={activeProjectId}
+              onChange={(e) => setActiveProjectId(e.target.value)}
+              className="text-[13px] text-text-primary bg-bg-elevated border border-border rounded-md px-2 min-h-[44px] cursor-pointer"
+            >
+              {projects.map((p) => (
+                <option key={p.id} value={p.id}>{p.name}</option>
+              ))}
+            </select>
+          ) : (
+            <div className="text-[13px] text-text-secondary flex items-center gap-1.5">
+              {activeProject?.name ?? t("project")}
+              <span className="text-text-tertiary">/</span>
+              <span className="text-text-primary font-medium">
+                {toolLabels[activeTool]}
+              </span>
+            </div>
+          )}
 
-          {/* Rate limit counter */}
+          {/* Rate limit counter — hide on mobile */}
           <div
             className={[
-              "text-[11px] px-2 py-0.5 rounded-full font-medium border",
+              "text-[11px] px-2 py-0.5 rounded-full font-medium border hidden md:block",
               remaining > 5
                 ? "text-text-tertiary border-border bg-bg-elevated"
                 : remaining > 0
@@ -174,10 +189,10 @@ export default function WorkspacePage() {
           </div>
 
           <div className="ml-auto flex gap-2 items-center">
-            <button className="px-3 py-1.5 rounded-md text-xs bg-bg-elevated border border-border text-text-secondary cursor-pointer font-medium hover:border-border-hover hover:text-text-primary transition-all">
+            <button className="hidden md:flex px-3 rounded-md text-xs bg-bg-elevated border border-border text-text-secondary cursor-pointer font-medium hover:border-border-hover hover:text-text-primary transition-all min-h-[44px] items-center">
               {tc("share")}
             </button>
-            <label className="px-3 py-1.5 rounded-md text-xs bg-text-primary text-bg-deep cursor-pointer font-medium hover:opacity-85 transition-opacity">
+            <label className="px-3 rounded-md text-xs bg-text-primary text-bg-deep cursor-pointer font-medium hover:opacity-85 transition-opacity min-h-[44px] flex items-center">
               {tc("upload")}
               <input
                 type="file"

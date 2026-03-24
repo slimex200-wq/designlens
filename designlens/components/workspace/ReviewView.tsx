@@ -115,7 +115,7 @@ export function ReviewView({ references, onToolChange, reviewState, reviewDispat
           </p>
           <button
             onClick={() => onToolChange("analyze")}
-            className="px-4 py-2 rounded-md text-xs bg-accent-dim text-accent border border-accent-border font-medium hover:opacity-85 transition-opacity cursor-pointer"
+            className="px-4 rounded-md text-xs bg-accent-dim text-accent border border-accent-border font-medium hover:opacity-85 transition-opacity cursor-pointer min-h-[44px] flex items-center"
           >
             {tc("goToAnalyze")}
           </button>
@@ -164,7 +164,7 @@ export function ReviewView({ references, onToolChange, reviewState, reviewDispat
               const result = SAMPLE_REVIEW_RESULTS[locale as "en" | "ko"] ?? SAMPLE_REVIEW_RESULTS.en;
               setTimeout(() => reviewDispatch({ type: "SUCCESS", result }), 800);
             }}
-            className="mt-4 px-4 py-2 rounded-md text-xs bg-bg-elevated border border-border text-text-secondary font-medium hover:border-border-hover hover:text-text-primary transition-all cursor-pointer"
+            className="mt-4 px-4 rounded-md text-xs bg-bg-elevated border border-border text-text-secondary font-medium hover:border-border-hover hover:text-text-primary transition-all cursor-pointer min-h-[44px] flex items-center"
           >
             {tc("trySample")}
           </button>

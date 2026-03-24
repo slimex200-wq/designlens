@@ -46,7 +46,7 @@ export function UploadZone({ onFiles }: UploadZoneProps) {
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
-      className={`border border-dashed rounded-[10px] p-7 text-center transition-all cursor-pointer ${
+      className={`border border-dashed rounded-[10px] p-4 md:p-7 text-center transition-all cursor-pointer min-h-[44px] ${
         isDragging
           ? "border-border-hover bg-accent-dim"
           : "border-border hover:border-border-hover hover:bg-accent-dim"
