@@ -198,7 +198,7 @@ export function MoodboardGrid({ references, onSelectRef }: MoodboardGridProps) {
       )}
 
       {/* 3-column grid */}
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
         {references.map((ref) => (
           <button
             key={ref.id}

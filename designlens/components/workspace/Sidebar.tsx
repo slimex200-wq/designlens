@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import type { Project } from "@/lib/types";
 import { LocaleToggle } from "@/components/ui/LocaleToggle";
+import { useBreakpoint } from "@/hooks/useBreakpoint";
 
 type Tool = "analyze" | "moodboard" | "review" | "tokens";
 
@@ -33,6 +34,7 @@ export function Sidebar({
   refCount,
 }: SidebarProps) {
   const t = useTranslations("sidebar");
+  const bp = useBreakpoint();
   const [collapsed, setCollapsed] = useState(false);
 
   useEffect(() => {
@@ -41,8 +43,10 @@ export function Sidebar({
   }, []);
 
   useEffect(() => {
-    localStorage.setItem("sidebar-collapsed", String(collapsed));
-  }, [collapsed]);
+    if (bp === "desktop") {
+      localStorage.setItem("sidebar-collapsed", String(collapsed));
+    }
+  }, [collapsed, bp]);
 
   const toolLabels: Record<Tool, string> = {
     analyze: t("analyze"),
@@ -51,30 +55,66 @@ export function Sidebar({
     tokens: t("tokens"),
   };
 
+  // ─── Mobile: bottom tab bar ───
+  if (bp === "mobile") {
+    return (
+      <nav
+        aria-label={t("tools")}
+        className="order-last flex-shrink-0 h-12 bg-bg-surface border-t border-border flex items-stretch"
+      >
+        {TOOL_IDS.map((id) => (
+          <button
+            key={id}
+            onClick={() => onToolChange(id)}
+            className={`flex-1 flex flex-col items-center justify-center gap-0.5 min-h-[44px] cursor-pointer transition-colors ${
+              activeTool === id
+                ? "text-accent"
+                : "text-text-tertiary"
+            }`}
+          >
+            <span className="text-sm">{TOOL_ICONS[id]}</span>
+            <span className="text-[9px] font-medium">{toolLabels[id]}</span>
+            {activeTool === id && (
+              <span className="absolute top-0 left-1/2 -translate-x-1/2 w-6 h-0.5 rounded-full bg-accent" />
+            )}
+          </button>
+        ))}
+      </nav>
+    );
+  }
+
+  // ─── Tablet: force icon-only ───
+  const isCollapsed = bp === "tablet" ? true : collapsed;
+
   return (
     <aside
       aria-label={t("tools")}
-      className={`${collapsed ? "w-[52px]" : "w-60"} h-screen bg-bg-surface border-r border-border flex flex-col flex-shrink-0 transition-[width] duration-200`}
+      className={`${isCollapsed ? "w-[52px]" : "w-60"} h-screen bg-bg-surface border-r border-border flex flex-col flex-shrink-0 transition-[width] duration-200`}
     >
       {/* Header */}
       <div className="px-3 pt-4 pb-3 flex items-center justify-between border-b border-border">
-        {!collapsed && (
+        {!isCollapsed && (
           <span className="text-[15px] font-bold tracking-tight text-text-primary">
             DesignLens
           </span>
         )}
-        <button
-          onClick={() => setCollapsed((c) => !c)}
-          className={`w-6 h-6 rounded-md bg-bg-elevated border border-border flex items-center justify-center text-[10px] text-text-secondary cursor-pointer hover:border-border-hover hover:text-text-primary transition-all ${collapsed ? "mx-auto" : "ml-auto"}`}
-          title={collapsed ? t("expandSidebar") : t("collapseSidebar")}
-        >
-          {collapsed ? "\u276F" : "\u276E"}
-        </button>
+        {bp === "desktop" && (
+          <button
+            onClick={() => setCollapsed((c) => !c)}
+            className={`w-6 h-6 rounded-md bg-bg-elevated border border-border flex items-center justify-center text-[10px] text-text-secondary cursor-pointer hover:border-border-hover hover:text-text-primary transition-all ${isCollapsed ? "mx-auto" : "ml-auto"}`}
+            title={isCollapsed ? t("expandSidebar") : t("collapseSidebar")}
+          >
+            {isCollapsed ? "\u276F" : "\u276E"}
+          </button>
+        )}
+        {bp === "tablet" && (
+          <span className="mx-auto text-[13px] font-bold text-text-primary">D</span>
+        )}
       </div>
 
       {/* Tools */}
       <div className="py-3 px-1.5">
-        {!collapsed && (
+        {!isCollapsed && (
           <div className="text-[10px] uppercase tracking-[1.2px] text-text-tertiary px-2 mb-1.5 font-semibold">
             {t("tools")}
           </div>
@@ -83,8 +123,8 @@ export function Sidebar({
           <button
             key={id}
             onClick={() => onToolChange(id)}
-            title={collapsed ? toolLabels[id] : undefined}
-            className={`w-full flex items-center ${collapsed ? "justify-center" : ""} gap-2 px-2 py-1.5 rounded-md text-[13px] tracking-tight transition-all cursor-pointer ${
+            title={isCollapsed ? toolLabels[id] : undefined}
+            className={`w-full flex items-center ${isCollapsed ? "justify-center" : ""} gap-2 px-2 py-1.5 rounded-md text-[13px] tracking-tight transition-all cursor-pointer min-h-[44px] md:min-h-0 ${
               activeTool === id
                 ? "bg-accent-dim text-accent"
                 : "text-text-secondary hover:bg-bg-hover hover:text-text-primary"
@@ -97,7 +137,7 @@ export function Sidebar({
             >
               {TOOL_ICONS[id]}
             </span>
-            {!collapsed && (
+            {!isCollapsed && (
               <>
                 {toolLabels[id]}
                 {id === "analyze" && refCount > 0 && (
@@ -116,7 +156,7 @@ export function Sidebar({
 
       {/* Projects */}
       <div className="py-3 px-1.5">
-        {!collapsed && (
+        {!isCollapsed && (
           <div className="text-[10px] uppercase tracking-[1.2px] text-text-tertiary px-2 mb-1.5 font-semibold">
             {t("projects")}
           </div>
@@ -125,8 +165,8 @@ export function Sidebar({
           <button
             key={project.id}
             onClick={() => onProjectChange(project.id)}
-            title={collapsed ? project.name : undefined}
-            className={`w-full flex items-center ${collapsed ? "justify-center" : ""} gap-2 px-2 py-1.5 rounded-md text-[13px] transition-all cursor-pointer ${
+            title={isCollapsed ? project.name : undefined}
+            className={`w-full flex items-center ${isCollapsed ? "justify-center" : ""} gap-2 px-2 py-1.5 rounded-md text-[13px] transition-all cursor-pointer ${
               activeProjectId === project.id
                 ? "text-text-primary bg-bg-hover"
                 : "text-text-secondary hover:bg-bg-hover hover:text-text-primary"
@@ -136,7 +176,7 @@ export function Sidebar({
               className="w-2 h-2 rounded-sm flex-shrink-0"
               style={{ background: activeProjectId === project.id ? project.color : "#5A5F6B" }}
             />
-            {!collapsed && (
+            {!isCollapsed && (
               <>
                 <span className="truncate">{project.name}</span>
                 <span className="ml-auto text-[11px] text-text-tertiary">
@@ -152,27 +192,29 @@ export function Sidebar({
       <div className="mt-auto p-2 border-t border-border">
         <a
           href="/app/trends"
-          title={collapsed ? t("trends") : undefined}
-          className={`flex items-center ${collapsed ? "justify-center" : ""} gap-2 px-2 py-1.5 rounded-md text-xs text-text-tertiary cursor-pointer hover:bg-bg-hover hover:text-text-secondary transition-all`}
+          title={isCollapsed ? t("trends") : undefined}
+          className={`flex items-center ${isCollapsed ? "justify-center" : ""} gap-2 px-2 py-1.5 rounded-md text-xs text-text-tertiary cursor-pointer hover:bg-bg-hover hover:text-text-secondary transition-all`}
         >
           <span className="text-xs flex-shrink-0">{"\u2197"}</span>
-          {!collapsed && ` ${t("trends")}`}
+          {!isCollapsed && ` ${t("trends")}`}
         </a>
-        <div
-          title={collapsed ? t("settings") : undefined}
-          className={`flex items-center ${collapsed ? "justify-center" : ""} gap-2 px-2 py-1.5 rounded-md text-xs text-text-tertiary cursor-pointer hover:bg-bg-hover hover:text-text-secondary transition-all`}
-        >
-          <span className="text-xs flex-shrink-0">{"\u2699"}</span>
-          {!collapsed && ` ${t("settings")}`}
-        </div>
-        <div
-          title={collapsed ? t("helpDocs") : undefined}
-          className={`flex items-center ${collapsed ? "justify-center" : ""} gap-2 px-2 py-1.5 rounded-md text-xs text-text-tertiary cursor-pointer hover:bg-bg-hover hover:text-text-secondary transition-all`}
-        >
-          <span className="text-xs flex-shrink-0">?</span>
-          {!collapsed && ` ${t("helpDocs")}`}
-        </div>
-        <LocaleToggle collapsed={collapsed} />
+        {!isCollapsed && (
+          <>
+            <div
+              className="flex items-center gap-2 px-2 py-1.5 rounded-md text-xs text-text-tertiary cursor-pointer hover:bg-bg-hover hover:text-text-secondary transition-all"
+            >
+              <span className="text-xs flex-shrink-0">{"\u2699"}</span>
+              {` ${t("settings")}`}
+            </div>
+            <div
+              className="flex items-center gap-2 px-2 py-1.5 rounded-md text-xs text-text-tertiary cursor-pointer hover:bg-bg-hover hover:text-text-secondary transition-all"
+            >
+              <span className="text-xs flex-shrink-0">?</span>
+              {` ${t("helpDocs")}`}
+            </div>
+          </>
+        )}
+        <LocaleToggle collapsed={isCollapsed} />
       </div>
     </aside>
   );

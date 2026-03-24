@@ -213,7 +213,7 @@ export function ReviewView({ references, onToolChange, reviewState, reviewDispat
       </div>
 
       {/* Split content */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
         {/* Left: Image with overlays */}
         <div className="flex-1 relative overflow-auto p-4">
           <div className="relative inline-block">
@@ -250,8 +250,8 @@ export function ReviewView({ references, onToolChange, reviewState, reviewDispat
           </div>
         </div>
 
-        {/* Right: Issues panel */}
-        <div className="w-[340px] border-l border-border bg-bg-surface overflow-y-auto flex-shrink-0">
+        {/* Right/Bottom: Issues panel */}
+        <div className="w-full md:w-[340px] border-t md:border-t-0 md:border-l border-border bg-bg-surface overflow-y-auto flex-shrink-0 max-h-[40vh] md:max-h-none">
           {reviewResult ? (
             <div className="p-4 flex flex-col gap-3">
               {/* Score badge */}
