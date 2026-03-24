@@ -1,5 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
-import type { TypographyInfo, LayoutInfo, TokenSet, ReviewResult } from "./types";
+import type { TypographyInfo, LayoutInfo, TokenSet, ReviewResult, ReviewIssue, EnhanceResult } from "./types";
 
 const client = new Anthropic();
 
@@ -89,5 +89,53 @@ Check: hierarchy, color consistency, spacing, contrast.${locale === "ko" ? " Wri
     return JSON.parse(text) as ReviewResult;
   } catch {
     throw new Error("Failed to parse AI review response");
+  }
+}
+
+export async function enhanceUI(
+  imageBase64: string,
+  mediaType: string,
+  designSystem: Pick<TokenSet, "colors" | "spacing" | "radius">,
+  issues: ReviewIssue[],
+  locale: string = "en"
+): Promise<EnhanceResult> {
+  const compact = JSON.stringify(designSystem);
+  const issuesList = issues
+    .map((issue, i) => `${i}: [${issue.severity}] ${issue.area} — ${issue.suggestion}`)
+    .join("\n");
+
+  const response = await client.messages.create({
+    model: "claude-haiku-4-5-20251001",
+    max_tokens: 2000,
+    messages: [
+      {
+        role: "user",
+        content: [
+          {
+            type: "image",
+            source: { type: "base64", media_type: mediaType as "image/png" | "image/jpeg" | "image/webp", data: imageBase64 },
+          },
+          {
+            type: "text",
+            text: `You are a UI design expert. The following issues were found in this UI screenshot:
+
+${issuesList}
+
+Design system tokens: ${compact}
+
+For each issue, provide a concrete fix with exact values (hex colors, px spacing, font weight numbers, etc).${locale === "ko" ? " Write all description fields in Korean." : ""} Return JSON only, no markdown:
+{"enhancements":[{"issueIndex":0,"type":"color"|"spacing"|"typography"|"position"|"contrast","before":"current value","after":"fixed value","bounds":{"x":0-100,"y":0-100,"width":0-100,"height":0-100},"description":"string"}],"improvedScore":0-100}`,
+          },
+        ],
+      },
+    ],
+  });
+
+  const raw = response.content[0].type === "text" ? response.content[0].text : "";
+  const text = raw.replace(/^```(?:json)?\s*\n?/i, "").replace(/\n?```\s*$/i, "").trim();
+  try {
+    return JSON.parse(text) as EnhanceResult;
+  } catch {
+    throw new Error("Failed to parse AI enhance response");
   }
 }
