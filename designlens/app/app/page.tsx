@@ -226,10 +226,10 @@ export default function WorkspacePage() {
           </div>
 
           <div className="ml-auto flex gap-2 items-center">
-            <button className="hidden md:flex px-3 rounded-md text-xs bg-bg-elevated border border-border text-text-secondary cursor-pointer font-medium hover:border-border-hover hover:text-text-primary transition-all min-h-[44px] items-center">
+            <button className="hidden md:flex px-3 rounded-md text-xs bg-bg-elevated border border-border text-text-secondary cursor-pointer font-medium hover:border-border-hover hover:text-text-primary transition-all h-8 items-center">
               {tc("share")}
             </button>
-            <label className="px-3 rounded-md text-xs bg-text-primary text-bg-deep cursor-pointer font-medium hover:opacity-85 transition-opacity min-h-[44px] flex items-center">
+            <label className="px-3 rounded-md text-xs bg-text-primary text-bg-deep cursor-pointer font-medium hover:opacity-85 transition-opacity h-8 flex items-center">
               {tc("upload")}
               <input
                 type="file"
