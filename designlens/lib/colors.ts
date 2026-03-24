@@ -37,9 +37,9 @@ export function extractColors(imageData: Uint8ClampedArray, width: number, heigh
   const colorCounts = new Map<string, { rgb: RGB; count: number }>();
 
   for (let i = 0; i < imageData.length; i += 4 * sampleStep) {
-    const r = Math.round(imageData[i] / 8) * 8;
-    const g = Math.round(imageData[i + 1] / 8) * 8;
-    const b = Math.round(imageData[i + 2] / 8) * 8;
+    const r = Math.min(255, Math.round(imageData[i] / 8) * 8);
+    const g = Math.min(255, Math.round(imageData[i + 1] / 8) * 8);
+    const b = Math.min(255, Math.round(imageData[i + 2] / 8) * 8);
     const key = `${r},${g},${b}`;
     const existing = colorCounts.get(key);
     if (existing) { existing.count++; } else { colorCounts.set(key, { rgb: [r, g, b], count: 1 }); }
