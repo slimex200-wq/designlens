@@ -66,7 +66,7 @@ export function TokensView({ references, onToolChange }: TokensViewProps) {
           </p>
           <button
             onClick={() => onToolChange("analyze")}
-            className="px-4 py-2 rounded-md text-xs bg-accent-dim text-accent border border-accent-border font-medium hover:opacity-85 transition-opacity cursor-pointer"
+            className="px-4 rounded-md text-xs bg-accent-dim text-accent border border-accent-border font-medium hover:opacity-85 transition-opacity cursor-pointer min-h-[44px] flex items-center mx-auto"
           >
             {tc("goToAnalyze")}
           </button>
