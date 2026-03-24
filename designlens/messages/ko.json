@@ -131,7 +131,9 @@
     "uiReview": "UI 리뷰",
     "tokens": "토큰",
     "rateLimitTitle": "이 시간 남은 분석 횟수",
-    "rateLimitReached": "분석 한도에 도달했습니다 — 매시간 초기화됩니다."
+    "rateLimitReached": "분석 한도에 도달했습니다 — 매시간 초기화됩니다.",
+    "mobileFallback": "DesignLens는 데스크탑(1024px+)에서 가장 잘 작동합니다.",
+    "mobileFallbackSub": "브라우저 창을 조정해주세요."
   },
   "refGrid": {
     "title": "레퍼런스"

@@ -131,7 +131,9 @@
     "uiReview": "UI Review",
     "tokens": "Tokens",
     "rateLimitTitle": "Analyses remaining this hour",
-    "rateLimitReached": "Rate limit reached — analyses reset hourly."
+    "rateLimitReached": "Rate limit reached — analyses reset hourly.",
+    "mobileFallback": "DesignLens works best on desktop (1024px+).",
+    "mobileFallbackSub": "Please resize your browser window."
   },
   "refGrid": {
     "title": "References"

@@ -1,0 +1,25 @@
+{
+  "date": "2026-03-23",
+  "url": "http://localhost:3000",
+  "designScore": "B+",
+  "aiSlopScore": "A",
+  "categoryGrades": {
+    "hierarchy": "A",
+    "typography": "B",
+    "color": "A",
+    "spacing": "A",
+    "interaction": "B",
+    "responsive": "C",
+    "content": "B",
+    "aiSlop": "A",
+    "motion": "B",
+    "performance": "B"
+  },
+  "findings": [
+    { "id": "FINDING-001", "title": "ScrollReveal sections invisible", "impact": "high", "category": "visual-hierarchy", "status": "fixed" },
+    { "id": "FINDING-002", "title": "Nav touch targets too small", "impact": "medium", "category": "interaction", "status": "fixed" },
+    { "id": "FINDING-003", "title": "Footer link touch targets too small", "impact": "medium", "category": "interaction", "status": "fixed" },
+    { "id": "FINDING-004", "title": "Heading hierarchy misuse", "impact": "polish", "category": "typography", "status": "deferred" },
+    { "id": "FINDING-005", "title": "Geist font competing with Inter", "impact": "polish", "category": "performance", "status": "deferred" }
+  ]
+}

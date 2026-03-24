@@ -85,13 +85,13 @@ export default function TrendsPage() {
   const typographyTrends = useMemo(() => {
     const map = new Map<string, { label: string; count: number; role: string }>();
     for (const a of analyses) {
-      for (const t of a.typography) {
-        const key = `${t.size}-${t.weight}`;
+      for (const tp of a.typography) {
+        const key = `${tp.size}-${tp.weight}`;
         const existing = map.get(key);
         if (existing) {
           existing.count++;
         } else {
-          map.set(key, { label: `${t.size} / weight ${t.weight}`, count: 1, role: t.role });
+          map.set(key, { label: `${tp.size} / weight ${tp.weight}`, count: 1, role: tp.role });
         }
       }
     }

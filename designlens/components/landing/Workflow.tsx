@@ -1,51 +1,40 @@
+"use client";
+
+import { useTranslations } from "next-intl";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 
-const steps = [
-  {
-    num: "01",
-    title: "Upload References",
-    desc: "Drag in screenshots from sites you love. Paste URLs. Build your library.",
-  },
-  {
-    num: "02",
-    title: "Auto Analyze",
-    desc: "Colors, fonts, spacing, layout patterns extracted and organized automatically.",
-  },
-  {
-    num: "03",
-    title: "Build System",
-    desc: "Generate a unified design system from multiple references. Export as tokens.",
-  },
-  {
-    num: "04",
-    title: "Get Feedback",
-    desc: "Upload your UI. AI compares against your system and suggests improvements.",
-  },
-];
+const stepKeys = [
+  { num: "01", titleKey: "step1Title", descKey: "step1Desc" },
+  { num: "02", titleKey: "step2Title", descKey: "step2Desc" },
+  { num: "03", titleKey: "step3Title", descKey: "step3Desc" },
+  { num: "04", titleKey: "step4Title", descKey: "step4Desc" },
+] as const;
 
 export function Workflow() {
+  const t = useTranslations("workflow");
+
   return (
     <ScrollReveal>
-      <section className="py-20 md:py-32 px-6 md:px-12 border-t border-border">
+      <section className="py-20 md:py-32 px-4 md:px-8 lg:px-12 border-t border-border">
         <div className="max-w-[960px] mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16 mb-12 md:mb-[72px] items-end">
             <div>
               <div className="text-[11px] uppercase tracking-[2px] text-text-tertiary mb-4 font-semibold">
-                How it works
+                {t("sectionLabel")}
               </div>
-              <h2 className="text-[44px] font-bold tracking-[-1.8px] leading-[1.1] text-[#F0F2F5]">
-                From reference
+              <h2 className="text-[28px] md:text-[36px] lg:text-[44px] font-bold tracking-[-1.8px] leading-[1.1] text-[#F0F2F5]">
+                {t("headingLine1")}
                 <br />
-                to refined UI
+                {t("headingLine2")}
               </h2>
             </div>
             <p className="text-[15px] text-text-secondary leading-[1.7] tracking-[-0.2px]">
-              Upload references you love. Build a design system from them. Then let AI review your work against that system.
+              {t("description")}
             </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-px bg-border rounded-[14px] overflow-hidden">
-            {steps.map((s) => (
+            {stepKeys.map((s) => (
               <div
                 key={s.num}
                 className="bg-bg-surface px-6 py-8 transition-colors hover:bg-bg-elevated relative"
@@ -54,10 +43,10 @@ export function Workflow() {
                   {s.num}
                 </div>
                 <h3 className="text-sm font-semibold mb-1.5 tracking-[-0.2px]">
-                  {s.title}
+                  {t(s.titleKey)}
                 </h3>
                 <p className="text-[12px] text-text-secondary leading-[1.5]">
-                  {s.desc}
+                  {t(s.descKey)}
                 </p>
               </div>
             ))}

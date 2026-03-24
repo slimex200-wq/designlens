@@ -15,12 +15,12 @@ export function Nav() {
   ];
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-12 h-16 bg-bg-deep/85 backdrop-blur-xl border-b border-border">
+    <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 md:px-8 lg:px-12 h-16 bg-bg-deep/85 backdrop-blur-xl border-b border-border">
       <span className="text-lg font-bold tracking-[-0.5px] text-text-primary">
         DesignLens
       </span>
 
-      <div className="flex gap-2">
+      <div className="hidden md:flex gap-2">
         {links.map((l) => (
           <Link
             key={l.label}
@@ -36,7 +36,7 @@ export function Nav() {
         <LocaleToggle />
         <Link
           href="#"
-          className="text-text-secondary text-[13px] font-medium hover:text-text-primary transition-colors px-3 py-2.5 min-h-[44px] flex items-center"
+          className="hidden md:flex text-text-secondary text-[13px] font-medium hover:text-text-primary transition-colors px-3 py-2.5 min-h-[44px] items-center"
         >
           {t("logIn")}
         </Link>

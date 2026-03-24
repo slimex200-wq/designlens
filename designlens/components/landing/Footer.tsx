@@ -1,28 +1,33 @@
+"use client";
+
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 const columns = [
-  { title: "Product", links: ["Features", "Pricing", "Changelog"] },
-  { title: "Resources", links: ["Docs", "API", "Blog"] },
-  { title: "Company", links: ["About", "Careers", "Contact"] },
-  { title: "Legal", links: ["Privacy", "Terms"] },
-];
+  { titleKey: "product", linkKeys: ["features", "pricing", "changelog"] },
+  { titleKey: "resources", linkKeys: ["docs", "api", "blog"] },
+  { titleKey: "company", linkKeys: ["about", "careers", "contact"] },
+  { titleKey: "legal", linkKeys: ["privacy", "terms"] },
+] as const;
 
 export function Footer() {
+  const t = useTranslations("footer");
+
   return (
     <footer className="border-t border-border">
-      <div className="flex justify-between max-w-[960px] mx-auto px-12 py-12">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 max-w-[960px] mx-auto px-4 md:px-8 lg:px-12 py-8 md:py-12">
         {columns.map((col) => (
-          <div key={col.title}>
+          <div key={col.titleKey}>
             <h4 className="text-[12px] font-semibold mb-3 text-text-secondary">
-              {col.title}
+              {t(col.titleKey)}
             </h4>
-            {col.links.map((link) => (
+            {col.linkKeys.map((key) => (
               <Link
-                key={link}
+                key={key}
                 href="#"
                 className="block text-[12px] text-text-tertiary py-1.5 hover:text-text-secondary transition-colors"
               >
-                {link}
+                {t(key)}
               </Link>
             ))}
           </div>
