@@ -63,7 +63,7 @@ export function Hero() {
                 </h5>
                 <div className="flex items-center gap-2 px-2 py-1.5 rounded-md text-[12px] bg-accent-dim text-accent border border-accent-border">
                   <span className="w-4 h-4 rounded border border-accent-border flex items-center justify-center text-[9px]">
-                    D
+                    &#9670;
                   </span>
                   My SaaS Redesign
                 </div>
@@ -82,10 +82,10 @@ export function Hero() {
                 <h5 className="text-[10px] uppercase tracking-[1.2px] text-text-tertiary mb-2.5 font-semibold">
                   Tools
                 </h5>
-                <SidebarItem icon="A">Analyze</SidebarItem>
-                <SidebarItem icon="M">Moodboard</SidebarItem>
-                <SidebarItem icon="R">Review</SidebarItem>
-                <SidebarItem icon="T">Tokens</SidebarItem>
+                <SidebarItem icon="&#9881;">Analyze</SidebarItem>
+                <SidebarItem icon="&#9635;">Moodboard</SidebarItem>
+                <SidebarItem icon="&#10003;">Review</SidebarItem>
+                <SidebarItem icon={"{ }"}>Tokens</SidebarItem>
               </div>
             </div>
 

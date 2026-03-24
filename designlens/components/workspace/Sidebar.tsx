@@ -9,34 +9,12 @@ import { useBreakpoint } from "@/hooks/useBreakpoint";
 type Tool = "analyze" | "moodboard" | "review" | "tokens";
 
 const TOOL_IDS: Tool[] = ["analyze", "moodboard", "review", "tokens"];
-
-function ToolIcon({ id, size = 14 }: { id: Tool; size?: number }) {
-  const s = `${size}`;
-  const props = { width: s, height: s, viewBox: "0 0 16 16", fill: "none", stroke: "currentColor", strokeWidth: "1.5", strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
-  switch (id) {
-    case "analyze":
-      return (<svg {...props}><circle cx="7" cy="7" r="4.5" /><line x1="10.5" y1="10.5" x2="14" y2="14" /></svg>);
-    case "moodboard":
-      return (<svg {...props}><rect x="1.5" y="1.5" width="5" height="5" rx="1" /><rect x="9.5" y="1.5" width="5" height="5" rx="1" /><rect x="1.5" y="9.5" width="5" height="5" rx="1" /><rect x="9.5" y="9.5" width="5" height="5" rx="1" /></svg>);
-    case "review":
-      return (<svg {...props}><path d="M2 8.5l4 4 8-9" /></svg>);
-    case "tokens":
-      return (<svg {...props}><path d="M5 2v12M11 2v12" /><path d="M2 5.5h12M2 10.5h12" /></svg>);
-  }
-}
-
-function SidebarIcon({ type, size = 14 }: { type: "trends" | "settings" | "help"; size?: number }) {
-  const s = `${size}`;
-  const props = { width: s, height: s, viewBox: "0 0 16 16", fill: "none", stroke: "currentColor", strokeWidth: "1.5", strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
-  switch (type) {
-    case "trends":
-      return (<svg {...props}><polyline points="2 12 6 6 10 9 14 3" /><polyline points="10 3 14 3 14 7" /></svg>);
-    case "settings":
-      return (<svg {...props}><circle cx="8" cy="8" r="2.5" /><path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.3 3.3l1.4 1.4M11.3 11.3l1.4 1.4M3.3 12.7l1.4-1.4M11.3 4.7l1.4-1.4" /></svg>);
-    case "help":
-      return (<svg {...props}><circle cx="8" cy="8" r="6.5" /><path d="M6 6.5a2 2 0 013.5 1.5c0 1.5-2 1.5-2 3" /><circle cx="8" cy="13" r="0.5" fill="currentColor" stroke="none" /></svg>);
-  }
-}
+const TOOL_ICONS: Record<Tool, string> = {
+  analyze: "\u2699",
+  moodboard: "\u25A3",
+  review: "\u2713",
+  tokens: "{ }",
+};
 
 interface SidebarProps {
   activeTool: Tool;
@@ -97,7 +75,7 @@ export function Sidebar({
                 : "text-text-tertiary"
             }`}
           >
-            <ToolIcon id={id} size={16} />
+            <span className="text-sm">{TOOL_ICONS[id]}</span>
             <span className="text-[10px] font-medium">{toolLabels[id]}</span>
             {activeTool === id && (
               <span className="absolute top-0 left-1/2 -translate-x-1/2 w-6 h-0.5 rounded-full bg-accent" />
@@ -159,11 +137,11 @@ export function Sidebar({
             }`}
           >
             <span
-              className={`w-[18px] flex items-center justify-center flex-shrink-0 ${
+              className={`w-[18px] text-center text-xs flex-shrink-0 ${
                 activeTool === id ? "opacity-100" : "opacity-60"
               }`}
             >
-              <ToolIcon id={id} />
+              {TOOL_ICONS[id]}
             </span>
             {!isCollapsed && (
               <>
@@ -223,7 +201,7 @@ export function Sidebar({
           title={isCollapsed ? t("trends") : undefined}
           className={`flex items-center ${isCollapsed ? "justify-center" : ""} gap-2 px-2 rounded-md text-xs text-text-tertiary cursor-pointer hover:bg-bg-hover hover:text-text-secondary transition-all min-h-[44px]`}
         >
-          <span className="flex-shrink-0"><SidebarIcon type="trends" /></span>
+          <span className="text-xs flex-shrink-0">{"\u2197"}</span>
           {!isCollapsed && ` ${t("trends")}`}
         </a>
         {!isCollapsed && (
@@ -231,13 +209,13 @@ export function Sidebar({
             <button
               className="w-full flex items-center gap-2 px-2 rounded-md text-xs text-text-tertiary cursor-pointer hover:bg-bg-hover hover:text-text-secondary transition-all min-h-[44px]"
             >
-              <span className="flex-shrink-0"><SidebarIcon type="settings" /></span>
+              <span className="text-xs flex-shrink-0">{"\u2699"}</span>
               {` ${t("settings")}`}
             </button>
             <button
               className="w-full flex items-center gap-2 px-2 rounded-md text-xs text-text-tertiary cursor-pointer hover:bg-bg-hover hover:text-text-secondary transition-all min-h-[44px]"
             >
-              <span className="flex-shrink-0"><SidebarIcon type="help" /></span>
+              <span className="text-xs flex-shrink-0">?</span>
               {` ${t("helpDocs")}`}
             </button>
           </>
