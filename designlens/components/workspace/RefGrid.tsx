@@ -11,9 +11,11 @@ interface RefGridProps {
   onSelectRef: (id: string) => void;
   onFiles: (files: File[]) => void;
   onDeleteRef?: (id: string) => void;
+  onUrl?: (url: string) => void;
+  urlLoading?: boolean;
 }
 
-export function RefGrid({ references, selectedRefId, onSelectRef, onFiles, onDeleteRef }: RefGridProps) {
+export function RefGrid({ references, selectedRefId, onSelectRef, onFiles, onDeleteRef, onUrl, urlLoading }: RefGridProps) {
   const t = useTranslations("refGrid");
   const tc = useTranslations("common");
 
@@ -26,7 +28,7 @@ export function RefGrid({ references, selectedRefId, onSelectRef, onFiles, onDel
       </div>
 
       {/* Upload zone */}
-      <UploadZone onFiles={onFiles} />
+      <UploadZone onFiles={onFiles} onUrl={onUrl} urlLoading={urlLoading} />
 
       {/* Grid */}
       {references.length > 0 && (

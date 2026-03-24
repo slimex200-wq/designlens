@@ -90,6 +90,34 @@ export type Project = {
   createdAt: string;
 };
 
+export type ExtractedColor = {
+  value: string;
+  count: number;
+  properties: string[];
+};
+
+export type ExtractedFont = {
+  family: string;
+  weights: number[];
+  count: number;
+};
+
+export type ExtractedStyles = {
+  colors: ExtractedColor[];
+  fonts: ExtractedFont[];
+  spacing: Array<{ value: string; count: number }>;
+  borderRadius: Array<{ value: string; count: number }>;
+  breakpoints: string[];
+  cssVariables: Record<string, string>;
+};
+
+export type PageMetadata = {
+  title: string;
+  description: string;
+  viewport: string;
+  favicon: string;
+};
+
 export type ReferenceImage = {
   id: string;
   fileName: string;
@@ -98,4 +126,7 @@ export type ReferenceImage = {
   analysis?: AnalysisResult;
   error?: string;
   uploadedAt: string;
+  sourceUrl?: string;
+  extractedStyles?: ExtractedStyles;
+  pageMetadata?: PageMetadata;
 };

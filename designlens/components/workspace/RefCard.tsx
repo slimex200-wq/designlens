@@ -77,6 +77,11 @@ export function RefCard({ reference, selected, onClick, onDelete }: RefCardProps
       {/* Info */}
       <div className="px-2.5 py-2 bg-bg-surface">
         <h5 className="text-[11px] font-medium mb-0.5 truncate">{reference.fileName}</h5>
+        {reference.sourceUrl && (
+          <span className="text-[10px] text-accent truncate block mb-0.5 emoji-text">
+            &#x1F310; {(() => { try { return new URL(reference.sourceUrl.startsWith("http") ? reference.sourceUrl : `https://${reference.sourceUrl}`).hostname; } catch { return reference.sourceUrl; } })()}
+          </span>
+        )}
         <span className="text-[10px] text-text-tertiary">
           {reference.analysis
             ? t("colorsCount", { count: reference.analysis.colors.length })

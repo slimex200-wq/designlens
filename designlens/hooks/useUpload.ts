@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback } from "react";
-import type { ReferenceImage, AnalysisResult, ColorInfo } from "@/lib/types";
+import { useCallback, useState } from "react";
+import type { ReferenceImage, AnalysisResult, ColorInfo, ExtractedStyles, PageMetadata } from "@/lib/types";
 import { validateFile } from "@/lib/upload";
 import { hashFile } from "@/lib/hash";
 import { extractColors } from "@/lib/colors";
@@ -21,6 +21,89 @@ interface UseUploadOptions {
 }
 
 export function useUpload({ projectId, addReference, updateReference, showToast }: UseUploadOptions) {
+  const [urlLoading, setUrlLoading] = useState(false);
+
+  const handleUrlAnalysis = useCallback(
+    async (url: string) => {
+      setUrlLoading(true);
+      const refId = `ref_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+      let hostname = url;
+      try {
+        hostname = new URL(url.startsWith("http") ? url : `https://${url}`).hostname;
+      } catch { /* use raw url */ }
+
+      const ref: ReferenceImage = {
+        id: refId,
+        fileName: hostname,
+        filePath: "",
+        status: "processing",
+        sourceUrl: url,
+        uploadedAt: new Date().toISOString(),
+      };
+      addReference(projectId, ref);
+
+      try {
+        const res = await fetch("/api/capture", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ url }),
+        });
+
+        if (!res.ok) {
+          const data = await res.json();
+          throw new Error(data.error || `Capture failed: ${res.status}`);
+        }
+
+        const data = await res.json() as {
+          screenshot: string;
+          extractedStyles: ExtractedStyles;
+          metadata: PageMetadata;
+          analysis: {
+            typography: AnalysisResult["typography"];
+            layout: AnalysisResult["layout"];
+            tokens: AnalysisResult["tokens"];
+            colors: ColorInfo[];
+            aiAvailable: boolean;
+          };
+        };
+
+        const analysis: AnalysisResult = {
+          id: `analysis_${Date.now()}`,
+          imageHash: url,
+          fileName: hostname,
+          colors: data.analysis.colors,
+          typography: data.analysis.typography,
+          layout: data.analysis.layout,
+          tokens: data.analysis.tokens,
+          aiAvailable: data.analysis.aiAvailable,
+          createdAt: new Date().toISOString(),
+        };
+
+        updateReference(projectId, refId, (r) => ({
+          ...r,
+          status: "analyzed",
+          filePath: data.screenshot,
+          analysis,
+          extractedStyles: data.extractedStyles,
+          pageMetadata: data.metadata,
+        }));
+      } catch (err) {
+        showToast?.(
+          "error",
+          err instanceof Error ? err.message : "URL capture failed",
+        );
+        updateReference(projectId, refId, (r) => ({
+          ...r,
+          status: "error",
+          error: err instanceof Error ? err.message : "Capture failed",
+        }));
+      } finally {
+        setUrlLoading(false);
+      }
+    },
+    [projectId, addReference, updateReference, showToast],
+  );
+
   const handleFiles = useCallback(
     async (files: File[]) => {
       for (const file of files) {
@@ -70,7 +153,7 @@ export function useUpload({ projectId, addReference, updateReference, showToast 
     [projectId, addReference, updateReference, showToast]
   );
 
-  return { handleFiles };
+  return { handleFiles, handleUrlAnalysis, urlLoading };
 }
 
 async function processFile(

@@ -138,7 +138,13 @@
   },
   "uploadZone": {
     "dropHere": "Drop references here",
-    "formats": "PNG, JPG, WebP"
+    "formats": "PNG, JPG, WebP",
+    "urlPlaceholder": "https://example.com",
+    "urlSubmit": "Analyze",
+    "urlAnalyzing": "Capturing website...",
+    "urlInvalid": "Please enter a valid URL",
+    "urlFailed": "Could not access this site. Try uploading a screenshot instead.",
+    "urlOr": "or"
   },
   "refCard": {
     "analyzed": "Analyzed",
@@ -157,7 +163,13 @@
     "layout": "Layout",
     "tokens": "Tokens",
     "aiUnavailable": "AI analysis unavailable — colors only. Typography, layout, and token data may be incomplete.",
-    "selectReference": "Select a reference to view analysis"
+    "selectReference": "Select a reference to view analysis",
+    "sourceTab": "Source",
+    "sourceFonts": "Fonts Used",
+    "sourceCssVars": "CSS Variables",
+    "sourceBreakpoints": "Breakpoints",
+    "sourceMeta": "Page Info",
+    "sourceNone": "No source data — uploaded as image"
   },
   "feedbackBar": {
     "aiInsight": "AI Insight:",

@@ -114,7 +114,7 @@ export default function WorkspacePage() {
     removeReference,
   } = useProjects();
 
-  const { handleFiles } = useUpload({
+  const { handleFiles, handleUrlAnalysis, urlLoading } = useUpload({
     projectId: activeProjectId,
     addReference,
     updateReference,
@@ -244,6 +244,8 @@ export default function WorkspacePage() {
                 selectedRefId={selectedRefId}
                 onSelectRef={setSelectedRefId}
                 onFiles={handleFilesWithLimit}
+                onUrl={handleUrlAnalysis}
+                urlLoading={urlLoading}
                 onDeleteRef={(refId) => {
                   if (selectedRefId === refId) setSelectedRefId(null);
                   removeReference(activeProjectId, refId);
@@ -254,6 +256,8 @@ export default function WorkspacePage() {
                   analysis={selectedAnalysis}
                   fileName={selectedRef.fileName}
                   onClose={() => setSelectedRefId(null)}
+                  extractedStyles={selectedRef.extractedStyles}
+                  pageMetadata={selectedRef.pageMetadata}
                 />
               )}
             </>
