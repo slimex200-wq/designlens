@@ -15,7 +15,7 @@ export function Footer() {
 
   return (
     <footer className="border-t border-border">
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 max-w-[960px] mx-auto px-4 md:px-8 lg:px-12 py-8 md:py-12">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 max-w-[1100px] mx-auto px-8 md:px-12 lg:px-16 py-8 md:py-12">
         {columns.map((col) => (
           <div key={col.titleKey}>
             <h4 className="text-[12px] font-semibold mb-3 text-text-secondary">

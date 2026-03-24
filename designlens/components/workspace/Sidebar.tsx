@@ -195,7 +195,7 @@ export function Sidebar({
       </div>
 
       {/* Footer */}
-      <div className="mt-auto p-2 border-t border-border">
+      <div className="mt-auto px-2 py-3 border-t border-border flex flex-col gap-0.5">
         <a
           href="/app/trends"
           title={isCollapsed ? t("trends") : undefined}
