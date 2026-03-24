@@ -242,13 +242,16 @@ Response: {
 ```
 
 ### Trend Data
+
+> **Removed in MVP.** Trends page reads directly from localStorage. No server API needed.
+> ~~GET /api/trends~~
+
 ```
-GET /api/trends
-Response: {
+// Client-side only — aggregated from localStorage analysis cache
+{
   colors: [{ palette, frequency }],
   layouts: [{ type, frequency }],
-  typography: [{ style, frequency }],
-  period: "2026-03"
+  typography: [{ style, frequency }]
 }
 ```
 
