@@ -1,4 +1,4 @@
-import type { Project, AnalysisResult, ReferenceImage } from "./types";
+import type { Project, AnalysisResult, ReferenceImage, ReviewResult } from "./types";
 
 const sampleAnalyses: Record<string, AnalysisResult> = {
   "fashion-ecommerce": {
@@ -162,6 +162,52 @@ const sampleReferences: ReferenceImage[] = [
 ];
 
 export const SAMPLE_REVIEW_IMAGE = "/samples/linear-review.jpg";
+
+export const SAMPLE_REVIEW_RESULT: ReviewResult = {
+  score: 72,
+  issues: [
+    {
+      area: "Hero Typography",
+      severity: "medium",
+      suggestion: "Hero heading font size (56px) is larger than the design system's recommended hero size (52px). Consider aligning to maintain consistency.",
+      bounds: { x: 2, y: 15, width: 65, height: 35 },
+    },
+    {
+      area: "CTA Button",
+      severity: "high",
+      suggestion: "The 'Sign up' button uses a plain border style that lacks visual hierarchy. The design system specifies a filled accent button for primary actions.",
+      bounds: { x: 82, y: 2, width: 14, height: 5 },
+    },
+    {
+      area: "Spacing",
+      severity: "low",
+      suggestion: "Vertical spacing between hero text and the product preview (approx 120px) exceeds the design system's max section spacing of 80px.",
+      bounds: { x: 2, y: 50, width: 96, height: 10 },
+    },
+    {
+      area: "Color Contrast",
+      severity: "medium",
+      suggestion: "The secondary text in the hero area has insufficient contrast ratio (3.8:1) against the dark background. WCAG AA requires 4.5:1 for body text.",
+      bounds: { x: 2, y: 38, width: 50, height: 8 },
+    },
+  ],
+  improved: {
+    colors: {
+      "--bg": "#0A0A0A",
+      "--surface": "#1A1A1A",
+      "--text": "#FFFFFF",
+      "--text-muted": "#B0B0B0",
+      "--accent": "#635BFF",
+    },
+    spacing: { "--space-sm": "16px", "--space-md": "32px", "--space-lg": "80px" },
+    radius: { "--radius-sm": "6px", "--radius-md": "12px" },
+    typography: [
+      { role: "hero", size: "52px", weight: 700, letterSpacing: "-1.2px" },
+      { role: "body", size: "20px", weight: 400, letterSpacing: "-0.2px" },
+      { role: "button", size: "15px", weight: 600, letterSpacing: "0px" },
+    ],
+  },
+};
 
 export const SAMPLE_PROJECT: Project = {
   id: "sample",

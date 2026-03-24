@@ -35,12 +35,18 @@ export function useProjects() {
 
   useEffect(() => {
     const stored = getProjects();
-    const initial =
-      stored.length === 0 ? [SAMPLE_PROJECT, DEFAULT_PROJECT] : stored;
 
-    if (stored.length === 0) {
-      saveProjectsSafe(initial);
+    // Always refresh the sample project with latest data so new images/analyses show up
+    const withFreshSample = stored.length === 0
+      ? [SAMPLE_PROJECT, DEFAULT_PROJECT]
+      : stored.map((p) => (p.id === "sample" ? SAMPLE_PROJECT : p));
+
+    // Persist if sample was refreshed or first visit
+    if (stored.length === 0 || stored.some((p) => p.id === "sample")) {
+      saveProjectsSafe(withFreshSample);
     }
+
+    const initial = withFreshSample;
 
     // Restore images from IndexedDB for references with empty or invalid filePath
     const allRefs = initial.flatMap((p) => p.references);
