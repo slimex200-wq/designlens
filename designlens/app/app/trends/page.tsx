@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import type { AnalysisResult } from "@/lib/types";
 import { getProjects } from "@/lib/storage";
+import { Sidebar } from "@/components/workspace/Sidebar";
 
 const CACHE_KEY = "designlens_analysis_cache";
 
@@ -100,30 +101,44 @@ export default function TrendsPage() {
       .slice(0, 10);
   }, [analyses]);
 
+  const sidebarProps = {
+    activeTool: "analyze" as const,
+    onToolChange: () => {},
+    projects: [],
+    activeProjectId: "",
+    onProjectChange: () => {},
+    refCount: 0,
+  };
+
   if (analyses.length === 0) {
     return (
-      <div className="flex-1 flex items-center justify-center">
-        <div className="text-center max-w-sm">
-          <div className="w-14 h-14 rounded-2xl bg-bg-elevated border border-border flex items-center justify-center mx-auto mb-5 text-2xl text-text-tertiary">
-            &#x2197;
+      <>
+        <Sidebar {...sidebarProps} />
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center max-w-sm">
+            <div className="w-14 h-14 rounded-2xl bg-bg-elevated border border-border flex items-center justify-center mx-auto mb-5 text-2xl text-text-tertiary">
+              &#x2197;
+            </div>
+            <h2 className="text-base font-semibold text-text-primary mb-2">{t("emptyTitle")}</h2>
+            <p className="text-sm text-text-secondary mb-5 leading-relaxed">
+              {t("emptyDescription")}
+            </p>
+            <a
+              href="/app"
+              className="inline-flex px-4 py-2 rounded-md text-xs bg-accent-dim text-accent border border-accent-border font-medium hover:opacity-85 transition-opacity"
+            >
+              {tc("goToAnalyze")}
+            </a>
           </div>
-          <h2 className="text-base font-semibold text-text-primary mb-2">{t("emptyTitle")}</h2>
-          <p className="text-sm text-text-secondary mb-5 leading-relaxed">
-            {t("emptyDescription")}
-          </p>
-          <a
-            href="/app"
-            className="inline-flex px-4 py-2 rounded-md text-xs bg-accent-dim text-accent border border-accent-border font-medium hover:opacity-85 transition-opacity"
-          >
-            {tc("goToAnalyze")}
-          </a>
         </div>
-      </div>
+      </>
     );
   }
 
   return (
-    <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-6">
+    <>
+      <Sidebar {...sidebarProps} />
+      <div className="flex-1 min-w-0 overflow-y-auto p-6 flex flex-col gap-6">
       {/* Header */}
       <div>
         <h1 className="text-xl font-bold tracking-tight text-text-primary">{t("title")}</h1>
@@ -155,7 +170,7 @@ export default function TrendsPage() {
                   }}
                 />
               </div>
-              <span className="text-[10px] text-text-tertiary w-12 text-right flex-shrink-0">
+              <span className="text-[10px] text-text-tertiary w-20 text-right flex-shrink-0 truncate">
                 {c.role}
               </span>
               <span className="text-[10px] text-text-tertiary w-6 text-right flex-shrink-0">
@@ -218,6 +233,7 @@ export default function TrendsPage() {
           <p className="text-[12px] text-text-tertiary">{t("noTypography")}</p>
         )}
       </section>
-    </div>
+      </div>
+    </>
   );
 }
