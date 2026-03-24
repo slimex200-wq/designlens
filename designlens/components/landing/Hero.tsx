@@ -7,7 +7,7 @@ export function Hero() {
   const t = useTranslations("hero");
 
   return (
-    <section className="min-h-screen flex flex-col items-center justify-center text-center px-4 md:px-8 lg:px-12 pt-[100px] md:pt-[120px] pb-20">
+    <section className="min-h-screen flex flex-col items-center justify-center text-center px-4 md:px-8 lg:px-12 pt-20 md:pt-[120px] pb-20">
       {/* Badge */}
       <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-border text-[12px] text-text-secondary tracking-[-0.2px] mb-10 animate-[fadeIn_0.6s_ease]">
         <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
