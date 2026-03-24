@@ -57,7 +57,7 @@ export function Features() {
               key={f.title}
               className="bg-bg-surface px-7 py-9 transition-colors hover:bg-bg-elevated"
             >
-              <div className="text-xl mb-4 text-text-tertiary">{f.icon}</div>
+              <div className="text-xl mb-4 text-text-tertiary emoji-text">{f.icon}</div>
               <h3 className="text-[15px] font-semibold mb-1.5 tracking-[-0.3px]">
                 {f.title}
               </h3>

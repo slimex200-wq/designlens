@@ -168,7 +168,7 @@ function SidebarItem({ icon, children }: { icon: string; children: React.ReactNo
   return (
     <div className="flex items-center gap-2 px-2 py-1.5 rounded-md text-[12px] text-text-secondary">
       <span
-        className="w-4 h-4 rounded border border-border flex items-center justify-center text-[9px]"
+        className="w-4 h-4 rounded border border-border flex items-center justify-center text-[9px] emoji-text"
         dangerouslySetInnerHTML={{ __html: icon }}
       />
       {children}

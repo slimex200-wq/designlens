@@ -75,7 +75,7 @@ export function Sidebar({
                 : "text-text-tertiary"
             }`}
           >
-            <span className="text-sm">{TOOL_ICONS[id]}</span>
+            <span className="text-sm emoji-text">{TOOL_ICONS[id]}</span>
             <span className="text-[10px] font-medium">{toolLabels[id]}</span>
             {activeTool === id && (
               <span className="absolute top-0 left-1/2 -translate-x-1/2 w-6 h-0.5 rounded-full bg-accent" />
@@ -137,7 +137,7 @@ export function Sidebar({
             }`}
           >
             <span
-              className={`w-[18px] text-center text-xs flex-shrink-0 ${
+              className={`w-[18px] text-center text-xs flex-shrink-0 emoji-text ${
                 activeTool === id ? "opacity-100" : "opacity-60"
               }`}
             >
@@ -201,7 +201,7 @@ export function Sidebar({
           title={isCollapsed ? t("trends") : undefined}
           className={`flex items-center ${isCollapsed ? "justify-center" : ""} gap-2 px-2 rounded-md text-xs text-text-tertiary cursor-pointer hover:bg-bg-hover hover:text-text-secondary transition-all min-h-[44px]`}
         >
-          <span className="text-xs flex-shrink-0">{"\u2197"}</span>
+          <span className="text-xs flex-shrink-0 emoji-text">{"\u2197"}</span>
           {!isCollapsed && ` ${t("trends")}`}
         </a>
         {!isCollapsed && (
@@ -209,13 +209,13 @@ export function Sidebar({
             <button
               className="w-full flex items-center gap-2 px-2 rounded-md text-xs text-text-tertiary cursor-pointer hover:bg-bg-hover hover:text-text-secondary transition-all min-h-[44px]"
             >
-              <span className="text-xs flex-shrink-0">{"\u2699"}</span>
+              <span className="text-xs flex-shrink-0 emoji-text">{"\u2699"}</span>
               {` ${t("settings")}`}
             </button>
             <button
               className="w-full flex items-center gap-2 px-2 rounded-md text-xs text-text-tertiary cursor-pointer hover:bg-bg-hover hover:text-text-secondary transition-all min-h-[44px]"
             >
-              <span className="text-xs flex-shrink-0">?</span>
+              <span className="text-xs flex-shrink-0 emoji-text">?</span>
               {` ${t("helpDocs")}`}
             </button>
           </>

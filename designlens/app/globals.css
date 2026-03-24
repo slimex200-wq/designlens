@@ -2,6 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Force text-style emoji rendering (no color emoji) for cross-platform consistency */
+.emoji-text {
+  font-family: 'Segoe UI Symbol', 'Noto Sans Symbols 2', 'Apple Symbols', 'Symbol', sans-serif;
+  font-variant-emoji: text;
+  -webkit-text-stroke: 0;
+}
+
 @layer base {
   :root {
     --bg-deep: #0C0D0F;
