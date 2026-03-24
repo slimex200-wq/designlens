@@ -163,49 +163,90 @@ const sampleReferences: ReferenceImage[] = [
 
 export const SAMPLE_REVIEW_IMAGE = "/samples/linear-review.jpg";
 
-export const SAMPLE_REVIEW_RESULT: ReviewResult = {
-  score: 72,
-  issues: [
-    {
-      area: "Hero Typography",
-      severity: "medium",
-      suggestion: "Hero heading font size (56px) is larger than the design system's recommended hero size (52px). Consider aligning to maintain consistency.",
-      bounds: { x: 2, y: 15, width: 65, height: 35 },
-    },
-    {
-      area: "CTA Button",
-      severity: "high",
-      suggestion: "The 'Sign up' button uses a plain border style that lacks visual hierarchy. The design system specifies a filled accent button for primary actions.",
-      bounds: { x: 82, y: 2, width: 14, height: 5 },
-    },
-    {
-      area: "Spacing",
-      severity: "low",
-      suggestion: "Vertical spacing between hero text and the product preview (approx 120px) exceeds the design system's max section spacing of 80px.",
-      bounds: { x: 2, y: 50, width: 96, height: 10 },
-    },
-    {
-      area: "Color Contrast",
-      severity: "medium",
-      suggestion: "The secondary text in the hero area has insufficient contrast ratio (3.8:1) against the dark background. WCAG AA requires 4.5:1 for body text.",
-      bounds: { x: 2, y: 38, width: 50, height: 8 },
-    },
+/*
+ * Linear landing page layout (1200×750 rendered):
+ * - Nav bar: y 0–5%, full width. Logo left ~3%, nav links center ~47–82%, Log in ~87%, Sign up button ~91–98%
+ * - Hero heading "The product development…": x 2–65%, y 28–52%
+ * - Sub text "Purpose-built…": x 2–32%, y 55–60%
+ * - Product preview (dark card): x 2–96%, y 67–96%
+ */
+const sampleReviewImproved = {
+  colors: {
+    "--bg": "#0A0A0A",
+    "--surface": "#17171C",
+    "--text": "#FFFFFF",
+    "--text-muted": "#A0A0AB",
+    "--accent": "#5E6AD2",
+  },
+  spacing: { "--space-sm": "16px", "--space-md": "32px", "--space-lg": "64px" },
+  radius: { "--radius-sm": "6px", "--radius-md": "10px" },
+  typography: [
+    { role: "hero", size: "72px", weight: 500, letterSpacing: "-3px" },
+    { role: "body", size: "18px", weight: 400, letterSpacing: "-0.2px" },
+    { role: "button", size: "14px", weight: 500, letterSpacing: "0px" },
   ],
-  improved: {
-    colors: {
-      "--bg": "#0A0A0A",
-      "--surface": "#1A1A1A",
-      "--text": "#FFFFFF",
-      "--text-muted": "#B0B0B0",
-      "--accent": "#635BFF",
-    },
-    spacing: { "--space-sm": "16px", "--space-md": "32px", "--space-lg": "80px" },
-    radius: { "--radius-sm": "6px", "--radius-md": "12px" },
-    typography: [
-      { role: "hero", size: "52px", weight: 700, letterSpacing: "-1.2px" },
-      { role: "body", size: "20px", weight: 400, letterSpacing: "-0.2px" },
-      { role: "button", size: "15px", weight: 600, letterSpacing: "0px" },
+};
+
+export const SAMPLE_REVIEW_RESULTS: Record<string, ReviewResult> = {
+  en: {
+    score: 68,
+    issues: [
+      {
+        area: "Sign Up CTA",
+        severity: "high",
+        suggestion: "The 'Sign up' button in the nav uses a filled dark style identical to the background, creating low affordance. Your design system specifies accent-filled buttons (#5E6AD2) for primary CTAs to establish clear visual hierarchy.",
+        bounds: { x: 91, y: 1, width: 7, height: 4 },
+      },
+      {
+        area: "Sub-heading Contrast",
+        severity: "medium",
+        suggestion: "The description text 'Purpose-built for planning…' uses a muted gray (#8A8A8E) on a near-black background (#0A0A0A), yielding a contrast ratio of approximately 3.9:1. WCAG AA body text requires 4.5:1. Recommend lightening to #A0A0AB.",
+        bounds: { x: 2, y: 53, width: 32, height: 7 },
+      },
+      {
+        area: "Hero–Preview Spacing",
+        severity: "medium",
+        suggestion: "The gap between the sub-heading and the product preview card (~100px) is inconsistent with the 64px section spacing used elsewhere. Tightening to 64px would improve vertical rhythm.",
+        bounds: { x: 2, y: 60, width: 96, height: 8 },
+      },
+      {
+        area: "Nav Link Weight",
+        severity: "low",
+        suggestion: "Navigation links use weight 400 with small size (~13px), making them hard to scan against the dark background. Consider weight 500 or slightly larger size for better legibility.",
+        bounds: { x: 47, y: 1, width: 38, height: 4 },
+      },
     ],
+    improved: sampleReviewImproved,
+  },
+  ko: {
+    score: 68,
+    issues: [
+      {
+        area: "Sign Up CTA",
+        severity: "high",
+        suggestion: "네비게이션의 'Sign up' 버튼이 배경과 동일한 다크 톤으로 채워져 있어 클릭 유도력이 낮습니다. 디자인 시스템에서는 주요 CTA에 액센트 컬러(#5E6AD2)를 사용해 시각적 위계를 확보하도록 지정하고 있습니다.",
+        bounds: { x: 91, y: 1, width: 7, height: 4 },
+      },
+      {
+        area: "서브 헤딩 대비",
+        severity: "medium",
+        suggestion: "설명 텍스트 'Purpose-built for planning…'이 거의 검정(#0A0A0A) 배경 위에 회색(#8A8A8E)으로 표시되어 대비율이 약 3.9:1입니다. WCAG AA 본문 기준인 4.5:1을 충족하려면 #A0A0AB 이상으로 밝혀야 합니다.",
+        bounds: { x: 2, y: 53, width: 32, height: 7 },
+      },
+      {
+        area: "히어로–프리뷰 간격",
+        severity: "medium",
+        suggestion: "서브 헤딩과 프로덕트 프리뷰 카드 사이 간격(~100px)이 다른 섹션에서 사용하는 64px과 일치하지 않습니다. 64px로 줄이면 수직 리듬이 개선됩니다.",
+        bounds: { x: 2, y: 60, width: 96, height: 8 },
+      },
+      {
+        area: "네비게이션 링크",
+        severity: "low",
+        suggestion: "네비게이션 링크가 weight 400, 약 13px 크기로 다크 배경에서 식별이 어렵습니다. weight 500 또는 약간 큰 크기로 변경하면 가독성이 향상됩니다.",
+        bounds: { x: 47, y: 1, width: 38, height: 4 },
+      },
+    ],
+    improved: sampleReviewImproved,
   },
 };
 

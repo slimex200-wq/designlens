@@ -3,7 +3,7 @@
 import { useState, useCallback, useRef, useMemo, Dispatch } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import type { ReferenceImage, TokenSet, ReviewResult, ReviewIssue } from "@/lib/types";
-import { SAMPLE_REVIEW_IMAGE, SAMPLE_REVIEW_RESULT } from "@/lib/sample-project";
+import { SAMPLE_REVIEW_IMAGE, SAMPLE_REVIEW_RESULTS } from "@/lib/sample-project";
 
 type ReviewState = {
   image: string | null;
@@ -161,11 +161,12 @@ export function ReviewView({ references, onToolChange, reviewState, reviewDispat
           <button
             onClick={() => {
               reviewDispatch({ type: "START", image: SAMPLE_REVIEW_IMAGE });
-              setTimeout(() => reviewDispatch({ type: "SUCCESS", result: SAMPLE_REVIEW_RESULT }), 800);
+              const result = SAMPLE_REVIEW_RESULTS[locale as "en" | "ko"] ?? SAMPLE_REVIEW_RESULTS.en;
+              setTimeout(() => reviewDispatch({ type: "SUCCESS", result }), 800);
             }}
             className="mt-4 px-4 py-2 rounded-md text-xs bg-bg-elevated border border-border text-text-secondary font-medium hover:border-border-hover hover:text-text-primary transition-all cursor-pointer"
           >
-            {tc("trySample") || "Try Sample"}
+            {tc("trySample")}
           </button>
         </div>
       </div>

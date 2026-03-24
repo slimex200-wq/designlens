@@ -11,7 +11,8 @@
     "goToAnalyze": "Go to Analyze",
     "files": "{count} files",
     "references": "{count} references",
-    "analyses": "{remaining}/{limit} analyses"
+    "analyses": "{remaining}/{limit} analyses",
+    "trySample": "Try Sample"
   },
   "nav": {
     "features": "Features",
