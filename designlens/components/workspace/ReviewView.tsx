@@ -206,7 +206,7 @@ export function ReviewView({ references, onToolChange, reviewState, reviewDispat
         {error && <span className="text-[11px] text-error">{error}</span>}
         <button
           onClick={dismiss}
-          className="ml-auto px-3 py-1 rounded-md text-xs bg-bg-elevated border border-border text-text-secondary cursor-pointer font-medium hover:border-border-hover hover:text-text-primary transition-all"
+          className="ml-auto px-3 rounded-md text-xs bg-bg-elevated border border-border text-text-secondary cursor-pointer font-medium hover:border-border-hover hover:text-text-primary transition-all min-h-[44px] flex items-center"
         >
           {tc("dismiss")}
         </button>

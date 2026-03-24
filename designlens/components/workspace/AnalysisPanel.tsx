@@ -49,7 +49,7 @@ export function AnalysisPanel({ analysis, fileName, onClose }: AnalysisPanelProp
           {onClose && (
             <button
               onClick={onClose}
-              className="w-7 h-7 rounded flex items-center justify-center text-text-tertiary hover:text-text-primary hover:bg-bg-hover transition-all cursor-pointer text-xs min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0 md:w-5 md:h-5"
+              className="min-w-[44px] min-h-[44px] rounded flex items-center justify-center text-text-tertiary hover:text-text-primary hover:bg-bg-hover transition-all cursor-pointer text-xs"
               title={t("closePanel")}
             >
               ✕
@@ -103,7 +103,7 @@ export function AnalysisPanel({ analysis, fileName, onClose }: AnalysisPanelProp
   // ─── Desktop: inline panel ───
   if (bp === "desktop") {
     return (
-      <section aria-label={t("title")} className="w-[360px] border-l border-border bg-bg-surface overflow-y-auto flex flex-col flex-shrink-0">
+      <section role="complementary" aria-label={t("title")} className="w-[360px] border-l border-border bg-bg-surface overflow-y-auto flex flex-col flex-shrink-0">
         {panelContent}
       </section>
     );
@@ -117,9 +117,14 @@ export function AnalysisPanel({ analysis, fileName, onClose }: AnalysisPanelProp
         <div
           className="fixed inset-0 bg-black/40 z-40 transition-opacity"
           onClick={onClose}
+          role="button"
+          aria-label={t("closePanel")}
+          tabIndex={0}
+          onKeyDown={(e) => e.key === "Escape" && onClose?.()}
         />
         {/* Drawer */}
         <section
+          role="complementary"
           aria-label={t("title")}
           className="fixed top-0 right-0 h-screen w-[360px] z-50 bg-bg-surface border-l border-border flex flex-col animate-[slideInRight_0.2s_ease-out]"
         >
