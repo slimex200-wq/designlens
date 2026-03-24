@@ -205,7 +205,22 @@
     "issuesFound": "{count} Issue{count, plural, one {} other {s}} Found",
     "noIssues": "No issues found. Your UI matches the design system well.",
     "analyzingUi": "Analyzing your UI...",
-    "resultsPlaceholder": "Review results will appear here"
+    "resultsPlaceholder": "Review results will appear here",
+    "enhance": "Show Improvements",
+    "enhanceLoading": "Generating improvements...",
+    "enhanceScore": "Improved Score",
+    "enhanceScoreChange": "{before} → {after}",
+    "enhanceCount": "{count} Improvement{count, plural, one {} other {s}}",
+    "enhanceBefore": "Before",
+    "enhanceAfter": "After",
+    "enhanceClose": "Back to Review",
+    "enhanceEmpty": "No improvements could be generated.",
+    "enhanceDisabled": "Already well-aligned — no improvements needed.",
+    "enhanceColor": "Color",
+    "enhanceSpacing": "Spacing",
+    "enhanceTypography": "Typography",
+    "enhancePosition": "Position",
+    "enhanceContrast": "Contrast"
   },
   "tokensView": {
     "title": "Design Tokens",

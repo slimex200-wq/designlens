@@ -205,7 +205,22 @@
     "issuesFound": "{count}개 이슈 발견",
     "noIssues": "이슈가 없습니다. UI가 디자인 시스템과 잘 맞습니다.",
     "analyzingUi": "UI 분석 중...",
-    "resultsPlaceholder": "리뷰 결과가 여기에 표시됩니다"
+    "resultsPlaceholder": "리뷰 결과가 여기에 표시됩니다",
+    "enhance": "개선안 보기",
+    "enhanceLoading": "개선안 생성 중...",
+    "enhanceScore": "개선 점수",
+    "enhanceScoreChange": "{before} → {after}",
+    "enhanceCount": "{count}개 개선 사항",
+    "enhanceBefore": "Before",
+    "enhanceAfter": "After",
+    "enhanceClose": "리뷰로 돌아가기",
+    "enhanceEmpty": "개선안을 생성하지 못했습니다.",
+    "enhanceDisabled": "이미 잘 맞습니다 — 개선이 필요하지 않습니다.",
+    "enhanceColor": "색상",
+    "enhanceSpacing": "간격",
+    "enhanceTypography": "타이포그래피",
+    "enhancePosition": "위치",
+    "enhanceContrast": "대비"
   },
   "tokensView": {
     "title": "디자인 토큰",
