@@ -133,7 +133,8 @@
     "rateLimitTitle": "Analyses remaining this hour",
     "rateLimitReached": "Rate limit reached — analyses reset hourly.",
     "mobileFallback": "DesignLens works best on desktop (1024px+).",
-    "mobileFallbackSub": "Please resize your browser window."
+    "mobileFallbackSub": "Please resize your browser window.",
+    "mobileFallbackDismiss": "OK"
   },
   "refGrid": {
     "title": "References"
