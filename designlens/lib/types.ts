@@ -61,6 +61,22 @@ export type ReviewResult = {
   improved: TokenSet;
 };
 
+export type EnhancementType = "color" | "spacing" | "typography" | "position" | "contrast";
+
+export type Enhancement = {
+  issueIndex: number;
+  type: EnhancementType;
+  before: string;
+  after: string;
+  bounds: BoundingBox;
+  description: string;
+};
+
+export type EnhanceResult = {
+  enhancements: Enhancement[];
+  improvedScore: number;
+};
+
 export type Project = {
   id: string;
   name: string;
