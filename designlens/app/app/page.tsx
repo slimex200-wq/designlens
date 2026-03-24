@@ -175,7 +175,7 @@ export default function WorkspacePage() {
       />
 
       {/* Main area */}
-      <main id="main-content" className="flex-1 flex flex-col overflow-hidden">
+      <main id="main-content" className="flex-1 min-w-0 flex flex-col overflow-hidden">
         {/* Topbar */}
         <div className="min-h-[48px] flex items-center px-3 md:px-5 border-b border-border gap-2 md:gap-3 flex-shrink-0">
           {/* Mobile: project selector dropdown */}
