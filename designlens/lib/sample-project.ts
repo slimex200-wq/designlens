@@ -160,6 +160,8 @@ const sampleReferences: ReferenceImage[] = [
   },
 ];
 
+export const SAMPLE_REVIEW_IMAGE = "/samples/ui-review-sample.svg";
+
 export const SAMPLE_PROJECT: Project = {
   id: "sample",
   name: "Sample Project",
