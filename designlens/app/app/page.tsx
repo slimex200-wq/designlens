@@ -133,6 +133,17 @@ export default function WorkspacePage() {
 
   const references = activeProject?.references ?? [];
 
+  // Auto-select first analyzed reference on first visit so new users see what the app does
+  const autoSelectedOnce = useRef(false);
+  useEffect(() => {
+    if (autoSelectedOnce.current || selectedRefId || activeProjectId !== "sample") return;
+    const firstAnalyzed = references.find((r) => r.status === "analyzed" && r.analysis);
+    if (firstAnalyzed) {
+      setSelectedRefId(firstAnalyzed.id);
+      autoSelectedOnce.current = true;
+    }
+  }, [references, selectedRefId, activeProjectId]);
+
   const selectedRef = useMemo(
     () => references.find((r) => r.id === selectedRefId) ?? null,
     [references, selectedRefId]

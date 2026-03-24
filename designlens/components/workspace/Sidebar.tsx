@@ -96,7 +96,7 @@ export function Sidebar({
       className={`${isCollapsed ? "w-[52px]" : "w-60"} h-screen bg-bg-surface border-r border-border flex flex-col flex-shrink-0 transition-[width] duration-200`}
     >
       {/* Header */}
-      <div className="px-3 pt-4 pb-3 flex items-center justify-between border-b border-border">
+      <div className={`${isCollapsed ? "px-1" : "px-3"} pt-4 pb-3 flex items-center justify-between border-b border-border`}>
         {!isCollapsed && (
           <span className="text-[15px] font-bold tracking-tight text-text-primary">
             DesignLens
@@ -105,7 +105,7 @@ export function Sidebar({
         {bp === "desktop" && (
           <button
             onClick={() => setCollapsed((c) => !c)}
-            className={`min-w-[44px] min-h-[44px] rounded-md flex items-center justify-center text-[10px] text-text-secondary cursor-pointer hover:bg-bg-hover hover:text-text-primary transition-all ${isCollapsed ? "mx-auto" : "ml-auto"}`}
+            className={`rounded-md flex items-center justify-center text-[10px] text-text-secondary cursor-pointer hover:bg-bg-hover hover:text-text-primary transition-all ${isCollapsed ? "mx-auto w-10 h-10" : "ml-auto min-w-[44px] min-h-[44px]"}`}
             title={isCollapsed ? t("expandSidebar") : t("collapseSidebar")}
           >
             <span className="w-6 h-6 rounded-md bg-bg-elevated border border-border flex items-center justify-center">
@@ -185,6 +185,11 @@ export function Sidebar({
             {!isCollapsed && (
               <>
                 <span className="truncate">{project.name}</span>
+                {project.id === "sample" && (
+                  <span className="text-[9px] px-1.5 py-px rounded bg-accent-dim text-accent font-semibold uppercase tracking-wider">
+                    demo
+                  </span>
+                )}
                 <span className="ml-auto text-[11px] text-text-tertiary">
                   {project.references.length}
                 </span>

@@ -5,6 +5,8 @@ import { useTranslations } from "next-intl";
 import type { ReferenceImage, TokenSet } from "@/lib/types";
 import { exportTokens } from "@/lib/tokens";
 
+const COLLAPSED_LIMIT = 8;
+
 interface TokensViewProps {
   references: ReferenceImage[];
   onToolChange: (tool: "analyze" | "moodboard" | "review" | "tokens") => void;
@@ -15,6 +17,7 @@ type ExportFormat = "css" | "tailwind" | "json";
 export function TokensView({ references, onToolChange }: TokensViewProps) {
   const [format, setFormat] = useState<ExportFormat>("css");
   const [copied, setCopied] = useState(false);
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const t = useTranslations("tokensView");
   const tc = useTranslations("common");
 
@@ -89,57 +92,102 @@ export function TokensView({ references, onToolChange }: TokensViewProps) {
           </p>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-5">
-          {groups.map((group) =>
-            group.entries.length > 0 ? (
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+          {groups.map((group) => {
+            if (group.entries.length === 0) return null;
+            const isExpanded = expanded[group.key] ?? false;
+            const visible = isExpanded ? group.entries : group.entries.slice(0, COLLAPSED_LIMIT);
+            const hasMore = group.entries.length > COLLAPSED_LIMIT;
+
+            return (
               <div key={group.key} className="rounded-lg border border-border bg-bg-surface p-4">
-                <div className="text-[10px] uppercase tracking-[1.2px] text-text-tertiary font-semibold mb-3">
-                  {group.title}
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-[10px] uppercase tracking-[1.2px] text-text-tertiary font-semibold">
+                    {group.title}
+                  </span>
+                  <span className="text-[10px] text-text-tertiary">{group.entries.length}</span>
                 </div>
-                <div className="flex flex-col gap-1">
-                  {group.entries.map(([key, value]) => (
-                    <div
-                      key={key}
-                      className="flex items-center font-mono text-[11px] px-2 py-1.5 rounded hover:bg-bg-hover transition-colors"
-                    >
-                      {group.colorPreview && (
+
+                {group.colorPreview ? (
+                  /* Compact color swatch grid */
+                  <div className="grid grid-cols-4 gap-2">
+                    {visible.map(([key, value]) => (
+                      <div key={key} className="flex flex-col items-center gap-1 group" title={`${key}: ${value}`}>
                         <div
-                          className="w-3 h-3 rounded-sm border border-border mr-2 flex-shrink-0"
+                          className="w-full aspect-square rounded-md border border-border group-hover:ring-1 group-hover:ring-accent-border transition-all"
                           style={{ backgroundColor: value }}
                         />
-                      )}
-                      <span className="text-accent-text">{key}</span>
-                      <span className="text-text-tertiary mx-1.5">:</span>
-                      <span className="text-text-secondary">{value}</span>
+                        <span className="text-[9px] font-mono text-text-tertiary truncate w-full text-center">
+                          {key.replace(/^(color-|bg-|text-)/, "")}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  /* Key-value list for spacing/radius */
+                  <div className="flex flex-col gap-0.5">
+                    {visible.map(([key, value]) => (
+                      <div
+                        key={key}
+                        className="flex items-center justify-between font-mono text-[11px] px-2 py-1 rounded hover:bg-bg-hover transition-colors"
+                      >
+                        <span className="text-accent-text truncate">{key}</span>
+                        <span className="text-text-secondary flex-shrink-0 ml-2">{value}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {hasMore && (
+                  <button
+                    onClick={() => setExpanded((prev) => ({ ...prev, [group.key]: !isExpanded }))}
+                    className="mt-2 w-full text-[10px] text-accent hover:text-accent-text transition-colors cursor-pointer py-1"
+                  >
+                    {isExpanded ? t("showLess") : t("showMore", { count: group.entries.length - COLLAPSED_LIMIT })}
+                  </button>
+                )}
+              </div>
+            );
+          })}
+
+          {/* Typography tokens */}
+          {mergedTokens.typography.length > 0 && (() => {
+            const isExpanded = expanded["typography"] ?? false;
+            const typoVisible = isExpanded ? mergedTokens.typography : mergedTokens.typography.slice(0, COLLAPSED_LIMIT);
+            const hasMore = mergedTokens.typography.length > COLLAPSED_LIMIT;
+
+            return (
+              <div className="rounded-lg border border-border bg-bg-surface p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-[10px] uppercase tracking-[1.2px] text-text-tertiary font-semibold">
+                    {t("typography")}
+                  </span>
+                  <span className="text-[10px] text-text-tertiary">{mergedTokens.typography.length}</span>
+                </div>
+                <div className="flex flex-col gap-0.5">
+                  {typoVisible.map((tk, i) => (
+                    <div
+                      key={i}
+                      className="flex items-center justify-between font-mono text-[11px] px-2 py-1 rounded hover:bg-bg-hover transition-colors"
+                    >
+                      <span className="text-accent-text truncate">{tk.role}</span>
+                      <span className="text-text-secondary flex-shrink-0 ml-2">
+                        {tk.size}/{tk.weight}
+                      </span>
                     </div>
                   ))}
                 </div>
-              </div>
-            ) : null
-          )}
-
-          {/* Typography tokens */}
-          {mergedTokens.typography.length > 0 && (
-            <div className="rounded-lg border border-border bg-bg-surface p-4">
-              <div className="text-[10px] uppercase tracking-[1.2px] text-text-tertiary font-semibold mb-3">
-                {t("typography")}
-              </div>
-              <div className="flex flex-col gap-1">
-                {mergedTokens.typography.map((tk, i) => (
-                  <div
-                    key={i}
-                    className="flex items-center font-mono text-[11px] px-2 py-1.5 rounded hover:bg-bg-hover transition-colors"
+                {hasMore && (
+                  <button
+                    onClick={() => setExpanded((prev) => ({ ...prev, typography: !isExpanded }))}
+                    className="mt-2 w-full text-[10px] text-accent hover:text-accent-text transition-colors cursor-pointer py-1"
                   >
-                    <span className="text-accent-text">{tk.role}</span>
-                    <span className="text-text-tertiary mx-1.5">:</span>
-                    <span className="text-text-secondary">
-                      {tk.size}/{tk.weight}
-                    </span>
-                  </div>
-                ))}
+                    {isExpanded ? t("showLess") : t("showMore", { count: mergedTokens.typography.length - COLLAPSED_LIMIT })}
+                  </button>
+                )}
               </div>
-            </div>
-          )}
+            );
+          })()}
         </div>
       </div>
 

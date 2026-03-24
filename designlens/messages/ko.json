@@ -254,7 +254,9 @@
     "colors": "색상",
     "spacing": "간격",
     "radius": "둥글기",
-    "typography": "타이포그래피"
+    "typography": "타이포그래피",
+    "showMore": "{count}개 더 보기",
+    "showLess": "접기"
   },
   "trends": {
     "title": "나의 디자인 트렌드",

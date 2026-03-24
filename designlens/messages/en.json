@@ -254,7 +254,9 @@
     "colors": "Colors",
     "spacing": "Spacing",
     "radius": "Radius",
-    "typography": "Typography"
+    "typography": "Typography",
+    "showMore": "Show {count} more",
+    "showLess": "Show less"
   },
   "trends": {
     "title": "Your Design Trends",

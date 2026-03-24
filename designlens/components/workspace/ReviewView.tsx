@@ -221,7 +221,7 @@ export function ReviewView({ references, onToolChange, reviewState, reviewDispat
           </p>
           <button
             onClick={() => onToolChange("analyze")}
-            className="px-4 rounded-md text-xs bg-accent-dim text-accent border border-accent-border font-medium hover:opacity-85 transition-opacity cursor-pointer min-h-[44px] flex items-center"
+            className="px-4 rounded-md text-xs bg-accent-dim text-accent border border-accent-border font-medium hover:opacity-85 transition-opacity cursor-pointer min-h-[44px] flex items-center mx-auto"
           >
             {tc("goToAnalyze")}
           </button>
@@ -271,7 +271,7 @@ export function ReviewView({ references, onToolChange, reviewState, reviewDispat
               const result = SAMPLE_REVIEW_RESULTS[locale as "en" | "ko"] ?? SAMPLE_REVIEW_RESULTS.en;
               setTimeout(() => reviewDispatch({ type: "SUCCESS", result }), 800);
             }}
-            className="mt-4 px-4 rounded-md text-xs bg-bg-elevated border border-border text-text-secondary font-medium hover:border-border-hover hover:text-text-primary transition-all cursor-pointer min-h-[44px] flex items-center"
+            className="mt-4 px-4 rounded-md text-xs bg-bg-elevated border border-border text-text-secondary font-medium hover:border-border-hover hover:text-text-primary transition-all cursor-pointer min-h-[44px] flex items-center mx-auto"
           >
             {tc("trySample")}
           </button>
@@ -306,7 +306,7 @@ export function ReviewView({ references, onToolChange, reviewState, reviewDispat
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
       {/* Top bar */}
-      <div className="h-10 flex items-center px-4 border-b border-border gap-3 flex-shrink-0">
+      <div className="min-h-[48px] flex items-center px-4 border-b border-border gap-3 flex-shrink-0">
         <span className="text-[13px] font-medium text-text-primary">{t("title")}</span>
         {reviewResult && !showEnhance && (
           <span className={`text-sm font-bold ${scoreColor}`}>{reviewResult.score}/100</span>
@@ -368,37 +368,44 @@ export function ReviewView({ references, onToolChange, reviewState, reviewDispat
             />
           ) : (
             /* Standard review image + overlays */
-            <div className="relative inline-block">
+            <div className="relative inline-block overflow-hidden rounded-lg">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={reviewImage}
                 alt="UI under review"
-                className="max-w-full rounded-lg"
+                className="max-w-full block"
               />
               {/* Bounding box overlays */}
               {reviewResult &&
-                sortedIssues.map((issue, i) => (
-                  <div
-                    key={i}
-                    className={`absolute border-2 rounded-sm transition-opacity ${severityBorderColor(issue.severity)} ${
-                      highlightedIssue === null || highlightedIssue === i
-                        ? "opacity-80"
-                        : "opacity-20"
-                    }`}
-                    style={{
-                      left: `${issue.bounds.x}%`,
-                      top: `${issue.bounds.y}%`,
-                      width: `${issue.bounds.width}%`,
-                      height: `${issue.bounds.height}%`,
-                    }}
-                  >
-                    <span
-                      className={`absolute -top-5 left-0 text-[9px] px-1 rounded text-white ${severityBgColor(issue.severity)}`}
+                sortedIssues.map((issue, i) => {
+                  // Clamp bounds so boxes never exceed the image area
+                  const x = Math.max(0, Math.min(issue.bounds.x, 100));
+                  const y = Math.max(0, Math.min(issue.bounds.y, 100));
+                  const w = Math.min(issue.bounds.width, 100 - x);
+                  const h = Math.min(issue.bounds.height, 100 - y);
+                  return (
+                    <div
+                      key={i}
+                      className={`absolute border-2 rounded-sm transition-opacity ${severityBorderColor(issue.severity)} ${
+                        highlightedIssue === null || highlightedIssue === i
+                          ? "opacity-80"
+                          : "opacity-20"
+                      }`}
+                      style={{
+                        left: `${x}%`,
+                        top: `${y}%`,
+                        width: `${w}%`,
+                        height: `${h}%`,
+                      }}
                     >
-                      {i + 1}
-                    </span>
-                  </div>
-                ))}
+                      <span
+                        className={`absolute -top-5 left-0 text-[9px] px-1 rounded text-white ${severityBgColor(issue.severity)}`}
+                      >
+                        {i + 1}
+                      </span>
+                    </div>
+                  );
+                })}
             </div>
           )}
         </div>
