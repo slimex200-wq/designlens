@@ -108,7 +108,7 @@ export function ReviewView({ references, onToolChange, reviewState, reviewDispat
       <div className="flex-1 flex items-center justify-center">
         <div className="text-center max-w-sm">
           <div className="w-12 h-12 rounded-xl bg-bg-elevated border border-border flex items-center justify-center mx-auto mb-4 text-lg text-text-tertiary">
-            &#x2713;
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 10.5l5 5 9-11" /></svg>
           </div>
           <p className="text-sm text-text-secondary mb-4">
             {t("emptyState")}
