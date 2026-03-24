@@ -45,7 +45,7 @@ export function TypographyTab({ typography }: TypographyTabProps) {
             {/* Meta */}
             <div className="flex justify-between items-center">
               <span className="text-[10px] text-text-tertiary font-mono">
-                Inter / {typo.weight} / {typo.size} / {typo.letterSpacing}
+                {typo.fontFamily ?? "Unknown"} / {typo.weight} / {typo.size} / {typo.letterSpacing}
               </span>
               <span className="text-[10px] px-1.5 py-0.5 rounded bg-accent-dim text-accent-text font-medium capitalize">
                 {typo.role}

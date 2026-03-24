@@ -3,6 +3,7 @@ export type TokenSet = {
   spacing: Record<string, string>;
   radius: Record<string, string>;
   typography: Array<{
+    fontFamily?: string;
     role: string;
     size: string;
     weight: number;
@@ -24,6 +25,7 @@ export type ColorInfo = {
 };
 
 export type TypographyInfo = {
+  fontFamily?: string;
   size: string;
   weight: number;
   letterSpacing: string;

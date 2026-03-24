@@ -19,13 +19,13 @@ export async function analyzeDesign(imageBase64: string, mimeType: string, local
             type: "text",
             text: `Analyze this UI screenshot. Return JSON only, no markdown:
 {
-  "typography": [{"role": "heading"|"body"|"label"|"caption", "size": "px value", "weight": number, "letterSpacing": "px value"}],
+  "typography": [{"fontFamily": "detected font name (e.g. Helvetica, SF Pro, Roboto, Noto Sans)", "role": "heading"|"body"|"label"|"caption", "size": "px value", "weight": number, "letterSpacing": "px value"}],
   "layout": {"type": "single-column"|"two-column"|"grid"|"sidebar"|"dashboard", "spacing": {"section": "px", "card": "px", "element": "px"}, "grid": "description"},
   "tokens": {
     "colors": {"--name": "#hex"},
     "spacing": {"--name": "px"},
     "radius": {"--name": "px"},
-    "typography": [{"role": "string", "size": "px", "weight": number, "letterSpacing": "px"}]
+    "typography": [{"fontFamily": "detected font name", "role": "string", "size": "px", "weight": number, "letterSpacing": "px"}]
   }
 }`,
           },

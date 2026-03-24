@@ -14,9 +14,9 @@ const sampleAnalyses: Record<string, AnalysisResult> = {
       { hex: "#2C2420", role: "warm-neutral", percentage: 7 },
     ],
     typography: [
-      { size: "48px", weight: 700, letterSpacing: "4px", role: "hero" },
-      { size: "14px", weight: 400, letterSpacing: "2px", role: "nav" },
-      { size: "12px", weight: 500, letterSpacing: "3px", role: "label" },
+      { fontFamily: "Playfair Display", size: "48px", weight: 700, letterSpacing: "4px", role: "hero" },
+      { fontFamily: "Montserrat", size: "14px", weight: 400, letterSpacing: "2px", role: "nav" },
+      { fontFamily: "Montserrat", size: "12px", weight: 500, letterSpacing: "3px", role: "label" },
     ],
     layout: {
       type: "full-width editorial",
@@ -35,9 +35,9 @@ const sampleAnalyses: Record<string, AnalysisResult> = {
       spacing: { "--space-sm": "12px", "--space-md": "20px", "--space-lg": "60px", "--space-xl": "80px" },
       radius: { "--radius-none": "0px", "--radius-sm": "2px" },
       typography: [
-        { role: "hero", size: "48px", weight: 700, letterSpacing: "4px" },
-        { role: "nav", size: "14px", weight: 400, letterSpacing: "2px" },
-        { role: "label", size: "12px", weight: 500, letterSpacing: "3px" },
+        { fontFamily: "Playfair Display", role: "hero", size: "48px", weight: 700, letterSpacing: "4px" },
+        { fontFamily: "Montserrat", role: "nav", size: "14px", weight: 400, letterSpacing: "2px" },
+        { fontFamily: "Montserrat", role: "label", size: "12px", weight: 500, letterSpacing: "3px" },
       ],
     },
     aiAvailable: true,
@@ -57,9 +57,9 @@ const sampleAnalyses: Record<string, AnalysisResult> = {
       { hex: "#37352F", role: "card-surface", percentage: 7 },
     ],
     typography: [
-      { size: "56px", weight: 700, letterSpacing: "-1.5px", role: "hero" },
-      { size: "18px", weight: 400, letterSpacing: "-0.2px", role: "body" },
-      { size: "14px", weight: 500, letterSpacing: "0px", role: "button" },
+      { fontFamily: "Inter", size: "56px", weight: 700, letterSpacing: "-1.5px", role: "hero" },
+      { fontFamily: "Inter", size: "18px", weight: 400, letterSpacing: "-0.2px", role: "body" },
+      { fontFamily: "Inter", size: "14px", weight: 500, letterSpacing: "0px", role: "button" },
     ],
     layout: {
       type: "single-column centered",
@@ -78,9 +78,9 @@ const sampleAnalyses: Record<string, AnalysisResult> = {
       spacing: { "--space-sm": "16px", "--space-md": "24px", "--space-lg": "64px" },
       radius: { "--radius-sm": "6px", "--radius-md": "12px", "--radius-lg": "16px" },
       typography: [
-        { role: "hero", size: "56px", weight: 700, letterSpacing: "-1.5px" },
-        { role: "body", size: "18px", weight: 400, letterSpacing: "-0.2px" },
-        { role: "button", size: "14px", weight: 500, letterSpacing: "0px" },
+        { fontFamily: "Inter", role: "hero", size: "56px", weight: 700, letterSpacing: "-1.5px" },
+        { fontFamily: "Inter", role: "body", size: "18px", weight: 400, letterSpacing: "-0.2px" },
+        { fontFamily: "Inter", role: "button", size: "14px", weight: 500, letterSpacing: "0px" },
       ],
     },
     aiAvailable: true,
@@ -101,10 +101,10 @@ const sampleAnalyses: Record<string, AnalysisResult> = {
       { hex: "#00D4AA", role: "success", percentage: 3 },
     ],
     typography: [
-      { size: "52px", weight: 700, letterSpacing: "-1.2px", role: "hero" },
-      { size: "20px", weight: 400, letterSpacing: "-0.2px", role: "body" },
-      { size: "15px", weight: 600, letterSpacing: "0px", role: "button" },
-      { size: "12px", weight: 500, letterSpacing: "0.5px", role: "label" },
+      { fontFamily: "SF Pro Display", size: "52px", weight: 700, letterSpacing: "-1.2px", role: "hero" },
+      { fontFamily: "SF Pro Text", size: "20px", weight: 400, letterSpacing: "-0.2px", role: "body" },
+      { fontFamily: "SF Pro Text", size: "15px", weight: 600, letterSpacing: "0px", role: "button" },
+      { fontFamily: "SF Pro Text", size: "12px", weight: 500, letterSpacing: "0.5px", role: "label" },
     ],
     layout: {
       type: "single-column centered",
@@ -123,10 +123,10 @@ const sampleAnalyses: Record<string, AnalysisResult> = {
       spacing: { "--space-sm": "16px", "--space-md": "32px", "--space-lg": "80px" },
       radius: { "--radius-sm": "6px", "--radius-md": "12px", "--radius-full": "999px" },
       typography: [
-        { role: "hero", size: "52px", weight: 700, letterSpacing: "-1.2px" },
-        { role: "body", size: "20px", weight: 400, letterSpacing: "-0.2px" },
-        { role: "button", size: "15px", weight: 600, letterSpacing: "0px" },
-        { role: "label", size: "12px", weight: 500, letterSpacing: "0.5px" },
+        { fontFamily: "SF Pro Display", role: "hero", size: "52px", weight: 700, letterSpacing: "-1.2px" },
+        { fontFamily: "SF Pro Text", role: "body", size: "20px", weight: 400, letterSpacing: "-0.2px" },
+        { fontFamily: "SF Pro Text", role: "button", size: "15px", weight: 600, letterSpacing: "0px" },
+        { fontFamily: "SF Pro Text", role: "label", size: "12px", weight: 500, letterSpacing: "0.5px" },
       ],
     },
     aiAvailable: true,
@@ -183,9 +183,9 @@ const sampleReviewImproved = {
   spacing: { "--space-sm": "16px", "--space-md": "32px", "--space-lg": "64px" },
   radius: { "--radius-sm": "6px", "--radius-md": "10px" },
   typography: [
-    { role: "hero", size: "72px", weight: 500, letterSpacing: "-3px" },
-    { role: "body", size: "18px", weight: 400, letterSpacing: "-0.2px" },
-    { role: "button", size: "14px", weight: 500, letterSpacing: "0px" },
+    { fontFamily: "GT Walsheim", role: "hero", size: "72px", weight: 500, letterSpacing: "-3px" },
+    { fontFamily: "Inter", role: "body", size: "18px", weight: 400, letterSpacing: "-0.2px" },
+    { fontFamily: "Inter", role: "button", size: "14px", weight: 500, letterSpacing: "0px" },
   ],
 };
 
