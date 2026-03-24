@@ -25,6 +25,8 @@ type ReviewState = {
   enhance: EnhanceResult | null;
   enhanceLoading: boolean;
   showEnhance: boolean;
+  generatedImage: string | null;
+  imageGenerating: boolean;
 };
 
 type ReviewAction =
@@ -35,18 +37,21 @@ type ReviewAction =
   | { type: "ENHANCE_START" }
   | { type: "ENHANCE_SUCCESS"; enhance: EnhanceResult }
   | { type: "ENHANCE_ERROR"; error: string }
-  | { type: "TOGGLE_ENHANCE" };
+  | { type: "TOGGLE_ENHANCE" }
+  | { type: "IMAGE_GEN_START" }
+  | { type: "IMAGE_GEN_SUCCESS"; image: string }
+  | { type: "IMAGE_GEN_ERROR"; error: string };
 
 function reviewReducer(_state: ReviewState, action: ReviewAction): ReviewState {
   switch (action.type) {
     case "START":
-      return { image: action.image, result: null, loading: true, error: null, enhance: null, enhanceLoading: false, showEnhance: false };
+      return { image: action.image, result: null, loading: true, error: null, enhance: null, enhanceLoading: false, showEnhance: false, generatedImage: null, imageGenerating: false };
     case "SUCCESS":
       return { ..._state, result: action.result, loading: false };
     case "ERROR":
       return { ..._state, error: action.error, loading: false };
     case "DISMISS":
-      return { image: null, result: null, loading: false, error: null, enhance: null, enhanceLoading: false, showEnhance: false };
+      return { image: null, result: null, loading: false, error: null, enhance: null, enhanceLoading: false, showEnhance: false, generatedImage: null, imageGenerating: false };
     case "ENHANCE_START":
       return { ..._state, enhanceLoading: true, error: null };
     case "ENHANCE_SUCCESS":
@@ -55,6 +60,12 @@ function reviewReducer(_state: ReviewState, action: ReviewAction): ReviewState {
       return { ..._state, error: action.error, enhanceLoading: false };
     case "TOGGLE_ENHANCE":
       return { ..._state, showEnhance: !_state.showEnhance };
+    case "IMAGE_GEN_START":
+      return { ..._state, imageGenerating: true };
+    case "IMAGE_GEN_SUCCESS":
+      return { ..._state, generatedImage: action.image, imageGenerating: false };
+    case "IMAGE_GEN_ERROR":
+      return { ..._state, imageGenerating: false, error: action.error };
   }
 }
 
@@ -90,7 +101,7 @@ export default function WorkspacePage() {
   const tc = useTranslations("common");
 
   const [reviewState, reviewDispatch] = useReducer(reviewReducer, {
-    image: null, result: null, loading: false, error: null, enhance: null, enhanceLoading: false, showEnhance: false,
+    image: null, result: null, loading: false, error: null, enhance: null, enhanceLoading: false, showEnhance: false, generatedImage: null, imageGenerating: false,
   });
 
   const {

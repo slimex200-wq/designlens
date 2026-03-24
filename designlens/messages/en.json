@@ -220,7 +220,11 @@
     "enhanceSpacing": "Spacing",
     "enhanceTypography": "Typography",
     "enhancePosition": "Position",
-    "enhanceContrast": "Contrast"
+    "enhanceContrast": "Contrast",
+    "imageGenerating": "Generating improved UI...",
+    "imageGenFailed": "Image generation failed. Showing annotations instead.",
+    "imageGenRetry": "Retry Image",
+    "imageGenTime": "Generated in {seconds}s"
   },
   "tokensView": {
     "title": "Design Tokens",

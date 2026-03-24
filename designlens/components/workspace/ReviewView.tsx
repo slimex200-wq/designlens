@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef, useMemo, Dispatch } from "react";
 import { useTranslations, useLocale } from "next-intl";
-import type { ReferenceImage, TokenSet, ReviewResult, ReviewIssue, EnhanceResult } from "@/lib/types";
+import type { ReferenceImage, TokenSet, ReviewResult, ReviewIssue, EnhanceResult, ImageGenResult } from "@/lib/types";
 import { SAMPLE_REVIEW_IMAGE, SAMPLE_REVIEW_RESULTS, SAMPLE_ENHANCE_RESULTS } from "@/lib/sample-project";
 import { BeforeAfterSlider } from "./BeforeAfterSlider";
 import { EnhancementPanel } from "./EnhancementPanel";
@@ -15,6 +15,8 @@ type ReviewState = {
   enhanceLoading: boolean;
   error: string | null;
   showEnhance: boolean;
+  generatedImage: string | null;
+  imageGenerating: boolean;
 };
 
 type ReviewAction =
@@ -25,7 +27,10 @@ type ReviewAction =
   | { type: "ENHANCE_START" }
   | { type: "ENHANCE_SUCCESS"; enhance: EnhanceResult }
   | { type: "ENHANCE_ERROR"; error: string }
-  | { type: "TOGGLE_ENHANCE" };
+  | { type: "TOGGLE_ENHANCE" }
+  | { type: "IMAGE_GEN_START" }
+  | { type: "IMAGE_GEN_SUCCESS"; image: string }
+  | { type: "IMAGE_GEN_ERROR"; error: string };
 
 interface ReviewViewProps {
   references: ReferenceImage[];
@@ -51,6 +56,8 @@ export function ReviewView({ references, onToolChange, reviewState, reviewDispat
     enhanceLoading,
     error,
     showEnhance,
+    generatedImage,
+    imageGenerating,
   } = reviewState;
 
   const analyzedRefs = useMemo(
@@ -95,6 +102,45 @@ export function ReviewView({ references, onToolChange, reviewState, reviewDispat
     [mergedTokens, reviewDispatch, locale]
   );
 
+  const requestImageGen = useCallback(
+    (image: string, enhancements: EnhanceResult["enhancements"]) => {
+      reviewDispatch({ type: "IMAGE_GEN_START" });
+
+      // Convert image to base64 data URL for the API
+      const toBase64 = async (): Promise<string> => {
+        const res = await fetch(image);
+        const blob = await res.blob();
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result as string);
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        });
+      };
+
+      toBase64()
+        .then((dataUrl) =>
+          fetch("/api/review/generate-image", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ image: dataUrl, enhancements }),
+          }),
+        )
+        .then((res) => res.json())
+        .then((data: ImageGenResult & { error?: string }) => {
+          if (data.imageUrl) {
+            reviewDispatch({ type: "IMAGE_GEN_SUCCESS", image: data.imageUrl });
+          } else {
+            reviewDispatch({ type: "IMAGE_GEN_ERROR", error: data.error ?? "No image returned" });
+          }
+        })
+        .catch((err) => {
+          reviewDispatch({ type: "IMAGE_GEN_ERROR", error: err instanceof Error ? err.message : "Image generation failed" });
+        });
+    },
+    [reviewDispatch],
+  );
+
   const handleEnhance = useCallback(async () => {
     if (!reviewResult || !reviewImage) return;
     reviewDispatch({ type: "ENHANCE_START" });
@@ -104,7 +150,7 @@ export function ReviewView({ references, onToolChange, reviewState, reviewDispat
       if (reviewImage === SAMPLE_REVIEW_IMAGE) {
         const sampleEnhance = SAMPLE_ENHANCE_RESULTS[locale as "en" | "ko"] ?? SAMPLE_ENHANCE_RESULTS.en;
         reviewDispatch({ type: "ENHANCE_SUCCESS", enhance: sampleEnhance });
-        reviewDispatch({ type: "TOGGLE_ENHANCE" });
+        // Sample: skip image generation
         return;
       }
 
@@ -123,14 +169,18 @@ export function ReviewView({ references, onToolChange, reviewState, reviewDispat
 
       const enhanceResult: EnhanceResult = await res.json();
       reviewDispatch({ type: "ENHANCE_SUCCESS", enhance: enhanceResult });
-      reviewDispatch({ type: "TOGGLE_ENHANCE" });
+
+      // Start AI image generation in parallel
+      if (enhanceResult.enhancements.length > 0) {
+        requestImageGen(reviewImage, enhanceResult.enhancements);
+      }
     } catch (err) {
       reviewDispatch({
         type: "ENHANCE_ERROR",
         error: err instanceof Error ? err.message : "Enhancement failed",
       });
     }
-  }, [reviewResult, reviewImage, mergedTokens, locale, reviewDispatch]);
+  }, [reviewResult, reviewImage, mergedTokens, locale, reviewDispatch, requestImageGen]);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -268,6 +318,7 @@ export function ReviewView({ references, onToolChange, reviewState, reviewDispat
         )}
         {loading && <span className="text-[11px] text-text-tertiary animate-pulse">{t("analyzingUi")}</span>}
         {enhanceLoading && <span className="text-[11px] text-text-tertiary animate-pulse">{t("enhanceLoading")}</span>}
+        {imageGenerating && <span className="text-[11px] text-text-tertiary animate-pulse">{t("imageGenerating")}</span>}
         {error && <span className="text-[11px] text-error">{error}</span>}
 
         {/* Enhance / Back buttons */}
@@ -309,6 +360,8 @@ export function ReviewView({ references, onToolChange, reviewState, reviewDispat
             /* Before/After slider view */
             <BeforeAfterSlider
               image={reviewImage}
+              afterImage={generatedImage}
+              imageGenerating={imageGenerating}
               issues={sortedIssues}
               enhancements={enhance.enhancements}
               highlightedIndex={highlightedEnhancement}

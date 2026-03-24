@@ -77,6 +77,11 @@ export type EnhanceResult = {
   improvedScore: number;
 };
 
+export type ImageGenResult = {
+  imageUrl: string;
+  generationTime: number;
+};
+
 export type Project = {
   id: string;
   name: string;

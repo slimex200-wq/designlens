@@ -6,6 +6,8 @@ import type { ReviewIssue, Enhancement } from "@/lib/types";
 
 interface BeforeAfterSliderProps {
   image: string;
+  afterImage?: string | null;
+  imageGenerating?: boolean;
   issues: ReviewIssue[];
   enhancements: Enhancement[];
   highlightedIndex: number | null;
@@ -13,6 +15,8 @@ interface BeforeAfterSliderProps {
 
 export function BeforeAfterSlider({
   image,
+  afterImage,
+  imageGenerating,
   issues,
   enhancements,
   highlightedIndex,
@@ -80,6 +84,9 @@ export function BeforeAfterSlider({
   const severityBgColor = (s: ReviewIssue["severity"]) =>
     s === "high" ? "bg-error" : s === "medium" ? "bg-warning" : "bg-accent";
 
+  // Decide what to show on the After side
+  const hasAiImage = !!afterImage;
+
   return (
     <div
       ref={containerRef}
@@ -95,39 +102,61 @@ export function BeforeAfterSlider({
         draggable={false}
       />
 
-      {/* After side: enhancement overlays (right of divider) */}
+      {/* After side (right of divider) */}
       <div
         className="absolute inset-0 overflow-hidden"
         style={{ clipPath: `inset(0 0 0 ${sliderPos}%)` }}
       >
+        {/* AI-generated image layer */}
+        {hasAiImage && (
+          /* eslint-disable-next-line @next/next/no-img-element */
+          <img
+            src={afterImage}
+            alt="AI enhanced"
+            className="absolute inset-0 w-full h-full object-cover rounded-lg transition-opacity duration-300"
+            draggable={false}
+          />
+        )}
+
+        {/* Loading skeleton when generating */}
+        {imageGenerating && !hasAiImage && (
+          <div className="absolute inset-0 bg-bg-deep/60 flex items-center justify-center rounded-lg">
+            <div className="text-center">
+              <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+              <span className="text-[11px] text-text-secondary">{t("imageGenerating")}</span>
+            </div>
+          </div>
+        )}
+
         {/* After label */}
         <span className="absolute top-2 right-2 text-[10px] uppercase tracking-wider bg-bg-deep/80 text-success px-2 py-0.5 rounded pointer-events-none z-20">
           {t("enhanceAfter")}
         </span>
 
-        {/* Enhancement bounding boxes */}
-        {enhancements.map((enh, i) => {
-          const isHighlighted = highlightedIndex === null || highlightedIndex === i;
-          return (
-            <div
-              key={i}
-              className={`absolute border-2 border-success rounded-sm transition-opacity ${
-                isHighlighted ? "opacity-90" : "opacity-20"
-              }`}
-              style={{
-                left: `${enh.bounds.x}%`,
-                top: `${enh.bounds.y}%`,
-                width: `${enh.bounds.width}%`,
-                height: `${enh.bounds.height}%`,
-              }}
-            >
-              {/* Value label */}
-              <span className="absolute -top-5 left-0 text-[9px] px-1 rounded bg-success text-bg-deep whitespace-nowrap">
-                {enh.after}
-              </span>
-            </div>
-          );
-        })}
+        {/* Enhancement bounding boxes (show when no AI image, or as overlay) */}
+        {!hasAiImage &&
+          enhancements.map((enh, i) => {
+            const isHighlighted = highlightedIndex === null || highlightedIndex === i;
+            return (
+              <div
+                key={i}
+                className={`absolute border-2 border-success rounded-sm transition-opacity ${
+                  isHighlighted ? "opacity-90" : "opacity-20"
+                }`}
+                style={{
+                  left: `${enh.bounds.x}%`,
+                  top: `${enh.bounds.y}%`,
+                  width: `${enh.bounds.width}%`,
+                  height: `${enh.bounds.height}%`,
+                }}
+              >
+                {/* Value label */}
+                <span className="absolute -top-5 left-0 text-[9px] px-1 rounded bg-success text-bg-deep whitespace-nowrap">
+                  {enh.after}
+                </span>
+              </div>
+            );
+          })}
       </div>
 
       {/* Before side: issue overlays (left of divider) */}
@@ -135,7 +164,6 @@ export function BeforeAfterSlider({
         className="absolute inset-0 overflow-hidden"
         style={{ clipPath: `inset(0 ${100 - sliderPos}% 0 0)` }}
       >
-        {/* Tinted overlay to distinguish before side */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={image}

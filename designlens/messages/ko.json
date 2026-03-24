@@ -220,7 +220,11 @@
     "enhanceSpacing": "간격",
     "enhanceTypography": "타이포그래피",
     "enhancePosition": "위치",
-    "enhanceContrast": "대비"
+    "enhanceContrast": "대비",
+    "imageGenerating": "개선된 UI 생성 중...",
+    "imageGenFailed": "이미지 생성에 실패했습니다. 바운딩 박스로 표시합니다.",
+    "imageGenRetry": "이미지 재생성",
+    "imageGenTime": "{seconds}초 만에 생성"
   },
   "tokensView": {
     "title": "디자인 토큰",
