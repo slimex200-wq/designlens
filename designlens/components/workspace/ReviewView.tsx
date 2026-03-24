@@ -2,21 +2,30 @@
 
 import { useState, useCallback, useRef, useMemo, Dispatch } from "react";
 import { useTranslations, useLocale } from "next-intl";
-import type { ReferenceImage, TokenSet, ReviewResult, ReviewIssue } from "@/lib/types";
-import { SAMPLE_REVIEW_IMAGE, SAMPLE_REVIEW_RESULTS } from "@/lib/sample-project";
+import type { ReferenceImage, TokenSet, ReviewResult, ReviewIssue, EnhanceResult } from "@/lib/types";
+import { SAMPLE_REVIEW_IMAGE, SAMPLE_REVIEW_RESULTS, SAMPLE_ENHANCE_RESULTS } from "@/lib/sample-project";
+import { BeforeAfterSlider } from "./BeforeAfterSlider";
+import { EnhancementPanel } from "./EnhancementPanel";
 
 type ReviewState = {
   image: string | null;
   result: ReviewResult | null;
+  enhance: EnhanceResult | null;
   loading: boolean;
+  enhanceLoading: boolean;
   error: string | null;
+  showEnhance: boolean;
 };
 
 type ReviewAction =
   | { type: "START"; image: string }
   | { type: "SUCCESS"; result: ReviewResult }
   | { type: "ERROR"; error: string }
-  | { type: "DISMISS" };
+  | { type: "DISMISS" }
+  | { type: "ENHANCE_START" }
+  | { type: "ENHANCE_SUCCESS"; enhance: EnhanceResult }
+  | { type: "ENHANCE_ERROR"; error: string }
+  | { type: "TOGGLE_ENHANCE" };
 
 interface ReviewViewProps {
   references: ReferenceImage[];
@@ -27,13 +36,22 @@ interface ReviewViewProps {
 
 export function ReviewView({ references, onToolChange, reviewState, reviewDispatch }: ReviewViewProps) {
   const [highlightedIssue, setHighlightedIssue] = useState<number | null>(null);
+  const [highlightedEnhancement, setHighlightedEnhancement] = useState<number | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const t = useTranslations("review");
   const tc = useTranslations("common");
   const locale = useLocale();
 
-  const { image: reviewImage, result: reviewResult, loading, error } = reviewState;
+  const {
+    image: reviewImage,
+    result: reviewResult,
+    enhance,
+    loading,
+    enhanceLoading,
+    error,
+    showEnhance,
+  } = reviewState;
 
   const analyzedRefs = useMemo(
     () => references.filter((r) => r.status === "analyzed" && r.analysis),
@@ -43,11 +61,11 @@ export function ReviewView({ references, onToolChange, reviewState, reviewDispat
   const mergedTokens = useMemo((): TokenSet => {
     const merged: TokenSet = { colors: {}, spacing: {}, radius: {}, typography: [] };
     for (const ref of analyzedRefs) {
-      const t = ref.analysis!.tokens;
-      Object.assign(merged.colors, t.colors);
-      Object.assign(merged.spacing, t.spacing);
-      Object.assign(merged.radius, t.radius);
-      merged.typography.push(...t.typography);
+      const tok = ref.analysis!.tokens;
+      Object.assign(merged.colors, tok.colors);
+      Object.assign(merged.spacing, tok.spacing);
+      Object.assign(merged.radius, tok.radius);
+      merged.typography.push(...tok.typography);
     }
     return merged;
   }, [analyzedRefs]);
@@ -74,8 +92,45 @@ export function ReviewView({ references, onToolChange, reviewState, reviewDispat
         reviewDispatch({ type: "ERROR", error: err instanceof Error ? err.message : "Review failed" });
       }
     },
-    [mergedTokens, reviewDispatch]
+    [mergedTokens, reviewDispatch, locale]
   );
+
+  const handleEnhance = useCallback(async () => {
+    if (!reviewResult || !reviewImage) return;
+    reviewDispatch({ type: "ENHANCE_START" });
+
+    try {
+      // Use sample data for the sample image
+      if (reviewImage === SAMPLE_REVIEW_IMAGE) {
+        const sampleEnhance = SAMPLE_ENHANCE_RESULTS[locale as "en" | "ko"] ?? SAMPLE_ENHANCE_RESULTS.en;
+        reviewDispatch({ type: "ENHANCE_SUCCESS", enhance: sampleEnhance });
+        reviewDispatch({ type: "TOGGLE_ENHANCE" });
+        return;
+      }
+
+      // Fetch the review image as a blob for upload
+      const imgRes = await fetch(reviewImage);
+      const imgBlob = await imgRes.blob();
+
+      const formData = new FormData();
+      formData.append("image", imgBlob, "review.jpg");
+      formData.append("designSystem", JSON.stringify(mergedTokens));
+      formData.append("issues", JSON.stringify(reviewResult.issues));
+      formData.append("locale", locale);
+
+      const res = await fetch("/api/review/enhance", { method: "POST", body: formData });
+      if (!res.ok) throw new Error(`API error: ${res.status}`);
+
+      const enhanceResult: EnhanceResult = await res.json();
+      reviewDispatch({ type: "ENHANCE_SUCCESS", enhance: enhanceResult });
+      reviewDispatch({ type: "TOGGLE_ENHANCE" });
+    } catch (err) {
+      reviewDispatch({
+        type: "ENHANCE_ERROR",
+        error: err instanceof Error ? err.message : "Enhancement failed",
+      });
+    }
+  }, [reviewResult, reviewImage, mergedTokens, locale, reviewDispatch]);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -100,6 +155,7 @@ export function ReviewView({ references, onToolChange, reviewState, reviewDispat
   const dismiss = () => {
     reviewDispatch({ type: "DISMISS" });
     setHighlightedIssue(null);
+    setHighlightedEnhancement(null);
   };
 
   // Empty state: no analyzed references
@@ -159,7 +215,8 @@ export function ReviewView({ references, onToolChange, reviewState, reviewDispat
             {t("designSystemFrom", { count: analyzedRefs.length })}
           </p>
           <button
-            onClick={() => {
+            onClick={(e) => {
+              e.stopPropagation();
               reviewDispatch({ type: "START", image: SAMPLE_REVIEW_IMAGE });
               const result = SAMPLE_REVIEW_RESULTS[locale as "en" | "ko"] ?? SAMPLE_REVIEW_RESULTS.en;
               setTimeout(() => reviewDispatch({ type: "SUCCESS", result }), 800);
@@ -194,16 +251,48 @@ export function ReviewView({ references, onToolChange, reviewState, reviewDispat
   const severityBgColor = (s: ReviewIssue["severity"]) =>
     s === "high" ? "bg-error" : s === "medium" ? "bg-warning" : "bg-accent";
 
+  const hasIssues = sortedIssues.length > 0;
+
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
       {/* Top bar */}
       <div className="h-10 flex items-center px-4 border-b border-border gap-3 flex-shrink-0">
         <span className="text-[13px] font-medium text-text-primary">{t("title")}</span>
-        {reviewResult && (
+        {reviewResult && !showEnhance && (
           <span className={`text-sm font-bold ${scoreColor}`}>{reviewResult.score}/100</span>
         )}
+        {reviewResult && showEnhance && enhance && (
+          <span className="text-sm font-bold text-text-secondary">
+            {t("enhanceScoreChange", { before: reviewResult.score, after: enhance.improvedScore })}
+          </span>
+        )}
         {loading && <span className="text-[11px] text-text-tertiary animate-pulse">{t("analyzingUi")}</span>}
+        {enhanceLoading && <span className="text-[11px] text-text-tertiary animate-pulse">{t("enhanceLoading")}</span>}
         {error && <span className="text-[11px] text-error">{error}</span>}
+
+        {/* Enhance / Back buttons */}
+        {reviewResult && !showEnhance && (
+          <button
+            onClick={handleEnhance}
+            disabled={enhanceLoading || !hasIssues}
+            title={!hasIssues ? t("enhanceDisabled") : undefined}
+            className="px-3 rounded-md text-xs bg-accent-dim text-accent border border-accent-border font-medium hover:opacity-85 transition-opacity cursor-pointer min-h-[44px] flex items-center disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            {t("enhance")}
+          </button>
+        )}
+        {showEnhance && (
+          <button
+            onClick={() => {
+              reviewDispatch({ type: "TOGGLE_ENHANCE" });
+              setHighlightedEnhancement(null);
+            }}
+            className="px-3 rounded-md text-xs bg-bg-elevated border border-border text-text-secondary font-medium hover:border-border-hover hover:text-text-primary transition-all cursor-pointer min-h-[44px] flex items-center"
+          >
+            {t("enhanceClose")}
+          </button>
+        )}
+
         <button
           onClick={dismiss}
           className="ml-auto px-3 rounded-md text-xs bg-bg-elevated border border-border text-text-secondary cursor-pointer font-medium hover:border-border-hover hover:text-text-primary transition-all min-h-[44px] flex items-center"
@@ -214,45 +303,68 @@ export function ReviewView({ references, onToolChange, reviewState, reviewDispat
 
       {/* Split content */}
       <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
-        {/* Left: Image with overlays */}
+        {/* Left: Image area */}
         <div className="flex-1 relative overflow-auto p-4">
-          <div className="relative inline-block">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={reviewImage}
-              alt="UI under review"
-              className="max-w-full rounded-lg"
+          {showEnhance && enhance ? (
+            /* Before/After slider view */
+            <BeforeAfterSlider
+              image={reviewImage}
+              issues={sortedIssues}
+              enhancements={enhance.enhancements}
+              highlightedIndex={highlightedEnhancement}
             />
-            {/* Bounding box overlays */}
-            {reviewResult &&
-              sortedIssues.map((issue, i) => (
-                <div
-                  key={i}
-                  className={`absolute border-2 rounded-sm transition-opacity ${severityBorderColor(issue.severity)} ${
-                    highlightedIssue === null || highlightedIssue === i
-                      ? "opacity-80"
-                      : "opacity-20"
-                  }`}
-                  style={{
-                    left: `${issue.bounds.x}%`,
-                    top: `${issue.bounds.y}%`,
-                    width: `${issue.bounds.width}%`,
-                    height: `${issue.bounds.height}%`,
-                  }}
-                >
-                  <span
-                    className={`absolute -top-5 left-0 text-[9px] px-1 rounded text-white ${severityBgColor(issue.severity)}`}
+          ) : (
+            /* Standard review image + overlays */
+            <div className="relative inline-block">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={reviewImage}
+                alt="UI under review"
+                className="max-w-full rounded-lg"
+              />
+              {/* Bounding box overlays */}
+              {reviewResult &&
+                sortedIssues.map((issue, i) => (
+                  <div
+                    key={i}
+                    className={`absolute border-2 rounded-sm transition-opacity ${severityBorderColor(issue.severity)} ${
+                      highlightedIssue === null || highlightedIssue === i
+                        ? "opacity-80"
+                        : "opacity-20"
+                    }`}
+                    style={{
+                      left: `${issue.bounds.x}%`,
+                      top: `${issue.bounds.y}%`,
+                      width: `${issue.bounds.width}%`,
+                      height: `${issue.bounds.height}%`,
+                    }}
                   >
-                    {i + 1}
-                  </span>
-                </div>
-              ))}
-          </div>
+                    <span
+                      className={`absolute -top-5 left-0 text-[9px] px-1 rounded text-white ${severityBgColor(issue.severity)}`}
+                    >
+                      {i + 1}
+                    </span>
+                  </div>
+                ))}
+            </div>
+          )}
         </div>
 
-        {/* Right/Bottom: Issues panel */}
+        {/* Right/Bottom: Panel */}
         <div className="w-full md:w-[340px] border-t md:border-t-0 md:border-l border-border bg-bg-surface overflow-y-auto flex-shrink-0 max-h-[40vh] md:max-h-none">
-          {reviewResult ? (
+          {showEnhance && enhance ? (
+            /* Enhancement panel */
+            <EnhancementPanel
+              enhancements={enhance.enhancements}
+              originalScore={reviewResult?.score ?? 0}
+              improvedScore={enhance.improvedScore}
+              highlightedIndex={highlightedEnhancement}
+              onHighlight={(idx) => {
+                setHighlightedEnhancement(idx);
+                setHighlightedIssue(null);
+              }}
+            />
+          ) : reviewResult ? (
             <div className="p-4 flex flex-col gap-3">
               {/* Score badge */}
               <div className="text-center py-4">

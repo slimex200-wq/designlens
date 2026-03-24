@@ -1,4 +1,4 @@
-import type { Project, AnalysisResult, ReferenceImage, ReviewResult } from "./types";
+import type { Project, AnalysisResult, ReferenceImage, ReviewResult, EnhanceResult } from "./types";
 
 const sampleAnalyses: Record<string, AnalysisResult> = {
   "fashion-ecommerce": {
@@ -250,6 +250,12 @@ export const SAMPLE_REVIEW_RESULTS: Record<string, ReviewResult> = {
     ],
     improved: sampleReviewImproved,
   },
+};
+
+// Placeholder — will be replaced with real data in Task 9
+export const SAMPLE_ENHANCE_RESULTS: Record<string, EnhanceResult> = {
+  en: { enhancements: [], improvedScore: 85 },
+  ko: { enhancements: [], improvedScore: 85 },
 };
 
 export const SAMPLE_PROJECT: Project = {
