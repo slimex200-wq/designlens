@@ -26,9 +26,9 @@ const steps = [
 export function Workflow() {
   return (
     <ScrollReveal>
-      <section className="py-32 px-12 border-t border-border">
+      <section className="py-20 md:py-32 px-6 md:px-12 border-t border-border">
         <div className="max-w-[960px] mx-auto">
-          <div className="grid grid-cols-2 gap-16 mb-[72px] items-end">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16 mb-12 md:mb-[72px] items-end">
             <div>
               <div className="text-[11px] uppercase tracking-[2px] text-text-tertiary mb-4 font-semibold">
                 How it works
@@ -44,7 +44,7 @@ export function Workflow() {
             </p>
           </div>
 
-          <div className="grid grid-cols-4 gap-px bg-border rounded-[14px] overflow-hidden">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-px bg-border rounded-[14px] overflow-hidden">
             {steps.map((s) => (
               <div
                 key={s.num}

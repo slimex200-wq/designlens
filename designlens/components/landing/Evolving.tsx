@@ -18,8 +18,8 @@ const bullets = [
 export function Evolving() {
   return (
     <ScrollReveal>
-      <section className="py-32 px-12 border-t border-border">
-        <div className="max-w-[960px] mx-auto grid grid-cols-2 gap-12 items-center">
+      <section className="py-20 md:py-32 px-6 md:px-12 border-t border-border">
+        <div className="max-w-[960px] mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
           {/* Text */}
           <div>
             <div className="text-[11px] uppercase tracking-[2px] text-text-tertiary mb-4 font-semibold">

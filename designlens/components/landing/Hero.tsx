@@ -4,7 +4,7 @@ import Link from "next/link";
 
 export function Hero() {
   return (
-    <section className="min-h-screen flex flex-col items-center justify-center text-center px-12 pt-[120px] pb-20">
+    <section className="min-h-screen flex flex-col items-center justify-center text-center px-6 md:px-12 pt-[100px] md:pt-[120px] pb-20">
       {/* Badge */}
       <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-border text-[12px] text-text-secondary tracking-[-0.2px] mb-10 animate-[fadeIn_0.6s_ease]">
         <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
@@ -41,7 +41,7 @@ export function Hero() {
       </div>
 
       {/* Product Preview */}
-      <div className="mt-16 w-full max-w-[960px] animate-[fadeInUp_0.8s_ease_0.55s_both]">
+      <div className="mt-16 w-full max-w-[960px] animate-[fadeInUp_0.8s_ease_0.55s_both] hidden md:block">
         <div className="rounded-[14px] overflow-hidden border border-border bg-bg-surface shadow-[0_32px_80px_rgba(0,0,0,0.5),0_0_0_1px_var(--border)]">
           {/* Browser bar */}
           <div className="flex items-center gap-2 px-4 py-3 border-b border-border bg-bg-deep">

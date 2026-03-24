@@ -221,5 +221,16 @@
     "spacing": "간격",
     "radius": "둥글기",
     "typography": "타이포그래피"
+  },
+  "trends": {
+    "title": "나의 디자인 트렌드",
+    "subtitle": "{count}개 분석에서 집계",
+    "emptyTitle": "아직 트렌드가 없습니다",
+    "emptyDescription": "먼저 레퍼런스를 분석해 보세요. 데이터가 쌓이면 자주 사용되는 색상, 레이아웃, 타이포그래피 트렌드가 여기에 표시됩니다.",
+    "colorFrequency": "색상 빈도",
+    "layoutPatterns": "레이아웃 패턴",
+    "typographyTrends": "타이포그래피 트렌드",
+    "noTypography": "타이포그래피 데이터가 없습니다.",
+    "occurrences": "{count}회 사용"
   }
 }

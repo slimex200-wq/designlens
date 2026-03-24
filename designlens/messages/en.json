@@ -221,5 +221,16 @@
     "spacing": "Spacing",
     "radius": "Radius",
     "typography": "Typography"
+  },
+  "trends": {
+    "title": "Your Design Trends",
+    "subtitle": "Aggregated from {count, plural, one {# analysis} other {# analyses}}",
+    "emptyTitle": "No trends yet",
+    "emptyDescription": "Analyze a few references first. Once you have data, popular colors, layouts, and typography trends will appear here.",
+    "colorFrequency": "Color Frequency",
+    "layoutPatterns": "Layout Patterns",
+    "typographyTrends": "Typography Trends",
+    "noTypography": "No typography data found.",
+    "occurrences": "{count, plural, one {# occurrence} other {# occurrences}}"
   }
 }

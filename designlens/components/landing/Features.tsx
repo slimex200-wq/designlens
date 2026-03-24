@@ -36,12 +36,12 @@ const features = [
 export function Features() {
   return (
     <ScrollReveal>
-      <section id="features" className="py-32 px-12 border-t border-border">
+      <section id="features" className="py-20 md:py-32 px-6 md:px-12 border-t border-border">
         <div className="text-center mb-[72px]">
           <div className="text-[11px] uppercase tracking-[2px] text-text-tertiary mb-4 font-semibold">
             Features
           </div>
-          <h2 className="text-[44px] font-bold tracking-[-1.8px] leading-[1.1] text-[#F0F2F5]">
+          <h2 className="text-[32px] md:text-[44px] font-bold tracking-[-1.8px] leading-[1.1] text-[#F0F2F5]">
             Everything you need to
             <br />
             design with confidence
@@ -51,7 +51,7 @@ export function Features() {
           </p>
         </div>
 
-        <div className="grid grid-cols-3 gap-px max-w-[960px] mx-auto bg-border rounded-[14px] overflow-hidden">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px max-w-[960px] mx-auto bg-border rounded-[14px] overflow-hidden">
           {features.map((f) => (
             <div
               key={f.title}

@@ -1,23 +1,48 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import { useTranslations } from "next-intl";
 import type { AnalysisResult } from "@/lib/types";
+import { getProjects } from "@/lib/storage";
 
 const CACHE_KEY = "designlens_analysis_cache";
 
 export default function TrendsPage() {
   const [analyses, setAnalyses] = useState<AnalysisResult[]>([]);
+  const t = useTranslations("trends");
+  const tc = useTranslations("common");
 
   useEffect(() => {
+    const all = new Map<string, AnalysisResult>();
+
+    // 1. Read from analysis cache
     try {
       const raw = localStorage.getItem(CACHE_KEY);
       if (raw) {
         const cache: Record<string, AnalysisResult> = JSON.parse(raw);
-        setAnalyses(Object.values(cache));
+        for (const [key, val] of Object.entries(cache)) {
+          all.set(key, val);
+        }
       }
     } catch {
       // ignore parse errors
     }
+
+    // 2. Read from stored projects (includes sample project analyses)
+    try {
+      const projects = getProjects();
+      for (const p of projects) {
+        for (const ref of p.references) {
+          if (ref.analysis) {
+            all.set(ref.analysis.imageHash, ref.analysis);
+          }
+        }
+      }
+    } catch {
+      // ignore
+    }
+
+    setAnalyses(Array.from(all.values()));
   }, []);
 
   // Color frequency: aggregate all colors, sorted by total percentage
@@ -37,7 +62,7 @@ export default function TrendsPage() {
     }
     return Array.from(map.values())
       .sort((a, b) => b.total - a.total)
-      .slice(0, 10);
+      .slice(0, 12);
   }, [analyses]);
 
   const maxColorTotal = colorFrequency[0]?.total ?? 1;
@@ -58,15 +83,19 @@ export default function TrendsPage() {
 
   // Typography trends
   const typographyTrends = useMemo(() => {
-    const map = new Map<string, number>();
+    const map = new Map<string, { label: string; count: number; role: string }>();
     for (const a of analyses) {
       for (const t of a.typography) {
-        const key = `${t.size} / weight ${t.weight}`;
-        map.set(key, (map.get(key) ?? 0) + 1);
+        const key = `${t.size}-${t.weight}`;
+        const existing = map.get(key);
+        if (existing) {
+          existing.count++;
+        } else {
+          map.set(key, { label: `${t.size} / weight ${t.weight}`, count: 1, role: t.role });
+        }
       }
     }
-    return Array.from(map.entries())
-      .map(([label, count]) => ({ label, count }))
+    return Array.from(map.values())
       .sort((a, b) => b.count - a.count)
       .slice(0, 10);
   }, [analyses]);
@@ -78,15 +107,15 @@ export default function TrendsPage() {
           <div className="w-14 h-14 rounded-2xl bg-bg-elevated border border-border flex items-center justify-center mx-auto mb-5 text-2xl text-text-tertiary">
             &#x2197;
           </div>
-          <h2 className="text-base font-semibold text-text-primary mb-2">No trends yet</h2>
+          <h2 className="text-base font-semibold text-text-primary mb-2">{t("emptyTitle")}</h2>
           <p className="text-sm text-text-secondary mb-5 leading-relaxed">
-            Analyze a few references first. Once you have some data, design trends like popular colors, layouts, and typography will appear here.
+            {t("emptyDescription")}
           </p>
           <a
             href="/app"
             className="inline-flex px-4 py-2 rounded-md text-xs bg-accent-dim text-accent border border-accent-border font-medium hover:opacity-85 transition-opacity"
           >
-            Go to Workspace
+            {tc("goToAnalyze")}
           </a>
         </div>
       </div>
@@ -97,15 +126,15 @@ export default function TrendsPage() {
     <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-6">
       {/* Header */}
       <div>
-        <h1 className="text-xl font-bold tracking-tight text-text-primary">Your Design Trends</h1>
+        <h1 className="text-xl font-bold tracking-tight text-text-primary">{t("title")}</h1>
         <p className="text-[12px] text-text-tertiary mt-1">
-          Aggregated from {analyses.length} analysis{analyses.length !== 1 ? "es" : ""}
+          {t("subtitle", { count: analyses.length })}
         </p>
       </div>
 
       {/* Color Frequency */}
       <section className="rounded-lg border border-border bg-bg-surface p-5">
-        <h2 className="text-[13px] font-semibold text-text-primary mb-4">Color Frequency</h2>
+        <h2 className="text-[13px] font-semibold text-text-primary mb-4">{t("colorFrequency")}</h2>
         <div className="flex flex-col gap-2.5">
           {colorFrequency.map((c, i) => (
             <div key={i} className="flex items-center gap-3">
@@ -126,7 +155,10 @@ export default function TrendsPage() {
                   }}
                 />
               </div>
-              <span className="text-[10px] text-text-tertiary w-8 text-right flex-shrink-0">
+              <span className="text-[10px] text-text-tertiary w-12 text-right flex-shrink-0">
+                {c.role}
+              </span>
+              <span className="text-[10px] text-text-tertiary w-6 text-right flex-shrink-0">
                 {c.count}x
               </span>
             </div>
@@ -136,11 +168,11 @@ export default function TrendsPage() {
 
       {/* Layout Patterns */}
       <section className="rounded-lg border border-border bg-bg-surface p-5">
-        <h2 className="text-[13px] font-semibold text-text-primary mb-4">Layout Patterns</h2>
+        <h2 className="text-[13px] font-semibold text-text-primary mb-4">{t("layoutPatterns")}</h2>
         <div className="flex flex-col gap-2.5">
           {layoutPatterns.map((l, i) => (
             <div key={i} className="flex items-center gap-3">
-              <span className="text-[12px] text-text-secondary w-28 flex-shrink-0 capitalize">
+              <span className="text-[12px] text-text-secondary w-40 flex-shrink-0 capitalize">
                 {l.type}
               </span>
               <div className="flex-1 h-5 bg-bg-deep rounded-md overflow-hidden">
@@ -162,21 +194,28 @@ export default function TrendsPage() {
 
       {/* Typography Trends */}
       <section className="rounded-lg border border-border bg-bg-surface p-5">
-        <h2 className="text-[13px] font-semibold text-text-primary mb-4">Typography Trends</h2>
+        <h2 className="text-[13px] font-semibold text-text-primary mb-4">{t("typographyTrends")}</h2>
         {typographyTrends.length > 0 ? (
           <div className="flex flex-col gap-2">
-            {typographyTrends.map((t, i) => (
+            {typographyTrends.map((item, i) => (
               <div
                 key={i}
                 className="flex items-center justify-between py-1.5 border-b border-border last:border-0"
               >
-                <span className="text-[12px] text-text-secondary font-mono">{t.label}</span>
-                <span className="text-[10px] text-text-tertiary">{t.count} occurrence{t.count !== 1 ? "s" : ""}</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-[12px] text-text-secondary font-mono">{item.label}</span>
+                  <span className="text-[10px] text-text-tertiary px-1.5 py-0.5 rounded bg-bg-elevated">
+                    {item.role}
+                  </span>
+                </div>
+                <span className="text-[10px] text-text-tertiary">
+                  {t("occurrences", { count: item.count })}
+                </span>
               </div>
             ))}
           </div>
         ) : (
-          <p className="text-[12px] text-text-tertiary">No typography data found.</p>
+          <p className="text-[12px] text-text-tertiary">{t("noTypography")}</p>
         )}
       </section>
     </div>

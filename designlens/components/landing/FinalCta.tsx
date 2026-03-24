@@ -4,8 +4,8 @@ import { ScrollReveal } from "@/components/ui/ScrollReveal";
 export function FinalCta() {
   return (
     <ScrollReveal>
-      <section className="py-40 px-12 text-center border-t border-border">
-        <h2 className="text-[56px] font-extrabold tracking-[-2.5px] leading-[1.0] mb-4 text-[#F0F2F5]">
+      <section className="py-24 md:py-40 px-6 md:px-12 text-center border-t border-border">
+        <h2 className="text-[36px] md:text-[56px] font-extrabold tracking-[-2.5px] leading-[1.0] mb-4 text-[#F0F2F5]">
           Stop guessing.
           <br />
           Start designing.
