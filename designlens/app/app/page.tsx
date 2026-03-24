@@ -13,7 +13,7 @@ import { useProjects } from "@/hooks/useProjects";
 import { useUpload } from "@/hooks/useUpload";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
 import { useToast } from "@/components/ui/Toast";
-import type { ReviewResult } from "@/lib/types";
+import type { ReviewResult, EnhanceResult } from "@/lib/types";
 
 type Tool = "analyze" | "moodboard" | "review" | "tokens";
 
@@ -22,24 +22,39 @@ type ReviewState = {
   result: ReviewResult | null;
   loading: boolean;
   error: string | null;
+  enhance: EnhanceResult | null;
+  enhanceLoading: boolean;
+  showEnhance: boolean;
 };
 
 type ReviewAction =
   | { type: "START"; image: string }
   | { type: "SUCCESS"; result: ReviewResult }
   | { type: "ERROR"; error: string }
-  | { type: "DISMISS" };
+  | { type: "DISMISS" }
+  | { type: "ENHANCE_START" }
+  | { type: "ENHANCE_SUCCESS"; enhance: EnhanceResult }
+  | { type: "ENHANCE_ERROR"; error: string }
+  | { type: "TOGGLE_ENHANCE" };
 
 function reviewReducer(_state: ReviewState, action: ReviewAction): ReviewState {
   switch (action.type) {
     case "START":
-      return { image: action.image, result: null, loading: true, error: null };
+      return { image: action.image, result: null, loading: true, error: null, enhance: null, enhanceLoading: false, showEnhance: false };
     case "SUCCESS":
       return { ..._state, result: action.result, loading: false };
     case "ERROR":
       return { ..._state, error: action.error, loading: false };
     case "DISMISS":
-      return { image: null, result: null, loading: false, error: null };
+      return { image: null, result: null, loading: false, error: null, enhance: null, enhanceLoading: false, showEnhance: false };
+    case "ENHANCE_START":
+      return { ..._state, enhanceLoading: true, error: null };
+    case "ENHANCE_SUCCESS":
+      return { ..._state, enhance: action.enhance, enhanceLoading: false, showEnhance: true };
+    case "ENHANCE_ERROR":
+      return { ..._state, error: action.error, enhanceLoading: false };
+    case "TOGGLE_ENHANCE":
+      return { ..._state, showEnhance: !_state.showEnhance };
   }
 }
 
@@ -75,7 +90,7 @@ export default function WorkspacePage() {
   const tc = useTranslations("common");
 
   const [reviewState, reviewDispatch] = useReducer(reviewReducer, {
-    image: null, result: null, loading: false, error: null,
+    image: null, result: null, loading: false, error: null, enhance: null, enhanceLoading: false, showEnhance: false,
   });
 
   const {
