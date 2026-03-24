@@ -164,11 +164,13 @@ const sampleReferences: ReferenceImage[] = [
 export const SAMPLE_REVIEW_IMAGE = "/samples/linear-review.jpg";
 
 /*
- * Linear landing page layout (1200×750 rendered):
- * - Nav bar: y 0–5%, full width. Logo left ~3%, nav links center ~47–82%, Log in ~87%, Sign up button ~91–98%
- * - Hero heading "The product development…": x 2–65%, y 28–52%
- * - Sub text "Purpose-built…": x 2–32%, y 55–60%
- * - Product preview (dark card): x 2–96%, y 67–96%
+ * Linear landing page layout (1200×750 pixel-measured):
+ * - Nav bar: y 2–6%. Sign up button: x 91–98%, y 2.5–6%
+ * - Nav links (Product–Contact): x 47–83%, y 3–5.5%
+ * - Hero heading line 1: y 35–41%
+ * - Hero heading line 2: y 44–49%
+ * - Sub text "Purpose-built…": y 55–58%
+ * - Product preview (dark card): y 69–96%
  */
 const sampleReviewImproved = {
   colors: {
@@ -195,25 +197,25 @@ export const SAMPLE_REVIEW_RESULTS: Record<string, ReviewResult> = {
         area: "Sign Up CTA",
         severity: "high",
         suggestion: "The 'Sign up' button in the nav uses a filled dark style identical to the background, creating low affordance. Your design system specifies accent-filled buttons (#5E6AD2) for primary CTAs to establish clear visual hierarchy.",
-        bounds: { x: 91, y: 1, width: 7, height: 4 },
+        bounds: { x: 91, y: 2, width: 6, height: 4 },
       },
       {
         area: "Sub-heading Contrast",
         severity: "medium",
         suggestion: "The description text 'Purpose-built for planning…' uses a muted gray (#8A8A8E) on a near-black background (#0A0A0A), yielding a contrast ratio of approximately 3.9:1. WCAG AA body text requires 4.5:1. Recommend lightening to #A0A0AB.",
-        bounds: { x: 2, y: 53, width: 32, height: 7 },
+        bounds: { x: 2, y: 54, width: 31, height: 5 },
       },
       {
         area: "Hero–Preview Spacing",
         severity: "medium",
         suggestion: "The gap between the sub-heading and the product preview card (~100px) is inconsistent with the 64px section spacing used elsewhere. Tightening to 64px would improve vertical rhythm.",
-        bounds: { x: 2, y: 60, width: 96, height: 8 },
+        bounds: { x: 2, y: 59, width: 96, height: 10 },
       },
       {
         area: "Nav Link Weight",
         severity: "low",
         suggestion: "Navigation links use weight 400 with small size (~13px), making them hard to scan against the dark background. Consider weight 500 or slightly larger size for better legibility.",
-        bounds: { x: 47, y: 1, width: 38, height: 4 },
+        bounds: { x: 47, y: 2, width: 36, height: 4 },
       },
     ],
     improved: sampleReviewImproved,
