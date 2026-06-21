@@ -6,6 +6,7 @@ import type { ReferenceImage, TokenSet, ReviewResult, ReviewIssue, EnhanceResult
 import { SAMPLE_REVIEW_IMAGE, SAMPLE_REVIEW_RESULTS, SAMPLE_ENHANCE_RESULTS } from "@/lib/sample-project";
 import { BeforeAfterSlider } from "./BeforeAfterSlider";
 import { EnhancementPanel } from "./EnhancementPanel";
+import { ClipboardCheck, ImageUp } from "lucide-react";
 
 type ReviewState = {
   image: string | null;
@@ -44,6 +45,8 @@ export function ReviewView({ references, onToolChange, reviewState, reviewDispat
   const [highlightedEnhancement, setHighlightedEnhancement] = useState<number | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const [reviewUrl, setReviewUrl] = useState("");
+  const [urlCapturing, setUrlCapturing] = useState(false);
   const t = useTranslations("review");
   const tc = useTranslations("common");
   const locale = useLocale();
@@ -102,6 +105,39 @@ export function ReviewView({ references, onToolChange, reviewState, reviewDispat
     [mergedTokens, reviewDispatch, locale]
   );
 
+  const handleUrl = useCallback(async () => {
+    const target = reviewUrl.trim();
+    if (!target || urlCapturing) return;
+    setUrlCapturing(true);
+    try {
+      const cap = await fetch("/api/capture", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: target }),
+      });
+      if (!cap.ok) {
+        const d = await cap.json().catch(() => ({}));
+        throw new Error(d.error || `Capture failed: ${cap.status}`);
+      }
+      const capData = (await cap.json()) as { screenshot: string };
+      reviewDispatch({ type: "START", image: capData.screenshot });
+
+      const blob = await (await fetch(capData.screenshot)).blob();
+      const formData = new FormData();
+      formData.append("image", blob, "capture.jpg");
+      formData.append("designSystem", JSON.stringify(mergedTokens));
+      formData.append("locale", locale);
+      const res = await fetch("/api/review", { method: "POST", body: formData });
+      if (!res.ok) throw new Error(`API error: ${res.status}`);
+      const result: ReviewResult = await res.json();
+      reviewDispatch({ type: "SUCCESS", result });
+    } catch (err) {
+      reviewDispatch({ type: "ERROR", error: err instanceof Error ? err.message : "URL review failed" });
+    } finally {
+      setUrlCapturing(false);
+    }
+  }, [reviewUrl, urlCapturing, mergedTokens, locale, reviewDispatch]);
+
   const requestImageGen = useCallback(
     (image: string, enhancements: EnhanceResult["enhancements"]) => {
       reviewDispatch({ type: "IMAGE_GEN_START" });
@@ -131,14 +167,15 @@ export function ReviewView({ references, onToolChange, reviewState, reviewDispat
           if (data.imageUrl) {
             reviewDispatch({ type: "IMAGE_GEN_SUCCESS", image: data.imageUrl });
           } else {
-            reviewDispatch({ type: "IMAGE_GEN_ERROR", error: data.error ?? "No image returned" });
+            // Surface a friendly message; the slider falls back to annotations.
+            reviewDispatch({ type: "IMAGE_GEN_ERROR", error: t("imageGenFailed") });
           }
         })
-        .catch((err) => {
-          reviewDispatch({ type: "IMAGE_GEN_ERROR", error: err instanceof Error ? err.message : "Image generation failed" });
+        .catch(() => {
+          reviewDispatch({ type: "IMAGE_GEN_ERROR", error: t("imageGenFailed") });
         });
     },
-    [reviewDispatch],
+    [reviewDispatch, t],
   );
 
   const handleEnhance = useCallback(async () => {
@@ -213,8 +250,8 @@ export function ReviewView({ references, onToolChange, reviewState, reviewDispat
     return (
       <div className="flex-1 flex items-center justify-center">
         <div className="text-center max-w-sm">
-          <div className="w-12 h-12 rounded-xl bg-bg-elevated border border-border flex items-center justify-center mx-auto mb-4 text-lg text-text-tertiary">
-            &#x2713;
+          <div className="w-12 h-12 rounded-xl bg-bg-elevated border border-border flex items-center justify-center mx-auto mb-4 text-text-tertiary">
+            <ClipboardCheck size={20} strokeWidth={2} />
           </div>
           <p className="text-sm text-text-secondary mb-4">
             {t("emptyState")}
@@ -233,7 +270,7 @@ export function ReviewView({ references, onToolChange, reviewState, reviewDispat
   // Upload state: has references but no review image yet
   if (!reviewImage) {
     return (
-      <div className="flex-1 flex items-center justify-center p-5">
+      <div className="flex-1 flex flex-col items-center justify-center gap-4 p-5">
         <div
           onClick={() => inputRef.current?.click()}
           onDragOver={handleDragOver}
@@ -256,7 +293,7 @@ export function ReviewView({ references, onToolChange, reviewState, reviewDispat
               e.target.value = "";
             }}
           />
-          <div className="text-2xl text-text-tertiary mb-3">&#x2713;</div>
+          <div className="text-text-tertiary mb-3 flex justify-center"><ImageUp size={28} strokeWidth={1.75} /></div>
           <h4 className="text-sm font-medium mb-1">{t("dropTitle")}</h4>
           <p className="text-[11px] text-text-tertiary">
             {t("dropDescription")}
@@ -275,6 +312,33 @@ export function ReviewView({ references, onToolChange, reviewState, reviewDispat
           >
             {tc("trySample")}
           </button>
+        </div>
+
+        {/* Or review a live website by URL */}
+        <div className="max-w-lg w-full flex flex-col gap-2">
+          <div className="flex items-center gap-2 text-[10px] uppercase tracking-wider text-text-tertiary">
+            <span className="h-px flex-1 bg-border" />
+            {t("orUrl")}
+            <span className="h-px flex-1 bg-border" />
+          </div>
+          <div className="flex gap-2">
+            <input
+              type="url"
+              value={reviewUrl}
+              onChange={(e) => setReviewUrl(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") handleUrl(); }}
+              placeholder={t("urlPlaceholder")}
+              disabled={urlCapturing}
+              className="flex-1 min-w-0 bg-bg-elevated border border-border rounded-md px-3 h-10 text-[13px] text-text-primary outline-none focus:border-border-hover disabled:opacity-50"
+            />
+            <button
+              onClick={handleUrl}
+              disabled={urlCapturing || !reviewUrl.trim()}
+              className="px-4 h-10 rounded-md text-xs bg-text-primary text-bg-deep font-semibold cursor-pointer hover:opacity-85 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed flex items-center flex-shrink-0"
+            >
+              {urlCapturing ? t("urlCapturing") : t("reviewUrl")}
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -320,6 +384,14 @@ export function ReviewView({ references, onToolChange, reviewState, reviewDispat
         {enhanceLoading && <span className="text-[11px] text-text-tertiary animate-pulse">{t("enhanceLoading")}</span>}
         {imageGenerating && <span className="text-[11px] text-text-tertiary animate-pulse">{t("imageGenerating")}</span>}
         {error && <span className="text-[11px] text-error">{error}</span>}
+        {showEnhance && enhance && error && !generatedImage && !imageGenerating && (
+          <button
+            onClick={() => requestImageGen(reviewImage, enhance.enhancements)}
+            className="text-[11px] px-2 h-7 rounded-md bg-accent-dim text-accent border border-accent-border font-medium hover:opacity-85 transition-opacity cursor-pointer flex items-center"
+          >
+            {t("imageGenRetry")}
+          </button>
+        )}
 
         {/* Enhance / Back buttons */}
         {reviewResult && !showEnhance && (

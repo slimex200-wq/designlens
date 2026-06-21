@@ -34,7 +34,8 @@ export async function analyzeDesign(imageBase64: string, mimeType: string) {
     ],
   });
 
-  const raw = response.content[0].type === "text" ? response.content[0].text : "";
+  const first = response.content[0];
+  const raw = first?.type === "text" ? first.text : "";
   const text = raw.replace(/^```(?:json)?\s*\n?/i, "").replace(/\n?```\s*$/i, "").trim();
   try {
     return JSON.parse(text) as {
@@ -83,7 +84,8 @@ Check: hierarchy, color consistency, spacing, contrast.${locale === "ko" ? " Wri
     ],
   });
 
-  const raw = response.content[0].type === "text" ? response.content[0].text : "";
+  const first = response.content[0];
+  const raw = first?.type === "text" ? first.text : "";
   const text = raw.replace(/^```(?:json)?\s*\n?/i, "").replace(/\n?```\s*$/i, "").trim();
   try {
     return JSON.parse(text) as ReviewResult;
@@ -131,7 +133,8 @@ For each issue, provide a concrete fix with exact values (hex colors, px spacing
     ],
   });
 
-  const raw = response.content[0].type === "text" ? response.content[0].text : "";
+  const first = response.content[0];
+  const raw = first?.type === "text" ? first.text : "";
   const text = raw.replace(/^```(?:json)?\s*\n?/i, "").replace(/\n?```\s*$/i, "").trim();
   try {
     return JSON.parse(text) as EnhanceResult;

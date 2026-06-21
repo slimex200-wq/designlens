@@ -79,6 +79,8 @@ export function useUpload({ projectId, addReference, updateReference, showToast 
           createdAt: new Date().toISOString(),
         };
 
+        // Persist the captured screenshot so it survives a reload (parity with file uploads).
+        saveImage(refId, data.screenshot).catch(() => {});
         updateReference(projectId, refId, (r) => ({
           ...r,
           status: "analyzed",

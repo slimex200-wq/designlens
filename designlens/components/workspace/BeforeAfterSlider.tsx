@@ -117,7 +117,7 @@ export function BeforeAfterSlider({
           <img
             src={afterImage}
             alt="AI enhanced"
-            className="absolute inset-0 w-full h-full object-cover rounded-lg transition-opacity duration-300"
+            className="absolute inset-0 w-full h-full object-contain rounded-lg transition-opacity duration-300"
             draggable={false}
           />
         )}

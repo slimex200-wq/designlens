@@ -2,7 +2,7 @@
   "common": {
     "appName": "DesignLens",
     "share": "공유",
-    "upload": "+ 업로드",
+    "upload": "업로드",
     "close": "닫기",
     "copy": "클립보드에 복사",
     "copied": "복사 완료!",
@@ -222,7 +222,8 @@
     "tokens": "토큰",
     "colorPicker": "색상 추출",
     "clickToCopy": "클릭하여 복사",
-    "copied": "복사됨!"
+    "copied": "복사됨",
+    "copyFailed": "클립보드에 복사하지 못했습니다"
   },
   "review": {
     "title": "UI 리뷰",
@@ -253,7 +254,11 @@
     "imageGenerating": "개선된 UI 생성 중...",
     "imageGenFailed": "이미지 생성에 실패했습니다. 바운딩 박스로 표시합니다.",
     "imageGenRetry": "이미지 재생성",
-    "imageGenTime": "{seconds}초 만에 생성"
+    "imageGenTime": "{seconds}초 만에 생성",
+    "orUrl": "또는 라이브 웹사이트 리뷰",
+    "urlPlaceholder": "https://your-site.com",
+    "reviewUrl": "URL 리뷰",
+    "urlCapturing": "웹사이트 캡처 중…"
   },
   "tokensView": {
     "title": "디자인 토큰",
@@ -273,7 +278,11 @@
     "radius": "둥글기",
     "typography": "타이포그래피",
     "showMore": "{count}개 더 보기",
-    "showLess": "접기"
+    "showLess": "접기",
+    "clickToCopy": "토큰을 클릭하면 복사됩니다",
+    "viewCode": "코드 내보내기",
+    "hideCode": "토큰으로 돌아가기",
+    "copied": "{value} 복사됨"
   },
   "trends": {
     "title": "나의 디자인 트렌드",

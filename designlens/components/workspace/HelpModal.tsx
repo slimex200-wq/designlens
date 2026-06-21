@@ -2,16 +2,17 @@
 
 import { useTranslations } from "next-intl";
 import { Modal } from "@/components/ui/Modal";
+import { ScanSearch, LayoutGrid, ClipboardCheck, Braces, type LucideIcon } from "lucide-react";
 
 export function HelpModal({ onClose }: { onClose: () => void }) {
   const t = useTranslations("help");
   const tc = useTranslations("common");
 
-  const tools: Array<{ icon: string; title: string; desc: string }> = [
-    { icon: "\u2699", title: t("analyzeTitle"), desc: t("analyzeDesc") },
-    { icon: "\u25A3", title: t("moodboardTitle"), desc: t("moodboardDesc") },
-    { icon: "\u2713", title: t("reviewTitle"), desc: t("reviewDesc") },
-    { icon: "{ }", title: t("tokensTitle"), desc: t("tokensDesc") },
+  const tools: Array<{ Icon: LucideIcon; title: string; desc: string }> = [
+    { Icon: ScanSearch, title: t("analyzeTitle"), desc: t("analyzeDesc") },
+    { Icon: LayoutGrid, title: t("moodboardTitle"), desc: t("moodboardDesc") },
+    { Icon: ClipboardCheck, title: t("reviewTitle"), desc: t("reviewDesc") },
+    { Icon: Braces, title: t("tokensTitle"), desc: t("tokensDesc") },
   ];
 
   const steps = [t("step1"), t("step2"), t("step3"), t("step4")];
@@ -34,8 +35,8 @@ export function HelpModal({ onClose }: { onClose: () => void }) {
           <div className="flex flex-col gap-3">
             {tools.map((tool) => (
               <div key={tool.title} className="flex gap-3">
-                <span className="w-5 text-center text-xs text-accent-text emoji-text flex-shrink-0 mt-0.5">
-                  {tool.icon}
+                <span className="w-5 flex-shrink-0 mt-0.5 flex justify-center text-accent-text">
+                  <tool.Icon size={15} strokeWidth={2} />
                 </span>
                 <div>
                   <div className="text-[13px] font-medium text-text-primary">{tool.title}</div>

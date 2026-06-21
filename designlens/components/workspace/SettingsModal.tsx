@@ -6,6 +6,7 @@ import { useTranslations, useLocale } from "next-intl";
 import { useRouter } from "next/navigation";
 import { Modal } from "@/components/ui/Modal";
 import { clearAllData } from "@/lib/storage";
+import { ArrowUpRight } from "lucide-react";
 
 const APP_VERSION = "0.1.0";
 
@@ -163,7 +164,7 @@ export function SettingsModal({
             href="/"
             className="inline-flex items-center gap-1 mt-2 text-[11px] text-accent hover:opacity-85 transition-opacity"
           >
-            {t("landingLink")} <span className="emoji-text">{"\u2197"}</span>
+            {t("landingLink")} <ArrowUpRight size={12} strokeWidth={2} className="inline" />
           </Link>
         </section>
       </div>

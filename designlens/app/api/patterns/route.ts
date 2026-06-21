@@ -34,7 +34,8 @@ export async function POST(request: NextRequest) {
       ],
     });
 
-    const raw = response.content[0].type === "text" ? response.content[0].text : "";
+    const first = response.content[0];
+    const raw = first?.type === "text" ? first.text : "";
     const text = raw.replace(/^```(?:json)?\s*\n?/i, "").replace(/\n?```\s*$/i, "").trim();
 
     try {

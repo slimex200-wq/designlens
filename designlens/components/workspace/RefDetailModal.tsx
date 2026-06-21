@@ -2,9 +2,21 @@
 
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useTranslations } from "next-intl";
+import { useToast } from "@/components/ui/Toast";
 import type { ReferenceImage } from "@/lib/types";
+import { Pipette, X } from "lucide-react";
 
 const ZOOM_SCALE = 2.5;
+
+function toHex(r: number, g: number, b: number): string {
+  return (
+    "#" +
+    [r, g, b]
+      .map((v) => v.toString(16).padStart(2, "0"))
+      .join("")
+      .toUpperCase()
+  );
+}
 
 interface RefDetailModalProps {
   reference: ReferenceImage;
@@ -13,12 +25,19 @@ interface RefDetailModalProps {
 
 export function RefDetailModal({ reference, onClose }: RefDetailModalProps) {
   const t = useTranslations("refDetail");
+  const { showToast } = useToast();
   const analysis = reference.analysis;
 
   const [hovering, setHovering] = useState(false);
-  const [origin, setOrigin] = useState({ x: 50, y: 50 });
+  const [pickEnabled, setPickEnabled] = useState(false);
 
   const imgRef = useRef<HTMLImageElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const swatchRef = useRef<HTMLDivElement>(null);
+  const hexLabelRef = useRef<HTMLSpanElement>(null);
+  const baseRectRef = useRef<DOMRect | null>(null);
+  const lastHexRef = useRef<string | null>(null);
+  const rafRef = useRef<number>(0);
 
   // ESC to close
   useEffect(() => {
@@ -29,20 +48,104 @@ export function RefDetailModal({ reference, onClose }: RefDetailModalProps) {
     return () => document.removeEventListener("keydown", handler);
   }, [onClose]);
 
-  // Prevent body scroll
+  // Prevent body scroll + cleanup any pending rAF
   useEffect(() => {
     document.body.style.overflow = "hidden";
     return () => {
       document.body.style.overflow = "";
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
   }, []);
 
-  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * 100;
-    const y = ((e.clientY - rect.top) / rect.height) * 100;
-    setOrigin({ x, y });
+  // Draw the image to an offscreen canvas for pixel sampling. Cross-origin
+  // images taint the canvas (getImageData throws) -> picker disabled gracefully.
+  const prepareCanvas = useCallback(() => {
+    const img = imgRef.current;
+    if (!img || !img.naturalWidth) return;
+    try {
+      const canvas = document.createElement("canvas");
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+      ctx.drawImage(img, 0, 0);
+      ctx.getImageData(0, 0, 1, 1); // taint probe
+      canvasRef.current = canvas;
+      setPickEnabled(true);
+    } catch {
+      canvasRef.current = null;
+      setPickEnabled(false);
+    }
   }, []);
+
+  const samplePixel = useCallback((clientX: number, clientY: number) => {
+    const base = baseRectRef.current;
+    const canvas = canvasRef.current;
+    const swatch = swatchRef.current;
+    if (!base || !canvas || !swatch) return;
+
+    const fx = (clientX - base.left) / base.width;
+    const fy = (clientY - base.top) / base.height;
+    if (fx < 0 || fx > 1 || fy < 0 || fy > 1) {
+      swatch.style.opacity = "0";
+      return;
+    }
+
+    const px = Math.min(canvas.width - 1, Math.max(0, Math.round(fx * canvas.width)));
+    const py = Math.min(canvas.height - 1, Math.max(0, Math.round(fy * canvas.height)));
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    const [r, g, b] = ctx.getImageData(px, py, 1, 1).data;
+    const hex = toHex(r, g, b);
+    lastHexRef.current = hex;
+
+    // Update the floating swatch directly (no React re-render).
+    swatch.style.opacity = "1";
+    swatch.style.left = `${clientX + 16}px`;
+    swatch.style.top = `${clientY + 16}px`;
+    swatch.style.setProperty("--pick", hex);
+    if (hexLabelRef.current) hexLabelRef.current.textContent = hex;
+  }, []);
+
+  const handleMouseEnter = useCallback(() => {
+    const img = imgRef.current;
+    if (img) baseRectRef.current = img.getBoundingClientRect(); // unscaled rect
+    if (!canvasRef.current) prepareCanvas();
+    setHovering(true);
+  }, [prepareCanvas]);
+
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent<HTMLImageElement>) => {
+      const img = imgRef.current;
+      const base = baseRectRef.current;
+      if (!img || !base) return;
+      const fx = (e.clientX - base.left) / base.width;
+      const fy = (e.clientY - base.top) / base.height;
+      img.style.transformOrigin = `${Math.min(100, Math.max(0, fx * 100))}% ${Math.min(100, Math.max(0, fy * 100))}%`;
+      if (!pickEnabled) return;
+      const { clientX, clientY } = e;
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      rafRef.current = requestAnimationFrame(() => samplePixel(clientX, clientY));
+    },
+    [pickEnabled, samplePixel]
+  );
+
+  const handleMouseLeave = useCallback(() => {
+    setHovering(false);
+    if (swatchRef.current) swatchRef.current.style.opacity = "0";
+    if (imgRef.current) imgRef.current.style.transformOrigin = "center center";
+  }, []);
+
+  const handleClick = useCallback(async () => {
+    const hex = lastHexRef.current;
+    if (!pickEnabled || !hex) return;
+    try {
+      await navigator.clipboard.writeText(hex);
+      showToast("success", `${hex} ${t("copied")}`);
+    } catch {
+      showToast("error", t("copyFailed"));
+    }
+  }, [pickEnabled, showToast, t]);
 
   return (
     <div
@@ -57,33 +160,29 @@ export function RefDetailModal({ reference, onClose }: RefDetailModalProps) {
         className="relative flex bg-bg-surface border border-border rounded-xl overflow-hidden max-w-[1100px] w-full max-h-[85vh] shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Left: Image with hover zoom (Talbots-style) */}
+        {/* Left: image with hover zoom + eyedropper */}
         <div className="flex-1 bg-bg-deep overflow-hidden min-w-0 flex items-center justify-center p-4">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              ref={imgRef}
-              src={reference.filePath}
-              alt={reference.fileName}
-              className="max-w-full max-h-[75vh] object-contain rounded-lg transition-transform duration-300 ease-out cursor-crosshair"
-              onMouseEnter={() => setHovering(true)}
-              onMouseLeave={() => { setHovering(false); setOrigin({ x: 50, y: 50 }); }}
-              onMouseMove={handleMouseMove}
-              style={
-                hovering
-                  ? {
-                      transform: `scale(${ZOOM_SCALE})`,
-                      transformOrigin: `${origin.x}% ${origin.y}%`,
-                    }
-                  : {
-                      transform: "scale(1)",
-                      transformOrigin: "center center",
-                    }
-              }
-              draggable={false}
-            />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            ref={imgRef}
+            src={reference.filePath}
+            alt={reference.fileName}
+            className={`max-w-full max-h-[75vh] object-contain rounded-lg ${pickEnabled ? "cursor-crosshair" : "cursor-zoom-in"}`}
+            onLoad={prepareCanvas}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+            onMouseMove={handleMouseMove}
+            onClick={handleClick}
+            style={{
+              transform: hovering ? `scale(${ZOOM_SCALE})` : "scale(1)",
+              transition: "transform 0.2s ease-out",
+              willChange: "transform",
+            }}
+            draggable={false}
+          />
         </div>
 
-        {/* Right: Analysis panel */}
+        {/* Right: analysis panel */}
         <div className="w-[300px] flex-shrink-0 border-l border-border p-5 overflow-y-auto flex flex-col gap-4">
           {/* Header */}
           <div className="flex items-start justify-between gap-2">
@@ -101,9 +200,19 @@ export function RefDetailModal({ reference, onClose }: RefDetailModalProps) {
               onClick={onClose}
               className="w-6 h-6 rounded-md bg-bg-elevated border border-border flex items-center justify-center text-[11px] text-text-tertiary hover:text-text-primary hover:border-border-hover transition-all cursor-pointer flex-shrink-0"
             >
-              &#x2715;
+              <X size={13} strokeWidth={2} />
             </button>
           </div>
+
+          {/* Eyedropper hint */}
+          {pickEnabled && (
+            <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-md bg-accent-dim border border-accent-border">
+              <Pipette size={13} strokeWidth={2} className="text-accent" />
+              <span className="text-[10px] text-accent leading-tight">
+                {t("colorPicker")} — {t("clickToCopy")}
+              </span>
+            </div>
+          )}
 
           {!analysis && (
             <p className="text-[11px] text-text-tertiary leading-relaxed">
@@ -216,6 +325,19 @@ export function RefDetailModal({ reference, onClose }: RefDetailModalProps) {
             </>
           )}
         </div>
+      </div>
+
+      {/* Floating eyedropper swatch (positioned via DOM, fixed to cursor) */}
+      <div
+        ref={swatchRef}
+        className="pointer-events-none fixed z-[60] flex items-center gap-1.5 px-2 py-1 rounded-md bg-bg-elevated border border-border shadow-lg opacity-0 transition-opacity"
+        style={{ left: 0, top: 0 }}
+      >
+        <span
+          className="w-4 h-4 rounded-sm border border-border"
+          style={{ background: "var(--pick, transparent)" }}
+        />
+        <span ref={hexLabelRef} className="text-[10px] font-mono text-text-primary">#000000</span>
       </div>
     </div>
   );

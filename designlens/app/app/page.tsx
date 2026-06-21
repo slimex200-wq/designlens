@@ -16,6 +16,7 @@ import { useToast } from "@/components/ui/Toast";
 import type { ReviewResult, EnhanceResult } from "@/lib/types";
 import { buildShareSummary, hasShareableData } from "@/lib/share";
 import { serializeProject, parseProjectFile, projectFileName } from "@/lib/project-io";
+import { Share2, Upload } from "lucide-react";
 
 type Tool = "analyze" | "moodboard" | "review" | "tokens";
 
@@ -285,10 +286,12 @@ export default function WorkspacePage() {
           </div>
 
           <div className="ml-auto flex gap-2 items-center">
-            <button onClick={handleShare} className="hidden md:flex px-3 rounded-md text-xs bg-bg-elevated border border-border text-text-secondary cursor-pointer font-medium hover:border-border-hover hover:text-text-primary transition-all h-8 items-center">
+            <button onClick={handleShare} className="hidden md:flex px-3 rounded-md text-xs bg-bg-elevated border border-border text-text-secondary cursor-pointer font-medium hover:border-border-hover hover:text-text-primary transition-all h-8 items-center gap-1.5">
+              <Share2 size={13} strokeWidth={2} />
               {tc("share")}
             </button>
-            <label className="px-3 rounded-md text-xs bg-text-primary text-bg-deep cursor-pointer font-medium hover:opacity-85 transition-opacity h-8 flex items-center">
+            <label className="px-3 rounded-md text-xs bg-text-primary text-bg-deep cursor-pointer font-medium hover:opacity-85 transition-opacity h-8 flex items-center gap-1.5">
+              <Upload size={13} strokeWidth={2} />
               {tc("upload")}
               <input
                 type="file"

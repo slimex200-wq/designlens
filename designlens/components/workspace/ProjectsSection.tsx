@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import type { Project } from "@/lib/types";
+import { Check, X, Pencil, Trash2, Plus } from "lucide-react";
 
 interface ProjectsSectionProps {
   projects: Project[];
@@ -134,14 +135,14 @@ export function ProjectsSection({
                   aria-label={t("deleteConfirm")}
                   className="w-6 h-6 flex items-center justify-center rounded text-[10px] bg-error text-bg-deep cursor-pointer hover:opacity-85"
                 >
-                  {"\u2713"}
+                  <Check size={13} strokeWidth={2.5} />
                 </button>
                 <button
                   onClick={() => setConfirmId(null)}
                   aria-label={t("cancel")}
                   className="w-6 h-6 flex items-center justify-center rounded text-[10px] text-text-tertiary hover:text-text-primary cursor-pointer emoji-text"
                 >
-                  {"\u2715"}
+                  <X size={13} strokeWidth={2} />
                 </button>
               </div>
             ) : (
@@ -157,7 +158,7 @@ export function ProjectsSection({
                       aria-label={t("renameProject")}
                       className="w-6 h-6 flex items-center justify-center rounded text-[11px] text-text-tertiary hover:text-text-primary hover:bg-bg-elevated cursor-pointer emoji-text"
                     >
-                      {"\u270E"}
+                      <Pencil size={12} strokeWidth={2} />
                     </button>
                     )}
                     {onDelete && (
@@ -166,7 +167,7 @@ export function ProjectsSection({
                       aria-label={t("deleteProject")}
                       className="w-6 h-6 flex items-center justify-center rounded text-[11px] text-text-tertiary hover:text-error hover:bg-bg-elevated cursor-pointer emoji-text"
                     >
-                      {"\u2715"}
+                      <Trash2 size={12} strokeWidth={2} />
                     </button>
                     )}
                   </div>
@@ -200,7 +201,7 @@ export function ProjectsSection({
           onClick={() => setAdding(true)}
           className="w-full flex items-center gap-2 px-2 mt-0.5 rounded-md text-[12px] text-text-tertiary cursor-pointer hover:bg-bg-hover hover:text-text-secondary transition-all min-h-[44px]"
         >
-          <span className="w-2 flex-shrink-0 text-center">+</span>
+          <Plus size={14} strokeWidth={2} className="flex-shrink-0" />
           <span>{t("newProject")}</span>
         </button>
       ))}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, type ReactNode } from "react";
+import { X } from "lucide-react";
 
 interface ModalProps {
   title: string;
@@ -48,9 +49,9 @@ export function Modal({ title, onClose, children, closeLabel = "Close" }: ModalP
           <button
             onClick={onClose}
             aria-label={closeLabel}
-            className="w-8 h-8 flex items-center justify-center rounded-md text-text-tertiary hover:bg-bg-hover hover:text-text-primary transition-colors cursor-pointer emoji-text"
+            className="w-8 h-8 flex items-center justify-center rounded-md text-text-tertiary hover:bg-bg-hover hover:text-text-primary transition-colors cursor-pointer"
           >
-            {"\u2715"}
+            <X size={16} strokeWidth={2} />
           </button>
         </div>
         <div className="px-5 py-4">{children}</div>

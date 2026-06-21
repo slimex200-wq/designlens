@@ -3,7 +3,7 @@ import { captureUrl } from "@/lib/capture";
 import { analyzeDesign } from "@/lib/ai";
 import { mergeAnalysis } from "@/lib/merge-analysis";
 
-export const maxDuration = 30;
+export const maxDuration = 60;
 
 export async function POST(req: Request) {
   try {

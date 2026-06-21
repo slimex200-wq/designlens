@@ -9,16 +9,28 @@ import { useStoredBoolean } from "@/hooks/useStoredBoolean";
 import { SettingsModal } from "@/components/workspace/SettingsModal";
 import { HelpModal } from "@/components/workspace/HelpModal";
 import { ProjectsSection } from "@/components/workspace/ProjectsSection";
+import {
+  ScanSearch,
+  LayoutGrid,
+  ClipboardCheck,
+  Braces,
+  TrendingUp,
+  Settings,
+  CircleHelp,
+  PanelLeftClose,
+  PanelLeftOpen,
+  type LucideIcon,
+} from "lucide-react";
 
 
 type Tool = "analyze" | "moodboard" | "review" | "tokens";
 
 const TOOL_IDS: Tool[] = ["analyze", "moodboard", "review", "tokens"];
-const TOOL_ICONS: Record<Tool, string> = {
-  analyze: "\u2699",
-  moodboard: "\u25A3",
-  review: "\u2713",
-  tokens: "{ }",
+const TOOL_ICONS: Record<Tool, LucideIcon> = {
+  analyze: ScanSearch,
+  moodboard: LayoutGrid,
+  review: ClipboardCheck,
+  tokens: Braces,
 };
 
 interface SidebarProps {
@@ -68,7 +80,9 @@ export function Sidebar({
         aria-label={t("tools")}
         className="order-last flex-shrink-0 h-12 bg-bg-surface border-t border-border flex items-stretch"
       >
-        {TOOL_IDS.map((id) => (
+        {TOOL_IDS.map((id) => {
+          const Icon = TOOL_ICONS[id];
+          return (
           <button
             key={id}
             role="tab"
@@ -80,13 +94,14 @@ export function Sidebar({
                 : "text-text-tertiary"
             }`}
           >
-            <span className="text-sm emoji-text">{TOOL_ICONS[id]}</span>
+            <Icon size={18} strokeWidth={2} />
             <span className="text-[10px] font-medium">{toolLabels[id]}</span>
             {activeTool === id && (
               <span className="absolute top-0 left-1/2 -translate-x-1/2 w-6 h-0.5 rounded-full bg-accent" />
             )}
           </button>
-        ))}
+          );
+        })}
       </nav>
     );
   }
@@ -115,7 +130,7 @@ export function Sidebar({
             title={isCollapsed ? t("expandSidebar") : t("collapseSidebar")}
           >
             <span className="w-6 h-6 rounded-md bg-bg-elevated border border-border flex items-center justify-center">
-              {isCollapsed ? "\u276F" : "\u276E"}
+              {isCollapsed ? <PanelLeftOpen size={14} strokeWidth={2} /> : <PanelLeftClose size={14} strokeWidth={2} />}
             </span>
           </button>
         )}
@@ -131,7 +146,9 @@ export function Sidebar({
             {t("tools")}
           </div>
         )}
-        {TOOL_IDS.map((id) => (
+        {TOOL_IDS.map((id) => {
+          const Icon = TOOL_ICONS[id];
+          return (
           <button
             key={id}
             onClick={() => onToolChange(id)}
@@ -142,13 +159,11 @@ export function Sidebar({
                 : "text-text-secondary hover:bg-bg-hover hover:text-text-primary"
             }`}
           >
-            <span
-              className={`w-[18px] text-center text-xs flex-shrink-0 emoji-text ${
-                activeTool === id ? "opacity-100" : "opacity-60"
-              }`}
-            >
-              {TOOL_ICONS[id]}
-            </span>
+            <Icon
+              size={16}
+              strokeWidth={2}
+              className={`flex-shrink-0 ${activeTool === id ? "opacity-100" : "opacity-70"}`}
+            />
             {!isCollapsed && (
               <>
                 {toolLabels[id]}
@@ -160,7 +175,8 @@ export function Sidebar({
               </>
             )}
           </button>
-        ))}
+          );
+        })}
       </div>
 
       {/* Divider */}
@@ -184,7 +200,7 @@ export function Sidebar({
           title={isCollapsed ? t("trends") : undefined}
           className={`flex items-center ${isCollapsed ? "justify-center" : ""} gap-2 px-2 rounded-md text-xs text-text-tertiary cursor-pointer hover:bg-bg-hover hover:text-text-secondary transition-all min-h-[44px]`}
         >
-          <span className="text-xs flex-shrink-0 emoji-text">{"\u2197"}</span>
+          <TrendingUp size={14} strokeWidth={2} className="flex-shrink-0" />
           {!isCollapsed && ` ${t("trends")}`}
         </a>
         {!isCollapsed && (
@@ -193,14 +209,14 @@ export function Sidebar({
               onClick={() => setModal("settings")}
               className="w-full flex items-center gap-2 px-2 rounded-md text-xs text-text-tertiary cursor-pointer hover:bg-bg-hover hover:text-text-secondary transition-all min-h-[44px]"
             >
-              <span className="text-xs flex-shrink-0 emoji-text">{"\u2699"}</span>
+              <Settings size={14} strokeWidth={2} className="flex-shrink-0" />
               {` ${t("settings")}`}
             </button>
             <button
               onClick={() => setModal("help")}
               className="w-full flex items-center gap-2 px-2 rounded-md text-xs text-text-tertiary cursor-pointer hover:bg-bg-hover hover:text-text-secondary transition-all min-h-[44px]"
             >
-              <span className="text-xs flex-shrink-0 emoji-text">?</span>
+              <CircleHelp size={14} strokeWidth={2} className="flex-shrink-0" />
               {` ${t("helpDocs")}`}
             </button>
           </>

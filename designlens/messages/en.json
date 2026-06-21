@@ -2,7 +2,7 @@
   "common": {
     "appName": "DesignLens",
     "share": "Share",
-    "upload": "+ Upload",
+    "upload": "Upload",
     "close": "Close",
     "copy": "Copy to Clipboard",
     "copied": "Copied!",
@@ -222,7 +222,8 @@
     "tokens": "Tokens",
     "colorPicker": "Color Picker",
     "clickToCopy": "click to copy",
-    "copied": "Copied!"
+    "copied": "copied",
+    "copyFailed": "Could not copy to clipboard"
   },
   "review": {
     "title": "UI Review",
@@ -253,7 +254,11 @@
     "imageGenerating": "Generating improved UI...",
     "imageGenFailed": "Image generation failed. Showing annotations instead.",
     "imageGenRetry": "Retry Image",
-    "imageGenTime": "Generated in {seconds}s"
+    "imageGenTime": "Generated in {seconds}s",
+    "orUrl": "or review a live website",
+    "urlPlaceholder": "https://your-site.com",
+    "reviewUrl": "Review URL",
+    "urlCapturing": "Capturing website…"
   },
   "tokensView": {
     "title": "Design Tokens",
@@ -273,7 +278,11 @@
     "radius": "Radius",
     "typography": "Typography",
     "showMore": "Show {count} more",
-    "showLess": "Show less"
+    "showLess": "Show less",
+    "clickToCopy": "Click any token to copy",
+    "viewCode": "Export code",
+    "hideCode": "Back to tokens",
+    "copied": "Copied {value}"
   },
   "trends": {
     "title": "Your Design Trends",

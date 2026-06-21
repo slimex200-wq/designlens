@@ -1,6 +1,22 @@
 import type { ExtractedStyles, PageMetadata } from "./types";
 
-function validateUrl(input: string): URL {
+function isPrivateIp(ip: string): boolean {
+  // IPv4 private / loopback / link-local / metadata ranges + IPv6 loopback/ULA.
+  return (
+    /^127\./.test(ip) ||
+    /^10\./.test(ip) ||
+    /^172\.(1[6-9]|2\d|3[01])\./.test(ip) ||
+    /^192\.168\./.test(ip) ||
+    /^169\.254\./.test(ip) ||
+    /^0\./.test(ip) ||
+    ip === "::1" ||
+    ip.startsWith("fc") ||
+    ip.startsWith("fd") ||
+    ip.startsWith("fe80")
+  );
+}
+
+async function validateUrl(input: string): Promise<URL> {
   let url: URL;
   try {
     url = new URL(input.startsWith("http") ? input : `https://${input}`);
@@ -19,6 +35,18 @@ function validateUrl(input: string): URL {
   ];
   if (blocked.some((re) => re.test(hostname))) {
     throw new Error("Internal URLs are not allowed");
+  }
+
+  // Resolve DNS and reject hosts that map to internal ranges (SSRF / rebinding).
+  try {
+    const { lookup } = await import("dns/promises");
+    const records = await lookup(hostname, { all: true });
+    if (records.some((r) => isPrivateIp(r.address))) {
+      throw new Error("Internal URLs are not allowed");
+    }
+  } catch (e) {
+    if (e instanceof Error && e.message === "Internal URLs are not allowed") throw e;
+    // DNS lookup failure: let puppeteer surface the navigation error.
   }
 
   return url;
@@ -59,7 +87,7 @@ export async function captureUrl(rawUrl: string): Promise<{
   extractedStyles: ExtractedStyles;
   metadata: PageMetadata;
 }> {
-  const url = validateUrl(rawUrl);
+  const url = await validateUrl(rawUrl);
   const browser = await getBrowser();
 
   try {
@@ -68,19 +96,49 @@ export async function captureUrl(rawUrl: string): Promise<{
       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
     );
 
+    // Navigate. domcontentloaded is reliable; networkidle can hang on
+    // ad/stream-heavy pages, so we settle manually afterwards.
     await page.goto(url.toString(), {
-      waitUntil: "networkidle0",
-      timeout: 15000,
+      waitUntil: "domcontentloaded",
+      timeout: 25000,
+    });
+    try {
+      await page.waitForNetworkIdle({ idleTime: 700, timeout: 8000 });
+    } catch {
+      /* keep going even if the page never fully idles */
+    }
+
+    // Scroll through the page to trigger lazy-loaded images/sections, then
+    // return to the top so the full-page screenshot is complete.
+    await page.evaluate(async () => {
+      await new Promise<void>((resolve) => {
+        let y = 0;
+        const step = window.innerHeight;
+        const timer = setInterval(() => {
+          window.scrollBy(0, step);
+          y += step;
+          if (y >= document.body.scrollHeight) {
+            clearInterval(timer);
+            window.scrollTo(0, 0);
+            resolve();
+          }
+        }, 100);
+      });
     });
 
-    // Wait for lazy-loaded content
-    await new Promise((r) => setTimeout(r, 1000));
+    // Wait for web fonts + a short settle so text/icons render correctly.
+    try {
+      await page.evaluate(() => (document as Document & { fonts?: FontFaceSet }).fonts?.ready);
+    } catch {
+      /* fonts API unavailable */
+    }
+    await new Promise((r) => setTimeout(r, 600));
 
-    // Screenshot
+    // Full-page screenshot (whole design, not just the fold).
     const screenshotBuffer = await page.screenshot({
       type: "jpeg",
-      quality: 85,
-      fullPage: false,
+      quality: 80,
+      fullPage: true,
     });
     const screenshot = Buffer.from(screenshotBuffer).toString("base64");
 

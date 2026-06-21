@@ -4,7 +4,9 @@ import createNextIntlPlugin from "next-intl/plugin";
 const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Keep headless-Chromium packages out of the bundler so the brotli Chromium
+  // binary resolves correctly inside the serverless capture function.
+  serverExternalPackages: ["@sparticuz/chromium", "puppeteer-core"],
 };
 
 export default withNextIntl(nextConfig);
