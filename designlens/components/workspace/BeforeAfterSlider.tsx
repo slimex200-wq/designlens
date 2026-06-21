@@ -102,7 +102,7 @@ export function BeforeAfterSlider({
       <img
         src={image}
         alt="After"
-        className="max-w-full block rounded-lg"
+        className="max-w-full max-h-[72vh] block rounded-lg"
         draggable={false}
       />
 

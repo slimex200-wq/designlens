@@ -7,13 +7,15 @@ export const maxDuration = 60;
 
 export async function POST(req: Request) {
   try {
-    const { url } = await req.json();
+    const { url, fullPage } = await req.json();
     if (!url || typeof url !== "string") {
       return NextResponse.json({ error: "URL is required" }, { status: 400 });
     }
 
     // Step 1: Capture screenshot + extract styles
-    const { screenshot, extractedStyles, metadata } = await captureUrl(url);
+    const { screenshot, extractedStyles, metadata } = await captureUrl(url, {
+      fullPage: fullPage !== false,
+    });
 
     // Step 2: AI analysis on the screenshot
     let aiResult = null;

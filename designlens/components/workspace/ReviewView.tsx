@@ -113,7 +113,7 @@ export function ReviewView({ references, onToolChange, reviewState, reviewDispat
       const cap = await fetch("/api/capture", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: target }),
+        body: JSON.stringify({ url: target, fullPage: false }),
       });
       if (!cap.ok) {
         const d = await cap.json().catch(() => ({}));
@@ -445,7 +445,7 @@ export function ReviewView({ references, onToolChange, reviewState, reviewDispat
               <img
                 src={reviewImage}
                 alt="UI under review"
-                className="max-w-full block"
+                className="max-w-full max-h-[72vh] block"
               />
               {/* Bounding box overlays */}
               {reviewResult &&

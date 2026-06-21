@@ -82,7 +82,10 @@ async function getBrowser() {
   });
 }
 
-export async function captureUrl(rawUrl: string): Promise<{
+export async function captureUrl(
+  rawUrl: string,
+  opts: { fullPage?: boolean } = {},
+): Promise<{
   screenshot: string;
   extractedStyles: ExtractedStyles;
   metadata: PageMetadata;
@@ -134,11 +137,12 @@ export async function captureUrl(rawUrl: string): Promise<{
     }
     await new Promise((r) => setTimeout(r, 600));
 
-    // Full-page screenshot (whole design, not just the fold).
+    // Screenshot. Full-page for design extraction; viewport for UI review so
+    // the comparison/annotation view stays a single screen, not an endless scroll.
     const screenshotBuffer = await page.screenshot({
       type: "jpeg",
       quality: 80,
-      fullPage: true,
+      fullPage: opts.fullPage ?? true,
     });
     const screenshot = Buffer.from(screenshotBuffer).toString("base64");
 
