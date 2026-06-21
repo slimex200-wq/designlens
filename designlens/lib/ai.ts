@@ -3,7 +3,7 @@ import type { TypographyInfo, LayoutInfo, TokenSet, ReviewResult, ReviewIssue, E
 
 const client = new Anthropic();
 
-export async function analyzeDesign(imageBase64: string, mimeType: string, locale: string = "en") {
+export async function analyzeDesign(imageBase64: string, mimeType: string) {
   const response = await client.messages.create({
     model: "claude-sonnet-4-6",
     max_tokens: 2000,

@@ -1,10 +1,15 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import type { Project } from "@/lib/types";
 import { LocaleToggle } from "@/components/ui/LocaleToggle";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
+import { useStoredBoolean } from "@/hooks/useStoredBoolean";
+import { SettingsModal } from "@/components/workspace/SettingsModal";
+import { HelpModal } from "@/components/workspace/HelpModal";
+import { ProjectsSection } from "@/components/workspace/ProjectsSection";
+
 
 type Tool = "analyze" | "moodboard" | "review" | "tokens";
 
@@ -22,6 +27,11 @@ interface SidebarProps {
   projects: Project[];
   activeProjectId: string;
   onProjectChange: (id: string) => void;
+  onAddProject?: (name: string) => void;
+  onRenameProject?: (id: string, name: string) => void;
+  onDeleteProject?: (id: string) => void;
+  onExportProject?: () => void;
+  onImportProject?: (file: File) => void;
   refCount: number;
 }
 
@@ -31,22 +41,17 @@ export function Sidebar({
   projects,
   activeProjectId,
   onProjectChange,
+  onAddProject,
+  onRenameProject,
+  onDeleteProject,
+  onExportProject,
+  onImportProject,
   refCount,
 }: SidebarProps) {
   const t = useTranslations("sidebar");
   const bp = useBreakpoint();
-  const [collapsed, setCollapsed] = useState(false);
-
-  useEffect(() => {
-    const stored = localStorage.getItem("sidebar-collapsed");
-    if (stored === "true") setCollapsed(true);
-  }, []);
-
-  useEffect(() => {
-    if (bp === "desktop") {
-      localStorage.setItem("sidebar-collapsed", String(collapsed));
-    }
-  }, [collapsed, bp]);
+  const [collapsed, setCollapsed] = useStoredBoolean("sidebar-collapsed", false);
+  const [modal, setModal] = useState<null | "settings" | "help">(null);
 
   const toolLabels: Record<Tool, string> = {
     analyze: t("analyze"),
@@ -90,6 +95,7 @@ export function Sidebar({
   const isCollapsed = bp === "tablet" ? true : collapsed;
 
   return (
+    <>
     <aside
       role="navigation"
       aria-label={t("tools")}
@@ -104,7 +110,7 @@ export function Sidebar({
         )}
         {bp === "desktop" && (
           <button
-            onClick={() => setCollapsed((c) => !c)}
+            onClick={() => setCollapsed(!collapsed)}
             className={`rounded-md flex items-center justify-center text-[10px] text-text-secondary cursor-pointer hover:bg-bg-hover hover:text-text-primary transition-all ${isCollapsed ? "mx-auto w-10 h-10" : "ml-auto min-w-[44px] min-h-[44px]"}`}
             title={isCollapsed ? t("expandSidebar") : t("collapseSidebar")}
           >
@@ -161,43 +167,15 @@ export function Sidebar({
       <div className="h-px bg-border mx-2" />
 
       {/* Projects */}
-      <div className="py-3 px-1.5">
-        {!isCollapsed && (
-          <div className="text-[10px] uppercase tracking-[1.2px] text-text-tertiary px-2 mb-1.5 font-semibold">
-            {t("projects")}
-          </div>
-        )}
-        {projects.map((project) => (
-          <button
-            key={project.id}
-            onClick={() => onProjectChange(project.id)}
-            title={isCollapsed ? project.name : undefined}
-            className={`w-full flex items-center ${isCollapsed ? "justify-center" : ""} gap-2 px-2 rounded-md text-[13px] transition-all cursor-pointer min-h-[44px] ${
-              activeProjectId === project.id
-                ? "text-text-primary bg-bg-hover"
-                : "text-text-secondary hover:bg-bg-hover hover:text-text-primary"
-            }`}
-          >
-            <div
-              className="w-2 h-2 rounded-sm flex-shrink-0"
-              style={{ background: activeProjectId === project.id ? project.color : "var(--text-tertiary)" }}
-            />
-            {!isCollapsed && (
-              <>
-                <span className="truncate">{project.name}</span>
-                {project.id === "sample" && (
-                  <span className="text-[9px] px-1.5 py-px rounded bg-accent-dim text-accent font-semibold uppercase tracking-wider">
-                    demo
-                  </span>
-                )}
-                <span className="ml-auto text-[11px] text-text-tertiary">
-                  {project.references.length}
-                </span>
-              </>
-            )}
-          </button>
-        ))}
-      </div>
+      <ProjectsSection
+        projects={projects}
+        activeProjectId={activeProjectId}
+        isCollapsed={isCollapsed}
+        onSelect={onProjectChange}
+        onAdd={onAddProject}
+        onRename={onRenameProject}
+        onDelete={onDeleteProject}
+      />
 
       {/* Footer */}
       <div className="mt-auto px-2 py-3 border-t border-border flex flex-col gap-0.5">
@@ -212,12 +190,14 @@ export function Sidebar({
         {!isCollapsed && (
           <>
             <button
+              onClick={() => setModal("settings")}
               className="w-full flex items-center gap-2 px-2 rounded-md text-xs text-text-tertiary cursor-pointer hover:bg-bg-hover hover:text-text-secondary transition-all min-h-[44px]"
             >
               <span className="text-xs flex-shrink-0 emoji-text">{"\u2699"}</span>
               {` ${t("settings")}`}
             </button>
             <button
+              onClick={() => setModal("help")}
               className="w-full flex items-center gap-2 px-2 rounded-md text-xs text-text-tertiary cursor-pointer hover:bg-bg-hover hover:text-text-secondary transition-all min-h-[44px]"
             >
               <span className="text-xs flex-shrink-0 emoji-text">?</span>
@@ -228,5 +208,14 @@ export function Sidebar({
         <LocaleToggle collapsed={isCollapsed} />
       </div>
     </aside>
+    {modal === "settings" && (
+      <SettingsModal
+        onClose={() => setModal(null)}
+        onExportProject={onExportProject}
+        onImportProject={onImportProject}
+      />
+    )}
+    {modal === "help" && <HelpModal onClose={() => setModal(null)} />}
+    </>
   );
 }

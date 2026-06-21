@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { toCSS, toTailwind, toJSON, exportTokens } from "../tokens";
+import { toCSS, toTailwind, toJSON, toSCSS, toW3C, toFigmaTokens, exportTokens } from "../tokens";
 import type { TokenSet } from "../types";
 
 const sampleTokens: TokenSet = {
@@ -113,5 +113,100 @@ describe("exportTokens", () => {
 
   it("delegates to toJSON for json format", () => {
     expect(exportTokens(sampleTokens, "json")).toBe(toJSON(sampleTokens));
+  });
+
+  it("delegates to toSCSS for scss format", () => {
+    expect(exportTokens(sampleTokens, "scss")).toBe(toSCSS(sampleTokens));
+  });
+
+  it("delegates to toW3C for w3c format", () => {
+    expect(exportTokens(sampleTokens, "w3c")).toBe(toW3C(sampleTokens));
+  });
+
+  it("delegates to toFigmaTokens for figma format", () => {
+    expect(exportTokens(sampleTokens, "figma")).toBe(toFigmaTokens(sampleTokens));
+  });
+});
+
+describe("toSCSS", () => {
+  it("emits a color variable line stripped of -- prefix", () => {
+    const result = toSCSS(sampleTokens);
+    expect(result).toContain("$primary: #6366f1;");
+  });
+
+  it("emits a spacing variable line", () => {
+    const result = toSCSS(sampleTokens);
+    expect(result).toContain("$space-sm: 8px;");
+  });
+
+  it("emits a radius variable line", () => {
+    const result = toSCSS(sampleTokens);
+    expect(result).toContain("$radius-sm: 4px;");
+  });
+
+  it("handles empty tokens without throwing and emits no variables", () => {
+    let result = "";
+    expect(() => { result = toSCSS(emptyTokens); }).not.toThrow();
+    expect(result.trim()).toBe("");
+    expect(result).not.toContain("$");
+  });
+});
+
+describe("toW3C", () => {
+  it("emits color tokens with $value and $type color", () => {
+    const result = JSON.parse(toW3C(sampleTokens));
+    expect(result.color.primary.$value).toBe("#6366f1");
+    expect(result.color.primary.$type).toBe("color");
+  });
+
+  it("emits spacing tokens with dimension type", () => {
+    const result = JSON.parse(toW3C(sampleTokens));
+    expect(result.spacing["space-sm"].$value).toBe("8px");
+    expect(result.spacing["space-sm"].$type).toBe("dimension");
+  });
+
+  it("emits radius tokens with dimension type", () => {
+    const result = JSON.parse(toW3C(sampleTokens));
+    expect(result.radius["radius-sm"].$type).toBe("dimension");
+  });
+
+  it("emits typography tokens keyed by role with typography type", () => {
+    const result = JSON.parse(toW3C(sampleTokens));
+    expect(result.typography.heading.$type).toBe("typography");
+    expect(result.typography.heading.$value.fontSize).toBe("24px");
+    expect(result.typography.heading.$value.fontWeight).toBe(700);
+  });
+
+  it("handles empty tokens without throwing and omits groups", () => {
+    let raw = "";
+    expect(() => { raw = toW3C(emptyTokens); }).not.toThrow();
+    const result = JSON.parse(raw);
+    expect(result.color).toBeUndefined();
+    expect(result.spacing).toBeUndefined();
+    expect(result.radius).toBeUndefined();
+    expect(result.typography).toBeUndefined();
+  });
+});
+
+describe("toFigmaTokens", () => {
+  it("emits color tokens under global.colors with type color", () => {
+    const result = JSON.parse(toFigmaTokens(sampleTokens));
+    expect(result.global.colors.primary.value).toBe("#6366f1");
+    expect(result.global.colors.primary.type).toBe("color");
+  });
+
+  it("emits spacing and borderRadius groups", () => {
+    const result = JSON.parse(toFigmaTokens(sampleTokens));
+    expect(result.global.spacing.sm.value).toBe("8px");
+    expect(result.global.spacing.sm.type).toBe("spacing");
+    expect(result.global.borderRadius.sm.value).toBe("4px");
+    expect(result.global.borderRadius.sm.type).toBe("borderRadius");
+  });
+
+  it("handles empty tokens with empty sub-objects", () => {
+    const result = JSON.parse(toFigmaTokens(emptyTokens));
+    expect(result.global.colors).toEqual({});
+    expect(result.global.spacing).toEqual({});
+    expect(result.global.borderRadius).toEqual({});
   });
 });

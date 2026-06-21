@@ -48,3 +48,12 @@ export function saveProjectsSafe(projects: Project[]): boolean {
     throw e;
   }
 }
+
+/** Remove all DesignLens data stored in this browser (projects + analysis cache + UI prefs). */
+export function clearAllData(): void {
+  if (typeof window === "undefined") return;
+  localStorage.removeItem(PROJECTS_KEY);
+  localStorage.removeItem(CACHE_KEY);
+  localStorage.removeItem("sidebar-collapsed");
+  localStorage.removeItem("designlens_active_project");
+}

@@ -7,10 +7,9 @@ import { RefDetailModal } from "./RefDetailModal";
 
 interface MoodboardGridProps {
   references: ReferenceImage[];
-  onSelectRef: (id: string) => void;
 }
 
-export function MoodboardGrid({ references, onSelectRef }: MoodboardGridProps) {
+export function MoodboardGrid({ references }: MoodboardGridProps) {
   const [modalRefId, setModalRefId] = useState<string | null>(null);
   const [patterns, setPatterns] = useState<string[] | null>(null);
   const [loadingPatterns, setLoadingPatterns] = useState(false);

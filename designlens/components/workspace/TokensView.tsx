@@ -12,7 +12,7 @@ interface TokensViewProps {
   onToolChange: (tool: "analyze" | "moodboard" | "review" | "tokens") => void;
 }
 
-type ExportFormat = "css" | "tailwind" | "json";
+type ExportFormat = "css" | "tailwind" | "json" | "scss" | "w3c" | "figma";
 
 export function TokensView({ references, onToolChange }: TokensViewProps) {
   const [format, setFormat] = useState<ExportFormat>("css");
@@ -53,6 +53,15 @@ export function TokensView({ references, onToolChange }: TokensViewProps) {
   ];
 
   const hasTokens = groups.some((g) => g.entries.length > 0) || mergedTokens.typography.length > 0;
+
+  const formatLabels: Record<ExportFormat, string> = {
+    css: t("cssProperties"),
+    tailwind: t("tailwindConfig"),
+    json: t("json"),
+    scss: t("scss"),
+    w3c: t("w3c"),
+    figma: t("figmaTokens"),
+  };
 
   if (analyzedRefs.length === 0) {
     return (
@@ -197,7 +206,7 @@ export function TokensView({ references, onToolChange }: TokensViewProps) {
 
         {/* Format selection */}
         <div className="flex flex-col gap-1.5">
-          {(["css", "tailwind", "json"] as ExportFormat[]).map((f) => (
+          {(["css", "tailwind", "json", "scss", "w3c", "figma"] as ExportFormat[]).map((f) => (
             <button
               key={f}
               onClick={() => setFormat(f)}
@@ -207,7 +216,7 @@ export function TokensView({ references, onToolChange }: TokensViewProps) {
                   : "border-border text-text-secondary bg-bg-deep hover:border-border-hover hover:text-text-primary"
               }`}
             >
-              {f === "css" ? t("cssProperties") : f === "tailwind" ? t("tailwindConfig") : t("json")}
+              {formatLabels[f]}
             </button>
           ))}
         </div>

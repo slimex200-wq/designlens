@@ -25,6 +25,7 @@ export function BeforeAfterSlider({
   const [sliderPos, setSliderPos] = useState(50); // percentage
   const containerRef = useRef<HTMLDivElement>(null);
   const isDraggingRef = useRef(false);
+  const [dragging, setDragging] = useState(false);
 
   const updateSlider = useCallback((clientX: number) => {
     const container = containerRef.current;
@@ -38,6 +39,7 @@ export function BeforeAfterSlider({
     (e: React.MouseEvent) => {
       e.preventDefault();
       isDraggingRef.current = true;
+      setDragging(true);
       updateSlider(e.clientX);
     },
     [updateSlider]
@@ -47,6 +49,7 @@ export function BeforeAfterSlider({
     (e: React.TouchEvent) => {
       e.preventDefault();
       isDraggingRef.current = true;
+      setDragging(true);
       updateSlider(e.touches[0].clientX);
     },
     [updateSlider]
@@ -63,6 +66,7 @@ export function BeforeAfterSlider({
     };
     const handleEnd = () => {
       isDraggingRef.current = false;
+      setDragging(false);
     };
 
     window.addEventListener("mousemove", handleMouseMove);
@@ -91,7 +95,7 @@ export function BeforeAfterSlider({
     <div
       ref={containerRef}
       className="relative inline-block select-none overflow-hidden rounded-lg"
-      style={{ cursor: isDraggingRef.current ? "col-resize" : "default" }}
+      style={{ cursor: dragging ? "col-resize" : "default" }}
     >
       {/* Base image (always full — acts as "after" layer behind clip) */}
       {/* eslint-disable-next-line @next/next/no-img-element */}

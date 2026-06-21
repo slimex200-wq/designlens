@@ -14,6 +14,8 @@ import { useUpload } from "@/hooks/useUpload";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
 import { useToast } from "@/components/ui/Toast";
 import type { ReviewResult, EnhanceResult } from "@/lib/types";
+import { buildShareSummary, hasShareableData } from "@/lib/share";
+import { serializeProject, parseProjectFile, projectFileName } from "@/lib/project-io";
 
 type Tool = "analyze" | "moodboard" | "review" | "tokens";
 
@@ -74,9 +76,10 @@ const RATE_WINDOW_MS = 60 * 60 * 1000; // 1 hour
 
 function useRateLimit() {
   const [count, setCount] = useState(RATE_LIMIT);
-  const resetAt = useRef<number>(Date.now() + RATE_WINDOW_MS);
+  const resetAt = useRef<number>(0);
 
   useEffect(() => {
+    resetAt.current = Date.now() + RATE_WINDOW_MS;
     const timer = setInterval(() => {
       if (Date.now() >= resetAt.current) {
         setCount(RATE_LIMIT);
@@ -112,6 +115,10 @@ export default function WorkspacePage() {
     addReference,
     updateReference,
     removeReference,
+    addProject,
+    renameProject,
+    deleteProject,
+    importProject,
   } = useProjects();
 
   const { handleFiles, handleUrlAnalysis, urlLoading } = useUpload({
@@ -131,7 +138,52 @@ export default function WorkspacePage() {
     handleFiles(files);
   };
 
-  const references = activeProject?.references ?? [];
+  const handleShare = useCallback(async () => {
+    if (!hasShareableData(activeProject)) {
+      showToast("info", tc("shareEmpty"));
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(buildShareSummary(activeProject!));
+      showToast("success", tc("shareCopied"));
+    } catch {
+      showToast("error", tc("shareFailed"));
+    }
+  }, [activeProject, showToast, tc]);
+
+  const handleExportProject = useCallback(() => {
+    if (!activeProject) {
+      showToast("info", tc("exportEmpty"));
+      return;
+    }
+    try {
+      const blob = new Blob([serializeProject(activeProject)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = projectFileName(activeProject);
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast("success", tc("exportDone"));
+    } catch {
+      showToast("error", tc("exportFailed"));
+    }
+  }, [activeProject, showToast, tc]);
+
+  const handleImportProject = useCallback(
+    async (file: File) => {
+      try {
+        const project = parseProjectFile(await file.text());
+        importProject(project);
+        showToast("success", tc("importDone", { name: project.name }));
+      } catch {
+        showToast("error", tc("importFailed"));
+      }
+    },
+    [importProject, showToast, tc]
+  );
+
+  const references = useMemo(() => activeProject?.references ?? [], [activeProject]);
 
   // Auto-select first analyzed reference on first visit so new users see what the app does
   const autoSelectedOnce = useRef(false);
@@ -139,6 +191,8 @@ export default function WorkspacePage() {
     if (autoSelectedOnce.current || selectedRefId || activeProjectId !== "sample") return;
     const firstAnalyzed = references.find((r) => r.status === "analyzed" && r.analysis);
     if (firstAnalyzed) {
+      // One-time selection seeded after async project data loads; intentional.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSelectedRefId(firstAnalyzed.id);
       autoSelectedOnce.current = true;
     }
@@ -182,6 +236,11 @@ export default function WorkspacePage() {
         projects={projects}
         activeProjectId={activeProjectId}
         onProjectChange={setActiveProjectId}
+        onAddProject={addProject}
+        onRenameProject={renameProject}
+        onDeleteProject={deleteProject}
+        onExportProject={handleExportProject}
+        onImportProject={handleImportProject}
         refCount={references.length}
       />
 
@@ -226,7 +285,7 @@ export default function WorkspacePage() {
           </div>
 
           <div className="ml-auto flex gap-2 items-center">
-            <button className="hidden md:flex px-3 rounded-md text-xs bg-bg-elevated border border-border text-text-secondary cursor-pointer font-medium hover:border-border-hover hover:text-text-primary transition-all h-8 items-center">
+            <button onClick={handleShare} className="hidden md:flex px-3 rounded-md text-xs bg-bg-elevated border border-border text-text-secondary cursor-pointer font-medium hover:border-border-hover hover:text-text-primary transition-all h-8 items-center">
               {tc("share")}
             </button>
             <label className="px-3 rounded-md text-xs bg-text-primary text-bg-deep cursor-pointer font-medium hover:opacity-85 transition-opacity h-8 flex items-center">
@@ -277,7 +336,6 @@ export default function WorkspacePage() {
           {activeTool === "moodboard" && (
             <MoodboardGrid
               references={references}
-              onSelectRef={setSelectedRefId}
             />
           )}
 

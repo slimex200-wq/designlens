@@ -43,6 +43,8 @@ export default function TrendsPage() {
       // ignore
     }
 
+    // One-time aggregation from browser-only storage after mount; cannot run during SSR.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setAnalyses(Array.from(all.values()));
   }, []);
 

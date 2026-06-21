@@ -1,20 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 export default function WorkspaceLayout({ children }: { children: React.ReactNode }) {
   const t = useTranslations("workspace");
-  const [isDesktop, setIsDesktop] = useState(true);
+  const isDesktop = useMediaQuery("(min-width: 1024px)", true);
   const [dismissed, setDismissed] = useState(false);
-
-  useEffect(() => {
-    const mq = window.matchMedia("(min-width: 1024px)");
-    setIsDesktop(mq.matches);
-    const handler = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
-    mq.addEventListener("change", handler);
-    return () => mq.removeEventListener("change", handler);
-  }, []);
 
   return (
     <>
